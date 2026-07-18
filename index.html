@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>EL SUPERCOMPROBADOR DE NOTAS</title>
+    
+    <!-- Configuración para que funcione como App en iPhone/iPad -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Notas Justicia">
+    
+    <!-- Icono provisional para la pantalla de inicio del iPhone -->
+    <link rel="apple-touch-icon" href="https://img.icons8.com/fluent/180/000000/balance-scale.png">
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            /* Evita rebotes raros al hacer scroll en iOS */
+            overscroll-behavior: none; 
+        }
+        h1 {
+            text-align: center;
+            font-size: 1.4rem;
+            color: #0071e3;
+            margin-top: 10px;
+            margin-bottom: 25px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #e5e5e7;
+        }
+        th {
+            background-color: #f2f2f7;
+            font-weight: 600;
+            text-align: center;
+        }
+        .header-part {
+            background-color: #e5e5e7;
+            font-weight: bold;
+        }
+        input[type="number"] {
+            width: 80px;
+            padding: 6px;
+            border: 1px solid #d1d1d6;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1rem;
+        }
+        .error-msg {
+            color: #ff3b30;
+            font-weight: bold;
+            margin-left: 10px;
+            display: none;
+        }
+        .results-table {
+            background-color: #f2f2f7;
+        }
+        .results-table th {
+            background-color: #0071e3;
+            color: white;
+        }
+        .scale-header {
+            text-align: right;
+            font-size: 0.9rem;
+            color: #86868b;
+        }
+        .score-val {
+            text-align: right;
+            font-weight: 500;
+        }
+        .total-row {
+            font-weight: bold;
+            background-color: #e3f2fd;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>EL SUPERCOMPROBADOR DE NOTAS by Carlos Abal</h1>
+
+    <!-- 1ª PARTE DEL EXAMEN -->
+    <table>
+        <tr>
+            <th colspan="2" class="header-part">1ª parte del examen</th>
+        </tr>
+        <tr>
+            <td>Total de aciertos</td>
+            <td>
+                <input type="number" id="p1_aciertos" min="0" max="100" oninput="calcularNotas()">
+                <span id="p1_error" class="error-msg">❌ Error: debe sumar 100</span>
+            </td>
+        </tr>
+        <tr>
+            <td>Total de errores</td>
+            <td><input type="number" id="p1_errores" min="0" max="100" oninput="calcularNotas()"></td>
+        </tr>
+        <tr>
+            <td>Total en blanco</td>
+            <td><input type="number" id="p1_blanco" min="0" max="100" oninput="calcularNotas()"></td>
+        </tr>
+    </table>
+
+    <!-- 2ª PARTE DEL EXAMEN -->
+    <table>
+        <tr>
+            <th colspan="2" class="header-part">2ª parte del examen</th>
+        </tr>
+        <tr>
+            <td>Total de aciertos</td>
+            <td>
+                <input type="number" id="p2_aciertos" min="0" max="10" oninput="calcularNotas()">
+                <span id="p2_error" class="error-msg">❌ Error: debe sumar 10</span>
+            </td>
+        </tr>
+        <tr>
+            <td>Total de errores</td>
+            <td><input type="number" id="p2_errores" min="0" max="10" oninput="calcularNotas()"></td>
+        </tr>
+        <tr>
+            <td>Total en blanco</td>
+            <td><input type="number" id="p2_blanco" min="0" max="10" oninput="calcularNotas()"></td>
+        </tr>
+    </table>
+
+    <!-- 3ª PARTE DEL EXAMEN -->
+    <table>
+        <tr>
+            <th colspan="2" class="header-part">3ª parte del examen</th>
+        </tr>
+        <tr>
+            <td>Total de aciertos</td>
+            <td>
+                <input type="number" id="p3_aciertos" min="0" max="20" oninput="calcularNotas()">
+                <span id="p3_error" class="error-msg">❌ Error: debe sumar 20</span>
+            </td>
+        </tr>
+        <tr>
+            <td>Total de errores</td>
+            <td><input type="number" id="p3_errores" min="0" max="20" oninput="calcularNotas()"></td>
+        </tr>
+        <tr>
+            <td>Total en blanco</td>
+            <td><input type="number" id="p3_blanco" min="0" max="20" oninput="calcularNotas()"></td>
+        </tr>
+    </table>
+
+    <!-- SECCIÓN DE RESULTADOS -->
+    <table class="results-table">
+        <tr>
+            <th>RESUMEN DE NOTAS</th>
+            <th class="scale-header">Nota Oficial</th>
+            <th class="scale-header">Nota (sobre 10)</th>
+        </tr>
+        <tr>
+            <td>Total 1ª parte del examen</td>
+            <td id="res_p1" class="score-val">0.00</td>
+            <td id="res_p1_10" class="score-val" style="color: #515154;">0.00</td>
+        </tr>
+        <tr>
+            <td>Total 2ª parte del examen</td>
+            <td id="res_p2" class="score-val">0.00</td>
+            <td id="res_p2_10" class="score-val" style="color: #515154;">0.00</td>
+        </tr>
+        <tr>
+            <td>Total 3ª parte del examen</td>
+            <td id="res_p3" class="score-val">0.00</td>
+            <td id="res_p3_10" class="score-val" style="color: #515154;">0.00</td>
+        </tr>
+        <tr class="total-row">
+            <td>Total del examen</td>
+            <td id="res_global" class="score-val" style="color: #0071e3;">0.00</td>
+            <td id="res_global_10" class="score-val" style="color: #0071e3;">0.00</td>
+        </tr>
+    </table>
+
+    <script>
+        function calcularNotas() {
+            // --- PARTE 1 ---
+            let rawA1 = document.getElementById('p1_aciertos').value;
+            let rawE1 = document.getElementById('p1_errores').value;
+            let rawB1 = document.getElementById('p1_blanco').value;
+            let nota1 = 0;
+            if (rawA1 !== "" || rawE1 !== "" || rawB1 !== "") {
+                let a1 = parseInt(rawA1) || 0;
+                let e1 = parseInt(rawE1) || 0;
+                let b1 = parseInt(rawB1) || 0;
+                if (rawA1 !== "" && rawE1 !== "" && rawB1 !== "" && (a1 + e1 + b1) !== 100) {
+                    document.getElementById('p1_error').style.display = 'inline';
+                } else {
+                    document.getElementById('p1_error').style.display = 'none';
+                }
+                nota1 = (a1 * 0.6) - (e1 * 0.15);
+            }
+            document.getElementById('res_p1').innerText = nota1.toFixed(2);
+            document.getElementById('res_p1_10').innerText = ((nota1 / 60) * 10).toFixed(2);
+
+            // --- PARTE 2 ---
+            let rawA2 = document.getElementById('p2_aciertos').value;
+            let rawE2 = document.getElementById('p2_errores').value;
+            let rawB2 = document.getElementById('p2_blanco').value;
+            let nota2 = 0;
+            if (rawA2 !== "" || rawE2 !== "" || rawB2 !== "") {
+                let a2 = parseInt(rawA2) || 0;
+                let e2 = parseInt(rawE2) || 0;
+                let b2 = parseInt(rawB2) || 0;
+                if (rawA2 !== "" && rawE2 !== "" && rawB2 !== "" && (a2 + e2 + b2) !== 10) {
+                    document.getElementById('p2_error').style.display = 'inline';
+                } else {
+                    document.getElementById('p2_error').style.display = 'none';
+                }
+                nota2 = (a2 * 2) - (e2 * 0.5);
+            }
+            document.getElementById('res_p2').innerText = nota2.toFixed(2);
+            document.getElementById('res_p2_10').innerText = ((nota2 / 20) * 10).toFixed(2);
+
+            // --- PARTE 3 ---
+            let rawA3 = document.getElementById('p3_aciertos').value;
+            let rawE3 = document.getElementById('p3_errores').value;
+            let rawB3 = document.getElementById('p3_blanco').value;
+            let nota3 = 0;
+            if (rawA3 !== "" || rawE3 !== "" || rawB3 !== "") {
+                let a3 = parseInt(rawA3) || 0;
+                let e3 = parseInt(rawE3) || 0;
+                let b3 = parseInt(rawB3) || 0;
+                if (rawA3 !== "" && rawE3 !== "" && rawB3 !== "" && (a3 + e3 + b3) !== 20) {
+                    document.getElementById('p3_error').style.display = 'inline';
+                } else {
+                    document.getElementById('p3_error').style.display = 'none';
+                }
+                nota3 = (a3 * 1) - (e3 * 0.25);
+            }
+            document.getElementById('res_p3').innerText = nota3.toFixed(2);
+            document.getElementById('res_p3_10').innerText = ((nota3 / 20) * 10).toFixed(2);
+
+            // --- TOTAL GLOBAL ---
+            let totalGlobal = nota1 + nota2 + nota3;
+            document.getElementById('res_global').innerText = totalGlobal.toFixed(2);
+            document.getElementById('res_global_10').innerText = ((totalGlobal / 100) * 10).toFixed(2);
+        }
+    </script>
+</body>
+</html>
