@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-title" content="Notas Justicia">
     
     <!-- Icono Personalizado Integrado -->
-    <link rel="apple-touch-icon" href="https://i.ibb.co/5Xmz18B8/Whats-App-Image-2026-07-20-at-12-05-13.jpg">
+    <link class="apple-touch-icon" href="https://i.ibb.co/5Xmz18B8/Whats-App-Image-2026-07-20-at-12-05-13.jpg">
 
     <!-- Librerías Externas (Gráficos y Confeti) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -195,7 +195,7 @@
     <!-- Título Principal -->
     <div class="main-title">
         <span class="title-text" data-i18n="app_title">EL SUPERCOMPROBADOR DE NOTAS</span>
-        <span class="author-text">by Carlos Abal[cite: 2]</span>
+        <span class="author-text">by Carlos Abal</span>
     </div>
 
     <!-- Menú de Pestañas Principal -->
@@ -351,6 +351,9 @@
         <div id="history-auxilio-container"></div>
         <div class="history-section-title" style="font-size:0.9rem; color:var(--text-secondary);" data-i18n="hist_cust">Personalizados</div>
         <div id="history-personalizado-container"></div>
+        
+        <!-- Nuevo Botón Borrar Historial -->
+        <button class="btn-action btn-reset" style="margin-top:20px;" onclick="clearAllHistory()" data-i18n="btn_clear_hist">🗑️ Borrar Todo el Historial</button>
     </div>
 
     <script>
@@ -377,7 +380,9 @@
                 st_weak_low: "✅ ¡Buen control general! Tu media de fallos es baja ({X} por sección). Tu punto de mejora actual es aumentar la velocidad para reducir las preguntas que dejas en blanco.",
                 pred_win: "🎉 CON ESTA COMBINACIÓN APROBARÍAS (Nota: {N} / 10)",
                 pred_lose: "❌ SUSPENSO (Nota: {N} / 10). Te faltan {F} puntos oficiales para el corte.",
-                pred_prog_txt: "{P}% del examen completado"
+                pred_prog_txt: "{P}% del examen completado",
+                btn_clear_hist: "🗑️ Borrar Todo el Historial",
+                confirm_clear: "¿Estás completamente seguro de que deseas eliminar TODO el historial de simulacros? Esta acción no se puede deshacer."
             },
             gl: {
                 app_title: "O SUPERCOMPROBADOR DE NOTAS",
@@ -387,7 +392,7 @@
                 summary_tram: "RESUMO TRAMITACIÓN", summary_aux: "RESUMO AUXILIO", cust_summary: "RESUMO", th_of: "Ofi.", th_pts: "Puntos", total_part: "Total Parte", total_exam: "Total do exame",
                 ph_id_sim: "Identificador (Ex: Simulacro 1 2026)...", ph_id: "Identificador...", btn_save_sim: "📥 Gardar Simulación", btn_reset: "Reiniciar Campos",
                 cust_num_parts: "Número de Partes (Máx. 10):", c_part_label: "Partes", c_lbl_preg: "Preguntas", c_lbl_pts: "Puntos +", c_lbl_rest: "Resta -",
-                pred_title: "Estratexia de Aprobado", pred_exam_label: "Exame a Simular:", pred_cust_label: "Partes do Exame Personalizado:", pred_progress: "Porcentaxe Cuberto do Exame", pred_default: "Move as barras para calcular.",
+                pred_title: "Estratexia de Aprobado", pred_exam_label: "Exame a Simular:", pred_cust_label: "Partes del Examen Personalizado:", pred_progress: "Porcentaxe Cuberto do Exame", pred_default: "Move as barras para calcular.",
                 st_best: "Mellor Nota", st_avg: "Media Xeral", st_count: "Simulacros", st_rate: "% Aprobados", st_streak: "🔥 Mellor Racha de Aprobados", st_weak_title: "🎯 Diagnóstico de Puntos Débiles", hist_title: "📊 Historial por Especialidade", hist_cust: "Personalizados",
                 txt_pass: "🎉 APROBADO", txt_fail: "❌ SUSPENSO", no_records: "Sen rexistros.",
                 alert_saved: "¡Exame gardado!", alert_backup_ok: "¡Historial restaurado con éxito!", alert_backup_err: "O formato do arquivo non é válido o houbo un erro.",
@@ -396,7 +401,9 @@
                 st_weak_low: "✅ ¡Buen control xeral! A túa media de erros é baixa ({X} por sección). O teu punto de mellora actual é aumentar la velocidade para reducir as preguntas que deixas en branco.",
                 pred_win: "🎉 CON ESTA COMBINACIÓN APROBARÍAS (Nota: {N} / 10)",
                 pred_lose: "❌ SUSPENSO (Nota: {N} / 10). Fáltanche {F} puntos oficiais para o corte.",
-                pred_prog_txt: "{P}% do exame completado"
+                pred_prog_txt: "{P}% do exame completado",
+                btn_clear_hist: "🗑️ Borrar Todo o Historial",
+                confirm_clear: "¿Estás completamente seguro de que desexas eliminar TODO o historial de simulacros? Esta acción non se pode deshacer."
             }
         };
 
@@ -839,6 +846,10 @@
                 document.getElementById('st-passrate').innerText = "0%";
                 document.getElementById('st-streak').innerText = "0";
                 document.getElementById('st-weaknesses').innerText = lenguajes[lang].st_no_data;
+                
+                // Limpiar contenedores visuales de listas
+                let conts = { tramitacion: document.getElementById('history-tramitacion-container'), auxilio: document.getElementById('history-auxilio-container'), personalizado: document.getElementById('history-personalizado-container') };
+                Object.values(conts).forEach(c => { if(c) c.innerHTML = `<p style="color:var(--text-secondary); padding:10px; font-size:0.85rem;">${lenguajes[lang].no_records}</p>`; });
                 return;
             }
 
@@ -916,6 +927,19 @@
                     conts[tipo].appendChild(group);
                 });
             });
+        }
+
+        function clearAllHistory() {
+            let lang = appSettings.lang;
+            if (confirm(lenguajes[lang].confirm_clear)) {
+                localStorage.removeItem('historial_simulacros');
+                // Destruir instancias de gráficos activos para evitar fugas de renderizado
+                Object.keys(activeCharts).forEach(id => {
+                    if (activeCharts[id]) activeCharts[id].destroy();
+                });
+                activeCharts = {};
+                renderHistory();
+            }
         }
 
         function spawnChart(id, items) {
