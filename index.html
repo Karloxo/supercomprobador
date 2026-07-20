@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-title" content="Notas Justicia">
     
     <!-- Tu Icono Personalizado Integrado -->
-    <link rel="apple-touch-icon" href="https://i.ibb.co/5Xmz18B8/Whats-App-Image-2026-07-20-at-12-05-13.jpg">
+    <link class="apple-touch-icon" rel="apple-touch-icon" href="https://i.ibb.co/5Xmz18B8/Whats-App-Image-2026-07-20-at-12-05-13.jpg">
 
     <!-- Enlace al archivo de configuración PWA -->
     <link rel="manifest" href="manifest.json">
@@ -29,12 +29,27 @@
             margin: 0 auto;
             overscroll-behavior: none;
         }
-        h1 {
+        
+        /* Título Principal y Subtítulo Personalizado */
+        .main-title {
+            margin-top: 15px;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+        .main-title .title-text {
+            display: block;
             text-align: center;
             font-size: 1.3rem;
             color: #0071e3;
-            margin-top: 15px;
-            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        .main-title .author-text {
+            display: block;
+            text-align: right;
+            font-size: 0.85rem;
+            color: #86868b;
+            font-weight: normal;
+            margin-top: 4px;
         }
         
         /* Sistema de Pestañas Apple Style */
@@ -269,28 +284,64 @@
         .custom-config-box label {
             display: block;
             font-weight: 600;
+            margin-top: 10px;
             margin-bottom: 5px;
             font-size: 0.95rem;
         }
-        .custom-config-box input {
-            width: 90%;
+        .custom-config-box select, .custom-config-box input {
+            width: 100%;
             padding: 8px;
-            margin-bottom: 15px;
             border: 1px solid #d1d1d6;
             border-radius: 6px;
+            box-sizing: border-box;
+        }
+        .grid-config-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            background-color: #f2f2f7;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 8px;
+        }
+        .grid-config-inputs div {
+            display: flex;
+            flex-direction: column;
+        }
+        .grid-config-inputs label {
+            font-size: 0.75rem;
+            color: #48484a;
+            margin-bottom: 2px;
+            margin-top: 0;
+        }
+        .grid-config-inputs input {
+            text-align: center;
+            padding: 5px;
+        }
+        .part-config-container {
+            margin-bottom: 15px;
+            border-bottom: 1px dashed #d1d1d6;
+            padding-bottom: 15px;
+        }
+        .part-config-container:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
         }
     </style>
 </head>
 <body>
 
-    <h1>EL SUPERCOMPROBADOR DE NOTAS</h1>
+    <div class="main-title">
+        <span class="title-text">EL SUPERCOMPROBADOR DE NOTAS</span>
+        <span class="author-text">by Carlos Abal</span>
+    </div>
 
-    <!-- Selector de Pestañas (Ampliadas a 4) -->
+    <!-- Selector de Pestañas -->
     <div class="tabs-container">
         <button class="tab-btn active" id="btn-tab-tramitacion" onclick="switchTab('tramitacion')">Tramitación</button>
         <button class="tab-btn" id="btn-tab-auxilio" onclick="switchTab('auxilio')">Auxilio</button>
         <button class="tab-btn" id="btn-tab-personalizado" onclick="switchTab('personalizado')">Personalizado</button>
-        <button class="tab-btn" id="btn-tab-evolucion" onclick="switchTab('evolucion')"> Evolución</button>
+        <button class="tab-btn" id="btn-tab-evolucion" onclick="switchTab('evolucion')">Evolución</button>
     </div>
 
     <!-- ================= PESTAÑA 1: TRAMITACIÓN ================= -->
@@ -360,23 +411,32 @@
         <button class="btn-action btn-reset" onclick="resetForm('auxilio')">Reiniciar Campos</button>
     </div>
 
-    <!-- ================= PESTAÑA 3: PERSONALIZADO ================= -->
+    <!-- ================= PESTAÑA 3: PERSONALIZADO (MÁX. 10 PARTES) ================= -->
     <div id="tab-personalizado" class="tab-content">
         <div class="custom-config-box">
-            <h3 style="margin-top:0; color:#0071e3;">Configura la estructura:</h3>
-            <label>Nº Total de Preguntas:</label>
-            <input type="number" id="c_total" value="50" oninput="calcCustom()">
-            <label>Puntos por Acierto:</label>
-            <input type="number" id="c_valA" value="1" step="0.1" oninput="calcCustom()">
-            <label>Puntos que Resta cada Error:</label>
-            <input type="number" id="c_valE" value="0.25" step="0.05" oninput="calcCustom()">
+            <h3 style="margin-top:0; color:#0071e3; margin-bottom: 10px;">Configuración del Examen</h3>
+            
+            <label for="c_num_partes">¿Cuántas partes tiene el examen?</label>
+            <select id="c_num_partes" onchange="generateCustomStructure()">
+                <option value="1">1 Parte</option>
+                <option value="2">2 Partes</option>
+                <option value="3">3 Partes</option>
+                <option value="4">4 Partes</option>
+                <option value="5">5 Partes</option>
+                <option value="6">6 Partes</option>
+                <option value="7">7 Partes</option>
+                <option value="8">8 Partes</option>
+                <option value="9">9 Partes</option>
+                <option value="10">10 Partes</option>
+            </select>
+
+            <!-- Contenedor dinámico de configuraciones por cada parte -->
+            <div id="custom-parts-config-root" style="margin-top:15px;"></div>
         </div>
-        <table>
-            <tr><th colspan="2" class="header-part" id="c_title_dinamico">Examen Personalizado (50 preg.)</th></tr>
-            <tr><td>Aciertos</td><td><input type="number" id="c_a" min="0" oninput="calcCustom()" data-next="c_e"></td></tr>
-            <tr><td>Errores</td><td><input type="number" id="c_e" min="0" oninput="calcCustom()"></td></tr>
-            <tr><td>En blanco</td><td><input type="number" id="c_b" class="read-only-blank" readonly value="50"> <span id="c_err" class="error-msg">❌ Supera las preguntas.</span></td></tr>
-        </table>
+
+        <!-- Contenedor dinámico donde aparecerán las tablas de respuestas -->
+        <div id="custom-tables-root"></div>
+
         <table class="results-table">
             <tr><th>RESUMEN PERSONALIZADO</th><th class="scale-header">Nota Cálculo</th><th class="scale-header">Sobre 10</th></tr>
             <tr class="total-row"><td>Total del examen</td><td id="c_resG" class="score-val">0.00</td><td id="c_resG_10" class="score-val">0.00</td></tr>
@@ -385,13 +445,13 @@
         
         <div id="c_save_box" class="save-container">
             <div class="save-title">Identificador del Examen:</div>
-            <input type="text" id="c_exam_year" placeholder="Ej: Simulacro Oro..." style="margin-bottom:12px;">
+            <input type="text" id="c_exam_year" placeholder="Ej: Simulacro Oro, Gestión..." style="margin-bottom:12px;">
             <button class="btn-action btn-blue" onclick="saveToHistory('personalizado')">📥 Guardar en mi historial</button>
         </div>
         <button class="btn-action btn-reset" onclick="resetForm('personalizado')">Reiniciar Campos</button>
     </div>
 
-    <!-- ================= PESTAÑA 4: EVOLUCIÓN (NUEVA) ================= -->
+    <!-- ================= PESTAÑA 4: EVOLUCIÓN ================= -->
     <div id="tab-evolucion" class="tab-content">
         <div class="history-section-title">📊 SIMULACROS TRAMITACIÓN PROCESAL</div>
         <div id="history-tramitacion-container"></div>
@@ -407,7 +467,7 @@
 
     <script>
         let currentActiveTab = 'tramitacion';
-        let activeCharts = {}; // Almacén de instancias de gráficos para evitar duplicados
+        let activeCharts = {}; 
 
         function switchTab(tabId) {
             currentActiveTab = tabId;
@@ -422,32 +482,16 @@
             }
         }
 
-        // Salto automático entre inputs al pulsar Enter/Siguiente
-        document.querySelectorAll('input[type="number"]').forEach(input => {
-            input.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    let nextId = this.getAttribute('data-next');
-                    if (nextId) {
-                        let nextInput = document.getElementById(nextId);
-                        if (nextInput) {
-                            nextInput.focus();
-                            nextInput.select();
-                        }
-                    } else {
-                        this.blur();
-                    }
-                }
-            });
-        });
-
         function getVal(id) {
-            let v = document.getElementById(id).value;
+            let el = document.getElementById(id);
+            if(!el) return "";
+            let v = el.value;
             return v === "" ? "" : (parseInt(v) || 0);
         }
 
         function updateStyle(elementId, isPass) {
             let el = document.getElementById(elementId);
+            if(!el) return;
             if(isPass) { el.classList.add('score-pass'); el.classList.remove('score-fail'); }
             else { el.classList.add('score-fail'); el.classList.remove('score-pass'); }
         }
@@ -461,7 +505,7 @@
             else { box.innerText = "❌ SUSPENSO"; box.className = "verdict-box verdict-fail"; }
         }
 
-        // Cálculos correspondientes
+        // ====== TRAMITACIÓN ======
         function calcTramitacion() {
             let a1 = getVal('t1_a'), e1 = getVal('t1_e');
             let a2 = getVal('t2_a'), e2 = getVal('t2_e');
@@ -501,6 +545,7 @@
             displayVerdict('t_verdict', 't_save_box', globalPass, hasData);
         }
 
+        // ====== AUXILIO JUDICIAL ======
         function calcAuxilio() {
             let a1 = getVal('a1_a'), e1 = getVal('a1_e');
             let a2 = getVal('a2_a'), e2 = getVal('a2_e');
@@ -531,28 +576,115 @@
             displayVerdict('au_verdict', 'au_save_box', globalPass, hasData);
         }
 
+        // ====== ENGINE DINÁMICO EXAMEN PERSONALIZADO (MÁX. 10 PARTES) ======
+        function generateCustomStructure() {
+            let numPartes = parseInt(document.getElementById('c_num_partes').value) || 1;
+            let configRoot = document.getElementById('custom-parts-config-root');
+            let tablesRoot = document.getElementById('custom-tables-root');
+            
+            let configHTML = "";
+            let tablesHTML = "";
+
+            for (let i = 1; i <= numPartes; i++) {
+                // Asignar valores por defecto lógicos para no tener que rellenar todo a mano
+                let defaultPreg = 10;
+                if (i === 1) defaultPreg = 50;
+                else if (i === 2) defaultPreg = 20;
+
+                // HTML de configuración de baremos
+                configHTML += `
+                    <div class="part-config-container">
+                        <strong>Baremo Parte ${i}:</strong>
+                        <div class="grid-config-inputs">
+                            <div>
+                                <label>Preguntas</label>
+                                <input type="number" id="c_total_p${i}" value="${defaultPreg}" oninput="calcCustom()">
+                            </div>
+                            <div>
+                                <label>Puntos +</label>
+                                <input type="number" id="c_valA_p${i}" value="1" step="0.1" oninput="calcCustom()">
+                            </div>
+                            <div>
+                                <label>Resta -</label>
+                                <input type="number" id="c_valE_p${i}" value="0.25" step="0.05" oninput="calcCustom()">
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // HTML de tablas de inserción de aciertos/errores
+                let nextTarget = i < numPartes ? `data-next="c_a_p${i+1}"` : "";
+                tablesHTML += `
+                    <table id="custom_table_p${i}">
+                        <tr><th colspan="2" class="header-part">Parte ${i} del examen</th></tr>
+                        <tr><td>Aciertos</td><td><input type="number" id="c_a_p${i}" min="0" oninput="calcCustom()" data-next="c_e_p${i}"></td></tr>
+                        <tr><td>Errores</td><td><input type="number" id="c_e_p${i}" min="0" oninput="calcCustom()" ${nextTarget}></td></tr>
+                        <tr><td>En blanco</td><td><input type="number" id="c_b_p${i}" class="read-only-blank" readonly value="0"> <span id="c_err_p${i}" class="error-msg">❌ Supera preguntas.</span></td></tr>
+                    </table>
+                `;
+            }
+
+            configRoot.innerHTML = configHTML;
+            tablesRoot.innerHTML = tablesHTML;
+
+            setupCustomInputsNavigation();
+            calcCustom();
+        }
+
+        function setupCustomInputsNavigation() {
+            document.querySelectorAll('#tab-personalizado table input[type="number"]').forEach(input => {
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        let nextId = this.getAttribute('data-next');
+                        if (nextId) {
+                            let nextInput = document.getElementById(nextId);
+                            if (nextInput) { nextInput.focus(); nextInput.select(); }
+                        } else { this.blur(); }
+                    }
+                });
+            });
+        }
+
         function calcCustom() {
-            let totalPreg = parseInt(document.getElementById('c_total').value) || 0;
-            let valA = parseFloat(document.getElementById('c_valA').value) || 0;
-            let valE = parseFloat(document.getElementById('c_valE').value) || 0;
+            let numPartes = parseInt(document.getElementById('c_num_partes').value) || 1;
+            let notaRawTotal = 0;
+            let notaMaxPosibleTotal = 0;
+            let hasData = false;
+            let algunErrorDeLimite = false;
 
-            document.getElementById('c_title_dinamico').innerText = `Examen Personalizado (${totalPreg} preg.)`;
+            for (let i = 1; i <= numPartes; i++) {
+                let totalPreg = parseInt(document.getElementById(`c_total_p${i}`).value) || 0;
+                let valA = parseFloat(document.getElementById(`c_valA_p${i}`).value) || 0;
+                let valE = parseFloat(document.getElementById(`c_valE_p${i}`).value) || 0;
 
-            let a = getVal('c_a'), e = getVal('c_e');
-            let hasData = (a!==""||e!=="");
-            
-            let b = totalPreg - ((a===""?0:a) + (e===""?0:e));
-            document.getElementById('c_b').value = b < 0 ? 0 : b;
-            document.getElementById('c_err').style.display = b < 0 ? 'inline' : 'none';
+                let a = getVal(`c_a_p${i}`);
+                let e = getVal(`c_e_p${i}`);
 
-            let notaMaxPosible = totalPreg * valA;
-            let notaRaw = a === "" && e === "" ? 0 : Math.max(0, ((a||0)*valA) - ((e||0)*valE));
+                if (a !== "" || e !== "") hasData = true;
+
+                let b = totalPreg - ((a === "" ? 0 : a) + (e === "" ? 0 : e));
+                
+                let bInput = document.getElementById(`c_b_p${i}`);
+                let errSpan = document.getElementById(`c_err_p${i}`);
+                if(bInput) bInput.value = b < 0 ? 0 : b;
+                if(errSpan) errSpan.style.display = b < 0 ? 'inline' : 'none';
+                if(b < 0) algunErrorDeLimite = true;
+
+                let notaMaxParte = totalPreg * valA;
+                let notaRawParte = (a === "" && e === "") ? 0 : Math.max(0, ((a || 0) * valA) - ((e || 0) * valE));
+
+                notaRawTotal += notaRawParte;
+                notaMaxPosibleTotal += notaMaxParte;
+            }
+
+            document.getElementById('c_resG').innerText = notaRawTotal.toFixed(2);
+            let score10 = notaMaxPosibleTotal > 0 ? ((notaRawTotal / notaMaxPosibleTotal) * 10) : 0;
+            document.getElementById('c_resG_10').innerText = score10.toFixed(2);
             
-            document.getElementById('c_resG').innerText = notaRaw.toFixed(2);
-            document.getElementById('c_resG_10').innerText = notaMaxPosible > 0 ? ((notaRaw / notaMaxPosible) * 10).toFixed(2) : "0.00";
-            
-            let globalPass = notaMaxPosible > 0 ? (notaRaw >= (notaMaxPosible / 2)) : false;
-            updateStyle('c_resG', globalPass); updateStyle('c_resG_10', globalPass);
+            let globalPass = notaMaxPosibleTotal > 0 ? (score10 >= 5.0 && !algunErrorDeLimite) : false;
+            updateStyle('c_resG', globalPass); 
+            updateStyle('c_resG_10', globalPass);
             displayVerdict('c_verdict', 'c_save_box', globalPass, hasData);
         }
 
@@ -564,13 +696,32 @@
                 document.querySelectorAll('#tab-auxilio input[type="number"]:not([readonly])').forEach(i => i.value = "");
                 document.getElementById('au_exam_year').value = ""; calcAuxilio();
             } else if(tab === 'personalizado') {
-                document.getElementById('c_a').value = ""; document.getElementById('c_e').value = "";
+                let numPartes = parseInt(document.getElementById('c_num_partes').value) || 1;
+                for(let i=1; i<=numPartes; i++) {
+                    let inputA = document.getElementById(`c_a_p${i}`);
+                    let inputE = document.getElementById(`c_e_p${i}`);
+                    if(inputA) inputA.value = "";
+                    if(inputE) inputE.value = "";
+                }
                 document.getElementById('c_exam_year').value = ""; calcCustom();
             }
         }
 
-        // ================= HISTORIAL Y GRÁFICOS INTERACTIVOS =================
+        // Nav general del sistema por defecto
+        document.querySelectorAll('#tab-tramitacion input[type="number"], #tab-auxilio input[type="number"]').forEach(input => {
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    let nextId = this.getAttribute('data-next');
+                    if (nextId) {
+                        let nextInput = document.getElementById(nextId);
+                        if (nextInput) { nextInput.focus(); nextInput.select(); }
+                    } else { this.blur(); }
+                }
+            });
+        });
 
+        // ================= HISTORIAL Y GRÁFICOS INTERACTIVOS =================
         function saveToHistory(type) {
             let yearInputId = type === 'tramitacion' ? 't_exam_year' : (type === 'auxilio' ? 'au_exam_year' : 'c_exam_year');
             let examYear = document.getElementById(yearInputId).value.trim();
@@ -596,12 +747,20 @@
                 nota = document.getElementById('c_resG').innerText;
                 nota10 = document.getElementById('c_resG_10').innerText;
                 veredicto = document.getElementById('c_verdict').innerText.includes("APROBADO") ? "APROBADO" : "SUSPENSO";
-                detalles = `Puntos: ${nota}`;
+                
+                let numPartes = parseInt(document.getElementById('c_num_partes').value) || 1;
+                let desglosePartes = [];
+                for(let i=1; i<=numPartes; i++) {
+                    let a = document.getElementById(`c_a_p${i}`).value || 0;
+                    let e = document.getElementById(`c_e_p${i}`).value || 0;
+                    desglosePartes.push(`P${i}(A:${a}/E:${e})`);
+                }
+                detalles = desglosePartes.join(" | ");
             }
 
             let dateObj = new Date();
             let fechaString = `${String(dateObj.getDate()).padStart(2, '0')}/${String(dateObj.getMonth() + 1).padStart(2, '0')} ${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}`;
-            let fullTimestamp = dateObj.getTime(); // Para ordenación exacta
+            let fullTimestamp = dateObj.getTime();
 
             let nuevoSimulacro = {
                 id: fullTimestamp,
@@ -619,25 +778,22 @@
             localStorage.setItem('historial_simulacros', JSON.stringify(historial));
 
             document.getElementById(yearInputId).value = "";
-            alert("¡Simulacro guardado con éxito! Puedes consultarlo en la pestaña 📈 Evolución.");
+            alert("¡Simulacro guardado con éxito! Puedes consultarlo en la pestaña Evolución.");
         }
 
         function renderHistory() {
             let historial = JSON.parse(localStorage.getItem('historial_simulacros')) || [];
             
-            // Destinos de renderizado
             let containers = {
                 tramitacion: document.getElementById('history-tramitacion-container'),
                 auxilio: document.getElementById('history-auxilio-container'),
                 personalizado: document.getElementById('history-personalizado-container')
             };
 
-            // Limpieza inicial
             Object.values(containers).forEach(c => c.innerHTML = `<p style="color:#86868b; text-align:center; font-size:0.9rem; margin:15px 0;">No hay simulacros guardados.</p>`);
 
             if (historial.length === 0) return;
 
-            // Estructura para organizar: [tipo][anoExamen] = [intentos]
             let estructurado = { tramitacion: {}, auxilio: {}, personalizado: {} };
 
             historial.forEach(item => {
@@ -649,22 +805,19 @@
                 }
             });
 
-            // Procesar cada pestaña/tipo
             Object.keys(estructurado).forEach(tipo => {
                 let tipoData = estructurado[tipo];
                 let anos = Object.keys(tipoData).sort((a, b) => b.localeCompare(a));
                 
                 if(anos.length > 0) {
-                    containers[tipo].innerHTML = ""; // Limpiar el "No hay simulacros"
+                    containers[tipo].innerHTML = "";
                 }
 
                 anos.forEach((ano, indexAno) => {
-                    let intentos = tipoData[ano].sort((a, b) => a.id - b.id); // Orden cronológico interno
-                    
+                    let intentos = tipoData[ano].sort((a, b) => a.id - b.id);
                     let yBlock = document.createElement('div');
                     yBlock.className = 'year-group';
                     
-                    // Identificador único para el Canvas del gráfico
                     let canvasId = `chart-${tipo}-${indexAno}`;
 
                     let yHeader = document.createElement('div');
@@ -676,7 +829,6 @@
                     chartWrapper.id = `wrapper-${canvasId}`;
                     chartWrapper.innerHTML = `<canvas id="${canvasId}" style="max-height:200px; width:100%;"></canvas>`;
 
-                    // Evento para colapsar/desplegar gráfico al pulsar la cabecera del Examen
                     yHeader.addEventListener('click', () => {
                         let isVisible = chartWrapper.style.display === 'block';
                         chartWrapper.style.display = isVisible ? 'none' : 'block';
@@ -688,7 +840,6 @@
                     yBlock.appendChild(yHeader);
                     yBlock.appendChild(chartWrapper);
 
-                    // Renderizar los intentos individuales abajo del bloque
                     intentos.forEach((item, indexIntento) => {
                         let itemDiv = document.createElement('div');
                         itemDiv.className = 'history-item';
@@ -711,16 +862,12 @@
             });
         }
 
-        // Función para renderizar el gráfico interactivo usando Chart.js
         function buildChart(canvasId, intentos) {
-            // Si ya existe un gráfico en ese canvas, lo destruimos para redibujar limpio
             if (activeCharts[canvasId]) {
                 activeCharts[canvasId].destroy();
             }
 
             let ctx = document.getElementById(canvasId).getContext('2d');
-            
-            // Preparar datos dinámicos extraídos del historial
             let etiquetas = intentos.map((_, idx) => `Int. ${idx + 1}`);
             let notasSobre10 = intentos.map(item => item.notaBase10);
             let fechas = intentos.map(item => item.fechaRealizacion);
@@ -737,7 +884,7 @@
                         borderWidth: 3,
                         pointBackgroundColor: '#0071e3',
                         pointRadius: 5,
-                        tension: 0.2, // Línea ligeramente curva estilo Apple
+                        tension: 0.2,
                         fill: true
                     }]
                 },
@@ -756,11 +903,7 @@
                         }
                     },
                     scales: {
-                        y: {
-                            min: 0,
-                            max: 10,
-                            ticks: { stepSize: 2 }
-                        }
+                        y: { min: 0, max: 10, ticks: { stepSize: 2 } }
                     }
                 }
             });
@@ -773,7 +916,9 @@
             }
         }
 
+        // Al cargar la app por primera vez, construimos la estructura base de Personalizado
         window.addEventListener('load', () => {
+            generateCustomStructure();
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js').catch(err => console.error(err));
             }
