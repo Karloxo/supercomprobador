@@ -16,6 +16,9 @@
     <!-- Enlace al archivo de configuración PWA -->
     <link rel="manifest" href="manifest.json">
 
+    <!-- Librería de Gráficos Oficial (Ligera y Offline-friendly) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -46,8 +49,8 @@
             flex: 1;
             border: none;
             background: none;
-            padding: 10px 5px;
-            font-size: 0.9rem;
+            padding: 10px 2px;
+            font-size: 0.85rem;
             font-weight: 600;
             color: #48484a;
             border-radius: 8px;
@@ -117,7 +120,7 @@
             margin-top: 4px;
         }
         
-        /* Resultados y Dinámicas de Aprobado/Suspenso */
+        /* Resultados */
         .results-table { background-color: #f2f2f7; }
         .results-table th { background-color: #0071e3; color: white; }
         .scale-header { text-align: right; font-size: 0.85rem; color: #86868b; }
@@ -125,7 +128,6 @@
         
         .score-pass { color: #34c759; } 
         .score-fail { color: #ff3b30; } 
-        
         .total-row { font-weight: bold; background-color: #e5e5e7; }
         
         /* Bloque Veredicto Final */
@@ -175,39 +177,51 @@
         .btn-blue { background-color: #0071e3; color: white; }
         .btn-reset { background-color: #ff3b30; color: white; }
 
-        /* Estilos del Historial */
-        .history-section {
-            margin-top: 30px;
-            background-color: #ffffff;
-            border-radius: 12px;
-            padding: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-        .history-title {
+        /* Estilos de la Pestaña Historial */
+        .history-section-title {
             font-size: 1.1rem;
             font-weight: bold;
-            color: #1d1d1f;
-            margin-bottom: 15px;
+            color: #0071e3;
+            margin: 15px 0 10px 0;
+            padding-bottom: 4px;
             border-bottom: 2px solid #e5e5e7;
-            padding-bottom: 5px;
         }
         .year-group {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             border: 1px solid #e5e5e7;
-            border-radius: 8px;
+            border-radius: 10px;
             overflow: hidden;
+            background-color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
         .year-header {
             background-color: #f2f2f7;
-            padding: 8px 12px;
+            padding: 10px 14px;
             font-weight: bold;
-            color: #0071e3;
+            color: #1d1d1f;
             font-size: 0.95rem;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        .year-header::after {
+            content: '📊 Ver Gráfico';
+            font-size: 0.75rem;
+            color: #0071e3;
+            background-color: #ffffff;
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid #d1d1d6;
+        }
+        .chart-wrapper {
+            display: none;
+            padding: 15px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e5e5e7;
         }
         .history-item {
-            padding: 10px 12px;
+            padding: 10px 14px;
             border-bottom: 1px solid #e5e5e7;
             font-size: 0.85rem;
             background-color: #fff;
@@ -232,16 +246,17 @@
         .badge-pass { background-color: #e8f5e9; color: #2e7d32; }
         .badge-fail { background-color: #ffebee; color: #c62828; }
         .btn-clear-hist {
-            background-color: #e5e5e7;
+            background-color: #ffebee;
             color: #ff3b30;
             font-size: 0.85rem;
-            padding: 6px 12px;
-            border-radius: 6px;
-            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ef9a9a;
             cursor: pointer;
             font-weight: 600;
-            display: inline-block;
-            margin-top: 10px;
+            width: 100%;
+            margin-top: 20px;
+            text-align: center;
         }
 
         .custom-config-box {
@@ -268,13 +283,14 @@
 </head>
 <body>
 
-    <h1>EL SUPERCOMPROBADOR DE NOTAS by Carlos Abal</h1>
+    <h1>EL SUPERCOMPROBADOR DE NOTAS</h1>
 
-    <!-- Selector de Pestañas -->
+    <!-- Selector de Pestañas (Ampliadas a 4) -->
     <div class="tabs-container">
         <button class="tab-btn active" id="btn-tab-tramitacion" onclick="switchTab('tramitacion')">Tramitación</button>
-        <button class="tab-btn" id="btn-tab-auxilio" onclick="switchTab('auxilio')">Auxilio Judicial</button>
+        <button class="tab-btn" id="btn-tab-auxilio" onclick="switchTab('auxilio')">Auxilio</button>
         <button class="tab-btn" id="btn-tab-personalizado" onclick="switchTab('personalizado')">Personalizado</button>
+        <button class="tab-btn" id="btn-tab-evolucion" onclick="switchTab('evolucion')">📈 Evolución</button>
     </div>
 
     <!-- ================= PESTAÑA 1: TRAMITACIÓN ================= -->
@@ -306,13 +322,11 @@
         </table>
         <div id="t_verdict" class="verdict-box"></div>
         
-        <!-- Módulo Guardar -->
         <div id="t_save_box" class="save-container">
             <div class="save-title">Año / Identificador del Examen:</div>
-            <input type="text" id="t_exam_year" placeholder="Ej: 2024, 2018 (Int. 2)..." style="margin-bottom:12px;">
+            <input type="text" id="t_exam_year" placeholder="Ej: 2024, 2022 (Int. 2)..." style="margin-bottom:12px;">
             <button class="btn-action btn-blue" onclick="saveToHistory('tramitacion')">📥 Guardar en mi historial</button>
         </div>
-
         <button class="btn-action btn-reset" onclick="resetForm('tramitacion')">Reiniciar Campos</button>
     </div>
 
@@ -338,13 +352,11 @@
         </table>
         <div id="au_verdict" class="verdict-box"></div>
         
-        <!-- Módulo Guardar -->
         <div id="au_save_box" class="save-container">
             <div class="save-title">Año / Identificador del Examen:</div>
             <input type="text" id="au_exam_year" placeholder="Ej: 2023, 2019..." style="margin-bottom:12px;">
             <button class="btn-action btn-blue" onclick="saveToHistory('auxilio')">📥 Guardar en mi historial</button>
         </div>
-
         <button class="btn-action btn-reset" onclick="resetForm('auxilio')">Reiniciar Campos</button>
     </div>
 
@@ -354,49 +366,48 @@
             <h3 style="margin-top:0; color:#0071e3;">Configura la estructura:</h3>
             <label>Nº Total de Preguntas:</label>
             <input type="number" id="c_total" value="50" oninput="calcCustom()">
-            
             <label>Puntos por Acierto:</label>
             <input type="number" id="c_valA" value="1" step="0.1" oninput="calcCustom()">
-            
-            <label>Puntos que Resta cada Error (en positivo):</label>
+            <label>Puntos que Resta cada Error:</label>
             <input type="number" id="c_valE" value="0.25" step="0.05" oninput="calcCustom()">
         </div>
-
         <table>
             <tr><th colspan="2" class="header-part" id="c_title_dinamico">Examen Personalizado (50 preg.)</th></tr>
             <tr><td>Aciertos</td><td><input type="number" id="c_a" min="0" oninput="calcCustom()" data-next="c_e"></td></tr>
             <tr><td>Errores</td><td><input type="number" id="c_e" min="0" oninput="calcCustom()"></td></tr>
             <tr><td>En blanco</td><td><input type="number" id="c_b" class="read-only-blank" readonly value="50"> <span id="c_err" class="error-msg">❌ Supera las preguntas.</span></td></tr>
         </table>
-
         <table class="results-table">
             <tr><th>RESUMEN PERSONALIZADO</th><th class="scale-header">Nota Cálculo</th><th class="scale-header">Sobre 10</th></tr>
             <tr class="total-row"><td>Total del examen</td><td id="c_resG" class="score-val">0.00</td><td id="c_resG_10" class="score-val">0.00</td></tr>
         </table>
         <div id="c_verdict" class="verdict-box"></div>
         
-        <!-- Módulo Guardar -->
         <div id="c_save_box" class="save-container">
             <div class="save-title">Identificador del Examen:</div>
-            <input type="text" id="c_exam_year" placeholder="Ej: Simulacro Academia X..." style="margin-bottom:12px;">
+            <input type="text" id="c_exam_year" placeholder="Ej: Simulacro Oro..." style="margin-bottom:12px;">
             <button class="btn-action btn-blue" onclick="saveToHistory('personalizado')">📥 Guardar en mi historial</button>
         </div>
-
         <button class="btn-action btn-reset" onclick="resetForm('personalizado')">Reiniciar Campos</button>
     </div>
 
-    <!-- ================= SECCIÓN HISTORIAL GENERAL ================= -->
-    <div class="history-section">
-        <div class="history-title">📈 Evolución de Simulacros</div>
-        <div id="history-container">
-            <!-- Los bloques agrupados por año se cargarán aquí -->
-        </div>
+    <!-- ================= PESTAÑA 4: EVOLUCIÓN (NUEVA) ================= -->
+    <div id="tab-evolucion" class="tab-content">
+        <div class="history-section-title">📊 SIMULACROS TRAMITACIÓN PROCESAL</div>
+        <div id="history-tramitacion-container"></div>
+
+        <div class="history-section-title" style="margin-top:35px;">📊 SIMULACROS AUXILIO JUDICIAL</div>
+        <div id="history-auxilio-container"></div>
+
+        <div class="history-section-title" style="margin-top:35px;">📊 EXÁMENES PERSONALIZADOS</div>
+        <div id="history-personalizado-container"></div>
+
         <button class="btn-clear-hist" onclick="clearHistory()">⚠️ Borrar Historial Completo</button>
     </div>
 
     <script>
-        // Configuración Global de Rutas de Pestañas
         let currentActiveTab = 'tramitacion';
+        let activeCharts = {}; // Almacén de instancias de gráficos para evitar duplicados
 
         function switchTab(tabId) {
             currentActiveTab = tabId;
@@ -405,9 +416,13 @@
             
             document.getElementById('btn-tab-' + tabId).classList.add('active');
             document.getElementById('tab-' + tabId).classList.add('active');
+
+            if (tabId === 'evolucion') {
+                renderHistory();
+            }
         }
 
-        // Gestión del Salto Automático (Autofocus) al pulsar Intro
+        // Salto automático entre inputs al pulsar Enter/Siguiente
         document.querySelectorAll('input[type="number"]').forEach(input => {
             input.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
@@ -417,10 +432,10 @@
                         let nextInput = document.getElementById(nextId);
                         if (nextInput) {
                             nextInput.focus();
-                            nextInput.select(); // Selecciona el texto interno para cambiarlo rápido
+                            nextInput.select();
                         }
                     } else {
-                        this.blur(); // Cierra el teclado si es el último input
+                        this.blur();
                     }
                 }
             });
@@ -433,40 +448,24 @@
 
         function updateStyle(elementId, isPass) {
             let el = document.getElementById(elementId);
-            if(isPass) {
-                el.classList.add('score-pass');
-                el.classList.remove('score-fail');
-            } else {
-                el.classList.add('score-fail');
-                el.classList.remove('score-pass');
-            }
+            if(isPass) { el.classList.add('score-pass'); el.classList.remove('score-fail'); }
+            else { el.classList.add('score-fail'); el.classList.remove('score-pass'); }
         }
 
         function displayVerdict(boxId, saveBoxId, isPass, hasData) {
             let box = document.getElementById(boxId);
             let saveBox = document.getElementById(saveBoxId);
-            if (!hasData) {
-                box.style.display = 'none';
-                saveBox.style.display = 'none';
-                return;
-            }
-            box.style.display = 'block';
-            saveBox.style.display = 'block';
-            if(isPass) {
-                box.innerText = "🎉 APROBADO";
-                box.className = "verdict-box verdict-pass";
-            } else {
-                box.innerText = "❌ SUSPENSO";
-                box.className = "verdict-box verdict-fail";
-            }
+            if (!hasData) { box.style.display = 'none'; saveBox.style.display = 'none'; return; }
+            box.style.display = 'block'; saveBox.style.display = 'block';
+            if(isPass) { box.innerText = "🎉 APROBADO"; box.className = "verdict-box verdict-pass"; }
+            else { box.innerText = "❌ SUSPENSO"; box.className = "verdict-box verdict-fail"; }
         }
 
-        // === CÁLCULOS TRAMITACIÓN ===
+        // Cálculos correspondientes
         function calcTramitacion() {
             let a1 = getVal('t1_a'), e1 = getVal('t1_e');
             let a2 = getVal('t2_a'), e2 = getVal('t2_e');
             let a3 = getVal('t3_a'), e3 = getVal('t3_e');
-
             let hasData = (a1!==""||e1!==""||a2!==""||e2!==""||a3!==""||e3!=="");
 
             let b1 = 100 - ((a1===""?0:a1) + (e1===""?0:e1));
@@ -475,8 +474,7 @@
             let n1 = a1 === "" && e1 === "" ? 0 : Math.max(0, ((a1||0)*0.6) - ((e1||0)*0.15));
             document.getElementById('t_res1').innerText = n1.toFixed(2);
             document.getElementById('t_res1_10').innerText = ((n1/60)*10).toFixed(2);
-            let p1 = n1 >= 30;
-            updateStyle('t_res1', p1); updateStyle('t_res1_10', p1);
+            let p1 = n1 >= 30; updateStyle('t_res1', p1); updateStyle('t_res1_10', p1);
 
             let b2 = 10 - ((a2===""?0:a2) + (e2===""?0:e2));
             document.getElementById('t2_b').value = b2 < 0 ? 0 : b2;
@@ -484,8 +482,7 @@
             let n2 = a2 === "" && e2 === "" ? 0 : Math.max(0, ((a2||0)*2) - ((e2||0)*0.5));
             document.getElementById('t_res2').innerText = n2.toFixed(2);
             document.getElementById('t_res2_10').innerText = ((n2/20)*10).toFixed(2);
-            let p2 = n2 >= 10;
-            updateStyle('t_res2', p2); updateStyle('t_res2_10', p2);
+            let p2 = n2 >= 10; updateStyle('t_res2', p2); updateStyle('t_res2_10', p2);
 
             let b3 = 20 - ((a3===""?0:a3) + (e3===""?0:e3));
             document.getElementById('t3_b').value = b3 < 0 ? 0 : b3;
@@ -493,8 +490,7 @@
             let n3 = a3 === "" && e3 === "" ? 0 : Math.max(0, ((a3||0)*1) - ((e3||0)*0.25));
             document.getElementById('t_res3').innerText = n3.toFixed(2);
             document.getElementById('t_res3_10').innerText = ((n3/20)*10).toFixed(2);
-            let p3 = n3 >= 10;
-            updateStyle('t_res3', p3); updateStyle('t_res3_10', p3);
+            let p3 = n3 >= 10; updateStyle('t_res3', p3); updateStyle('t_res3_10', p3);
 
             let total = n1 + n2 + n3;
             document.getElementById('t_resG').innerText = total.toFixed(2);
@@ -505,11 +501,9 @@
             displayVerdict('t_verdict', 't_save_box', globalPass, hasData);
         }
 
-        // === CÁLCULOS AUXILIO JUDICIAL ===
         function calcAuxilio() {
             let a1 = getVal('a1_a'), e1 = getVal('a1_e');
             let a2 = getVal('a2_a'), e2 = getVal('a2_e');
-
             let hasData = (a1!==""||e1!==""||a2!==""||e2!=="");
 
             let b1 = 100 - ((a1===""?0:a1) + (e1===""?0:e1));
@@ -518,8 +512,7 @@
             let n1 = a1 === "" && e1 === "" ? 0 : Math.max(0, ((a1||0)*0.6) - ((e1||0)*0.15));
             document.getElementById('au_res1').innerText = n1.toFixed(2);
             document.getElementById('au_res1_10').innerText = ((n1/60)*10).toFixed(2);
-            let p1 = n1 >= 30;
-            updateStyle('au_res1', p1); updateStyle('au_res1_10', p1);
+            let p1 = n1 >= 30; updateStyle('au_res1', p1); updateStyle('au_res1_10', p1);
 
             let b2 = 40 - ((a2===""?0:a2) + (e2===""?0:e2));
             document.getElementById('a2_b').value = b2 < 0 ? 0 : b2;
@@ -527,8 +520,7 @@
             let n2 = a2 === "" && e2 === "" ? 0 : Math.max(0, ((a2||0)*1) - ((e2||0)*0.25));
             document.getElementById('au_res2').innerText = n2.toFixed(2);
             document.getElementById('au_res2_10').innerText = ((n2/40)*10).toFixed(2);
-            let p2 = n2 >= 20;
-            updateStyle('au_res2', p2); updateStyle('au_res2_10', p2);
+            let p2 = n2 >= 20; updateStyle('au_res2', p2); updateStyle('au_res2_10', p2);
 
             let total = n1 + n2;
             document.getElementById('au_resG').innerText = total.toFixed(2);
@@ -539,7 +531,6 @@
             displayVerdict('au_verdict', 'au_save_box', globalPass, hasData);
         }
 
-        // === CÁLCULOS PERSONALIZADO ===
         function calcCustom() {
             let totalPreg = parseInt(document.getElementById('c_total').value) || 0;
             let valA = parseFloat(document.getElementById('c_valA').value) || 0;
@@ -568,36 +559,28 @@
         function resetForm(tab) {
             if(tab === 'tramitacion') {
                 document.querySelectorAll('#tab-tramitacion input[type="number"]:not([readonly])').forEach(i => i.value = "");
-                document.getElementById('t_exam_year').value = "";
-                calcTramitacion();
+                document.getElementById('t_exam_year').value = ""; calcTramitacion();
             } else if(tab === 'auxilio') {
                 document.querySelectorAll('#tab-auxilio input[type="number"]:not([readonly])').forEach(i => i.value = "");
-                document.getElementById('au_exam_year').value = "";
-                calcAuxilio();
+                document.getElementById('au_exam_year').value = ""; calcAuxilio();
             } else if(tab === 'personalizado') {
-                document.getElementById('c_a').value = "";
-                document.getElementById('c_e').value = "";
-                document.getElementById('c_exam_year').value = "";
-                calcCustom();
+                document.getElementById('c_a').value = ""; document.getElementById('c_e').value = "";
+                document.getElementById('c_exam_year').value = ""; calcCustom();
             }
         }
 
-        // ================= LÓGICA DEL HISTORIAL (LOCALSTORAGE) =================
+        // ================= HISTORIAL Y GRÁFICOS INTERACTIVOS =================
 
-        // Guardar elemento en el historial local
         function saveToHistory(type) {
             let yearInputId = type === 'tramitacion' ? 't_exam_year' : (type === 'auxilio' ? 'au_exam_year' : 'c_exam_year');
             let examYear = document.getElementById(yearInputId).value.trim();
             
             if (examYear === "") {
-                alert("Por favor, introduce el año o nombre identificador del examen para guardarlo.");
+                alert("Por favor, introduce el año o nombre identificador del examen.");
                 return;
             }
 
-            let nota = "";
-            let nota10 = "";
-            let veredicto = "";
-            let detalles = "";
+            let nota = "", nota10 = "", veredicto = "", detalles = "";
 
             if (type === 'tramitacion') {
                 nota = document.getElementById('t_resG').innerText;
@@ -616,107 +599,183 @@
                 detalles = `Puntos: ${nota}`;
             }
 
-            // Crear objeto fecha formateado (DD/MM/AAAA HH:MM)
             let dateObj = new Date();
-            let fechaString = `${String(dateObj.getDate()).padStart(2, '0')}/${String(dateObj.getMonth() + 1).padStart(2, '0')}/${dateObj.getFullYear()} ${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}`;
+            let fechaString = `${String(dateObj.getDate()).padStart(2, '0')}/${String(dateObj.getMonth() + 1).padStart(2, '0')} ${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}`;
+            let fullTimestamp = dateObj.getTime(); // Para ordenación exacta
 
             let nuevoSimulacro = {
-                id: Date.now(),
-                tipo: type.toUpperCase(),
+                id: fullTimestamp,
+                tipo: type,
                 anoExamen: examYear,
                 fechaRealizacion: fechaString,
-                notaOficial: nota,
-                notaBase10: nota10,
+                notaOficial: parseFloat(nota),
+                notaBase10: parseFloat(nota10),
                 resultado: veredicto,
                 desglose: detalles
             };
 
-            // Obtener historial previo
             let historial = JSON.parse(localStorage.getItem('historial_simulacros')) || [];
             historial.push(nuevoSimulacro);
             localStorage.setItem('historial_simulacros', JSON.stringify(historial));
 
-            // Limpiar campo identificador y notificar
             document.getElementById(yearInputId).value = "";
-            alert("¡Simulacro guardado correctamente en tu historial!");
-            
-            renderHistory();
+            alert("¡Simulacro guardado con éxito! Puedes consultarlo en la pestaña 📈 Evolución.");
         }
 
-        // Renderizar y agrupar por Año de Examen
         function renderHistory() {
-            let container = document.getElementById('history-container');
-            container.innerHTML = "";
-            
             let historial = JSON.parse(localStorage.getItem('historial_simulacros')) || [];
             
-            if (historial.length === 0) {
-                container.innerHTML = `<p style="color:#86868b; text-align:center; font-size:0.9rem; margin: 20px 0;">No hay exámenes guardados todavía.</p>`;
-                return;
-            }
+            // Destinos de renderizado
+            let containers = {
+                tramitacion: document.getElementById('history-tramitacion-container'),
+                auxilio: document.getElementById('history-auxilio-container'),
+                personalizado: document.getElementById('history-personalizado-container')
+            };
 
-            // Agrupar los datos por Año de Examen
-            let agrupado = {};
+            // Limpieza inicial
+            Object.values(containers).forEach(c => c.innerHTML = `<p style="color:#86868b; text-align:center; font-size:0.9rem; margin:15px 0;">No hay simulacros guardados.</p>`);
+
+            if (historial.length === 0) return;
+
+            // Estructura para organizar: [tipo][anoExamen] = [intentos]
+            let estructurado = { tramitacion: {}, auxilio: {}, personalizado: {} };
+
             historial.forEach(item => {
-                if (!agrupado[item.anoExamen]) {
-                    agrupado[item.anoExamen] = [];
+                if(estructurado[item.tipo]) {
+                    if (!estructurado[item.tipo][item.anoExamen]) {
+                        estructurado[item.tipo][item.anoExamen] = [];
+                    }
+                    estructurado[item.tipo][item.anoExamen].push(item);
                 }
-                agrupado[item.anoExamen].push(item);
             });
 
-            // Ordenar los años de forma alfabética/numérica descendente (más recientes primero)
-            let anosOrdenados = Object.keys(agrupado).sort((a, b) => b.localeCompare(a));
-
-            anosOrdenados.forEach(ano => {
-                let yBlock = document.createElement('div');
-                yBlock.className = 'year-group';
+            // Procesar cada pestaña/tipo
+            Object.keys(estructurado).forEach(tipo => {
+                let tipoData = estructurado[tipo];
+                let anos = Object.keys(tipoData).sort((a, b) => b.localeCompare(a));
                 
-                let yHeader = document.createElement('div');
-                yHeader.className = 'year-header';
-                yHeader.innerHTML = `<span>Examen Año: ${ano}</span> <span>(${agrupado[ano].length} int.)</span>`;
-                yBlock.appendChild(yHeader);
+                if(anos.length > 0) {
+                    containers[tipo].innerHTML = ""; // Limpiar el "No hay simulacros"
+                }
 
-                // Ordenar los intentos del mismo año cronológicamente (más antiguo a más nuevo para ver evolución)
-                agrupado[ano].sort((a,b) => a.id - b.id);
+                anos.forEach((ano, indexAno) => {
+                    let intentos = tipoData[ano].sort((a, b) => a.id - b.id); // Orden cronológico interno
+                    
+                    let yBlock = document.createElement('div');
+                    yBlock.className = 'year-group';
+                    
+                    // Identificador único para el Canvas del gráfico
+                    let canvasId = `chart-${tipo}-${indexAno}`;
 
-                agrupado[ano].forEach((item, index) => {
-                    let itemDiv = document.createElement('div');
-                    itemDiv.className = 'history-item';
+                    let yHeader = document.createElement('div');
+                    yHeader.className = 'year-header';
+                    yHeader.innerHTML = `<span>📋 Examen: <strong>${ano}</strong></span> <span>(${intentos.length} int.)</span>`;
                     
-                    let badgeClass = item.resultado === 'APROBADO' ? 'badge-pass' : 'badge-fail';
-                    
-                    itemDiv.innerHTML = `
-                        <div class="item-top">
-                            <span>Intento ${index + 1} (${item.tipo})</span>
-                            <span>Nota: <strong style="color:#0071e3;">${item.notaOficial}</strong> (${item.notaBase10}/10) <span class="badge ${badgeClass}">${item.resultado}</span></span>
-                        </div>
-                        <div class="item-details">
-                            Fecha: ${item.fechaRealizacion} | ${item.desglose}
-                        </div>
-                    `;
-                    yBlock.appendChild(itemDiv);
+                    let chartWrapper = document.createElement('div');
+                    chartWrapper.className = 'chart-wrapper';
+                    chartWrapper.id = `wrapper-${canvasId}`;
+                    chartWrapper.innerHTML = `<canvas id="${canvasId}" style="max-height:200px; width:100%;"></canvas>`;
+
+                    // Evento para colapsar/desplegar gráfico al pulsar la cabecera del Examen
+                    yHeader.addEventListener('click', () => {
+                        let isVisible = chartWrapper.style.display === 'block';
+                        chartWrapper.style.display = isVisible ? 'none' : 'block';
+                        if(!isVisible) {
+                            buildChart(canvasId, intentos);
+                        }
+                    });
+
+                    yBlock.appendChild(yHeader);
+                    yBlock.appendChild(chartWrapper);
+
+                    // Renderizar los intentos individuales abajo del bloque
+                    intentos.forEach((item, indexIntento) => {
+                        let itemDiv = document.createElement('div');
+                        itemDiv.className = 'history-item';
+                        let badgeClass = item.resultado === 'APROBADO' ? 'badge-pass' : 'badge-fail';
+                        
+                        itemDiv.innerHTML = `
+                            <div class="item-top">
+                                <span>Intento ${indexIntento + 1}</span>
+                                <span>Nota: <strong style="color:#0071e3;">${item.notaOficial.toFixed(2)}</strong> (${item.notaBase10.toFixed(2)}/10) <span class="badge ${badgeClass}">${item.resultado}</span></span>
+                            </div>
+                            <div class="item-details">
+                                Realizado: ${item.fechaRealizacion} | ${item.desglose}
+                            </div>
+                        `;
+                        yBlock.appendChild(itemDiv);
+                    });
+
+                    containers[tipo].appendChild(yBlock);
                 });
+            });
+        }
 
-                container.appendChild(yBlock);
+        // Función para renderizar el gráfico interactivo usando Chart.js
+        function buildChart(canvasId, intentos) {
+            // Si ya existe un gráfico en ese canvas, lo destruimos para redibujar limpio
+            if (activeCharts[canvasId]) {
+                activeCharts[canvasId].destroy();
+            }
+
+            let ctx = document.getElementById(canvasId).getContext('2d');
+            
+            // Preparar datos dinámicos extraídos del historial
+            let etiquetas = intentos.map((_, idx) => `Int. ${idx + 1}`);
+            let notasSobre10 = intentos.map(item => item.notaBase10);
+            let fechas = intentos.map(item => item.fechaRealizacion);
+
+            activeCharts[canvasId] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: etiquetas,
+                    datasets: [{
+                        label: 'Nota s/10',
+                        data: notasSobre10,
+                        borderColor: '#0071e3',
+                        backgroundColor: 'rgba(0, 113, 227, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#0071e3',
+                        pointRadius: 5,
+                        tension: 0.2, // Línea ligeramente curva estilo Apple
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                footer: (tooltipItems) => {
+                                    let index = tooltipItems[0].dataIndex;
+                                    return `Fecha: ${fechas[index]}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            min: 0,
+                            max: 10,
+                            ticks: { stepSize: 2 }
+                        }
+                    }
+                }
             });
         }
 
         function clearHistory() {
-            if (confirm("¿Seguro que quieres borrar todo tu historial de simulacros? Esta acción no se puede deshacer.")) {
+            if (confirm("¿Seguro que deseas vaciar completamente tu historial? Se perderán las gráficas de evolución.")) {
                 localStorage.removeItem('historial_simulacros');
                 renderHistory();
             }
         }
 
-        // Inicializar el historial al cargar la app
         window.addEventListener('load', () => {
-            renderHistory();
-            
-            // Registro del Service Worker para funcionamiento Offline (PWA)
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('Service Worker registrado con éxito', reg))
-                    .catch(err => console.error('Error al registrar el Service Worker', err));
+                navigator.serviceWorker.register('sw.js').catch(err => console.error(err));
             }
         });
     </script>
