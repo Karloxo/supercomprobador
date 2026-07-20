@@ -232,7 +232,7 @@
             </div>
         </section>
 
-        <!-- PESTAÑA: SIMULADOR (Modificada según peticiones) -->
+        <!-- PESTAÑA: SIMULADOR -->
         <section id="simulador" class="tab-content bg-white rounded-2xl shadow-xl border border-slate-100 p-6">
             <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2 border-b border-slate-100 pb-3">
                 <span data-i18n="titleSimulador">Simulador de Notas</span>
@@ -298,7 +298,7 @@
                         </div>
                     </div>
 
-                    <!-- Resultados del simulador con los Netos calculados -->
+                    <!-- Resultados del simulador -->
                     <div class="bg-slate-50 rounded-xl p-5 border border-slate-100 flex flex-col justify-between">
                         <div>
                             <h3 class="text-center font-bold text-slate-500 uppercase text-xs tracking-widest mb-4" data-i18n="results">Resultados</h3>
@@ -335,7 +335,7 @@
 
     <!-- LOGIC / SCRIPT -->
     <script>
-        // Diccionario de Traducciones (Corregido "Acertos" en galego)
+        // Diccionario de Traducciones
         const i18n = {
             es: {
                 tabGestion: "Gestión Procesal",
@@ -358,7 +358,6 @@
                 totalScore: "Nota Total:",
                 selectExam: "Selecciona el tipo de examen:",
                 footerText: "Todos los derechos reservados.",
-                // Etiquetas específicas para las partes en el simulador según el examen seleccionado
                 lblTest: "Parte 1 (Tipo test)",
                 lblCaso: "Parte 2 (Caso práctico)",
                 lblMeca: "Parte 3 (Meca)",
@@ -378,7 +377,7 @@
                 part1: "Parte 1 (Teórico)",
                 part2: "Parte 2 (Casos)",
                 part3: "Parte 3 (Meca)",
-                corrects: "Acertos", // ¡Corregido aquí!
+                corrects: "Acertos",
                 errors: "Erros",
                 results: "Resultados",
                 scoreP1: "Nota Parte 1:",
@@ -430,14 +429,14 @@
             calculateAll();
         }
 
-        // Lógica de traducción de etiquetas variables en el Simulador
+        // Etiquetas variables en el Simulador
         function updateSimuladorLabels() {
             const examType = document.getElementById('sim-exam-type').value;
             const p1Title = document.getElementById('sim-p1-title');
             const p2Title = document.getElementById('sim-p2-title');
             const p3Title = document.getElementById('sim-p3-title');
 
-            const lblNetas = currentLang === 'es' ? 'Netas' : 'Netas';
+            const lblNetas = 'Netas';
 
             if(examType === 'tramitacion' || examType === 'auxilio') {
                 p1Title.textContent = i18n[currentLang].lblTest;
@@ -445,7 +444,6 @@
                 document.getElementById('sim-lbl-p1').textContent = `${lblNetas} P1 (Tipo test):`;
                 document.getElementById('sim-lbl-p2').textContent = `${lblNetas} P2 (Caso práctico):`;
             } else {
-                // Gestión Procesal se queda con sus textos base
                 p1Title.textContent = i18n[currentLang].part1;
                 p2Title.textContent = i18n[currentLang].part2;
                 document.getElementById('sim-lbl-p1').textContent = `${lblNetas} P1:`;
@@ -484,17 +482,17 @@
             document.getElementById('g-res-p2').textContent = `${res_g_p2.nota} / 40`;
             document.getElementById('g-res-total').textContent = `${(parseFloat(res_g_p1.nota) + parseFloat(res_g_p2.nota)).toFixed(2)} / 100`;
 
-            // 2. Tramitación Procesal
-            const t-p1-a = parseFloat(document.getElementById('t-p1-a').value) || 0;
-            const t-p1-e = parseFloat(document.getElementById('t-p1-e').value) || 0;
-            const t-p2-a = parseFloat(document.getElementById('t-p2-a').value) || 0;
-            const t-p2-e = parseFloat(document.getElementById('t-p2-e').value) || 0;
-            const t-p3-a = parseFloat(document.getElementById('t-p3-a').value) || 0;
-            const t-p3-e = parseFloat(document.getElementById('t-p3-e').value) || 0;
+            // 2. Tramitación Procesal (Corregidas las variables con guion bajo)
+            const t_p1_a = parseFloat(document.getElementById('t-p1-a').value) || 0;
+            const t_p1_e = parseFloat(document.getElementById('t-p1-e').value) || 0;
+            const t_p2_a = parseFloat(document.getElementById('t-p2-a').value) || 0;
+            const t_p2_e = parseFloat(document.getElementById('t-p2-e').value) || 0;
+            const t_p3_a = parseFloat(document.getElementById('t-p3-a').value) || 0;
+            const t_p3_e = parseFloat(document.getElementById('t-p3-e').value) || 0;
 
-            const res_t_p1 = calcScore(t-p1-a, t-p1-e, 0.25, 100, 60);
-            const res_t_p2 = calcScore(t-p2-a, t-p2-e, 0.50, 20, 20);
-            const res_t_p3 = calcScore(t-p3-a, t-p3-e, 0.25, 20, 20);
+            const res_t_p1 = calcScore(t_p1_a, t_p1_e, 0.25, 100, 60);
+            const res_t_p2 = calcScore(t_p2_a, t_p2_e, 0.50, 20, 20);
+            const res_t_p3 = calcScore(t_p3_a, t_p3_e, 0.25, 20, 20);
 
             document.getElementById('t-res-p1').textContent = `${res_t_p1.nota} / 60`;
             document.getElementById('t-res-p2').textContent = `${res_t_p2.nota} / 20`;
