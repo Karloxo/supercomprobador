@@ -1,38 +1,31 @@
-const CACHE_NAME = 'comprobador-v1';
+const CACHE_NAME = 'supercomprobador-v2';
 const ASSETS = [
-  'index.html',
-  'manifest.json',
-  'https://i.ibb.co/5Xmz18B8/Whats-App-Image-2026-07-20-at-12-05-13.jpg'
+  './',
+  './index.html',
+  './manifest.json',
+  'https://cdn.jsdelivr.net/npm/chart.js',
+  'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js'
 ];
 
-// Instalación: Guarda los archivos en el almacenamiento local del iPhone
 self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
-    })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
   );
 });
 
-// Activación: Limpia cachés antiguas si las hubiera
 self.addEventListener('activate', (e) => {
   e.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
-        })
-      );
-    })
+    caches.keys().then((keys) => Promise.all(
+      keys.map((key) => { if (key !== CACHE_NAME) return caches.delete(key); })
+    ))
   );
 });
 
-// Intercepción: Si no hay internet, sirve el archivo guardado en el iPhone
 self.addEventListener('fetch', (e) => {
   e.respondWith(
-    caches.match(e.request).then((cachedResponse) => {
+    caches.match(e.request).then((cachedResponse) => cachedResponse || fetch(e.request))
+  );
+});
       return cachedResponse || fetch(e.request);
     })
   );
