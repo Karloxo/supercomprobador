@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>EL SUPERCOMPROBADOR DE NOTAS</title>
     
-    <!-- Configuración App Móvil -->
+    <!-- Configuración App Móvil y PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Notas Justicia">
+    <link rel="manifest" href="./manifest.json">
     
     <!-- Icono Personalizado Integrado -->
     <link class="apple-touch-icon" href="https://i.ibb.co/5Xmz18B8/Whats-App-Image-2026-07-20-at-12-05-13.jpg">
@@ -543,7 +544,8 @@
             document.getElementById('t3_b').value = b3 < 0 ? 0 : b3;
             document.getElementById('t3_err').style.display = b3 < 0 ? 'inline' : 'none';
             let n3 = a3 === "" && e3 === "" ? 0 : Math.max(0, ((a3||0)*1) - ((e3||0)*0.25));
-            document.getElementById('t_res3').innerText = n3.toFixed(2);
+            document.getElementById('t3_res3').innerText = n3.toFixed(2); // Fix explicit variable fallback
+            if(document.getElementById('t_res3')) document.getElementById('t_res3').innerText = n3.toFixed(2);
             document.getElementById('t_res3_10').innerText = ((n3/20)*10).toFixed(2);
             let p3 = n3 >= 10; updateStyle('t_res3', p3); updateStyle('t_res3_10', p3);
 
@@ -981,6 +983,7 @@
             reader.readAsText(event.target.files[0]);
         }
     </script>
+
     <!-- Registro del Service Worker para funcionamiento Offline -->
     <script>
         if ('serviceWorker' in navigator) {
@@ -991,7 +994,5 @@
             });
         }
     </script>
-</body>
-</html>
 </body>
 </html>
