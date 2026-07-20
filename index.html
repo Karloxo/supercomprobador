@@ -112,12 +112,30 @@
             margin-top: 4px;
         }
         
-        /* Resultados */
+        /* Resultados y Dinámicas de Aprobado/Suspenso */
         .results-table { background-color: #f2f2f7; }
         .results-table th { background-color: #0071e3; color: white; }
         .scale-header { text-align: right; font-size: 0.85rem; color: #86868b; }
-        .score-val { text-align: right; font-weight: 500; }
-        .total-row { font-weight: bold; background-color: #e3f2fd; }
+        .score-val { text-align: right; font-weight: bold; }
+        
+        .score-pass { color: #34c759; } /* Verde Apple */
+        .score-fail { color: #ff3b30; } /* Rojo Apple */
+        
+        .total-row { font-weight: bold; background-color: #e5e5e7; }
+        
+        /* Bloque Veredicto Final */
+        .verdict-box {
+            text-align: center;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: none;
+        }
+        .verdict-pass { background-color: #e8f5e9; color: #2e7d32; border: 2px solid #a5d6a7; }
+        .verdict-fail { background-color: #ffebee; color: #c62828; border: 2px solid #ef9a9a; }
         
         /* Botones de Acción */
         .btn-reset {
@@ -194,6 +212,7 @@
             <tr><td>Total 3ª parte</td><td id="t_res3" class="score-val">0.00</td><td id="t_res3_10" class="score-val">0.00</td></tr>
             <tr class="total-row"><td>Total del examen</td><td id="t_resG" class="score-val">0.00</td><td id="t_resG_10" class="score-val">0.00</td></tr>
         </table>
+        <div id="t_verdict" class="verdict-box"></div>
         <button class="btn-reset" onclick="resetForm('tramitacion')">Reiniciar Campos</button>
     </div>
 
@@ -217,6 +236,7 @@
             <tr><td>Total 2ª parte</td><td id="au_res2" class="score-val">0.00</td><td id="au_res2_10" class="score-val">0.00</td></tr>
             <tr class="total-row"><td>Total del examen</td><td id="au_resG" class="score-val">0.00</td><td id="au_resG_10" class="score-val">0.00</td></tr>
         </table>
+        <div id="au_verdict" class="verdict-box"></div>
         <button class="btn-reset" onclick="resetForm('auxilio')">Reiniciar Campos</button>
     </div>
 
@@ -245,6 +265,7 @@
             <tr><th>RESUMEN PERSONALIZADO</th><th class="scale-header">Nota Cálculo</th><th class="scale-header">Sobre 10</th></tr>
             <tr class="total-row"><td>Total del examen</td><td id="c_resG" class="score-val">0.00</td><td id="c_resG_10" class="score-val">0.00</td></tr>
         </table>
+        <div id="c_verdict" class="verdict-box"></div>
         <button class="btn-reset" onclick="resetForm('personalizado')">Reiniciar Campos</button>
     </div>
 
@@ -262,60 +283,119 @@
             return v === "" ? "" : (parseInt(v) || 0);
         }
 
+        function updateStyle(elementId, isPass) {
+            let el = document.getElementById(elementId);
+            if(isPass) {
+                el.classList.add('score-pass');
+                el.classList.remove('score-fail');
+            } else {
+                el.classList.add('score-fail');
+                el.classList.remove('score-pass');
+            }
+        }
+
+        function displayVerdict(boxId, isPass, hasData) {
+            let box = document.getElementById(boxId);
+            if (!hasData) {
+                box.style.display = 'none';
+                return;
+            }
+            box.style.display = 'block';
+            if(isPass) {
+                box.innerText = "🎉 APROBADO";
+                box.className = "verdict-box verdict-pass";
+            } else {
+                box.innerText = "❌ SUSPENSO";
+                box.className = "verdict-box verdict-fail";
+            }
+        }
+
+        // === CÁLCULOS TRAMITACIÓN ===
         function calcTramitacion() {
             let a1 = getVal('t1_a'), e1 = getVal('t1_e');
             let a2 = getVal('t2_a'), e2 = getVal('t2_e');
             let a3 = getVal('t3_a'), e3 = getVal('t3_e');
 
+            let hasData = (a1!==""||e1!==""||a2!==""||e2!==""||a3!==""||e3!=="");
+
+            // Parte 1 (Máx 60, Aprobado >= 30)
             let b1 = 100 - ((a1===""?0:a1) + (e1===""?0:e1));
             document.getElementById('t1_b').value = b1 < 0 ? 0 : b1;
             document.getElementById('t1_err').style.display = b1 < 0 ? 'inline' : 'none';
-            let n1 = a1 === "" && e1 === "" ? 0 : ((a1||0)*0.6) - ((e1||0)*0.15);
+            let n1 = a1 === "" && e1 === "" ? 0 : Math.max(0, ((a1||0)*0.6) - ((e1||0)*0.15));
             document.getElementById('t_res1').innerText = n1.toFixed(2);
             document.getElementById('t_res1_10').innerText = ((n1/60)*10).toFixed(2);
+            let p1 = n1 >= 30;
+            updateStyle('t_res1', p1); updateStyle('t_res1_10', p1);
 
+            // Parte 2 (Máx 20, Aprobado >= 10)
             let b2 = 10 - ((a2===""?0:a2) + (e2===""?0:e2));
             document.getElementById('t2_b').value = b2 < 0 ? 0 : b2;
             document.getElementById('t2_err').style.display = b2 < 0 ? 'inline' : 'none';
-            let n2 = a2 === "" && e2 === "" ? 0 : ((a2||0)*2) - ((e2||0)*0.5);
+            let n2 = a2 === "" && e2 === "" ? 0 : Math.max(0, ((a2||0)*2) - ((e2||0)*0.5));
             document.getElementById('t_res2').innerText = n2.toFixed(2);
             document.getElementById('t_res2_10').innerText = ((n2/20)*10).toFixed(2);
+            let p2 = n2 >= 10;
+            updateStyle('t_res2', p2); updateStyle('t_res2_10', p2);
 
+            // Parte 3 (Máx 20, Aprobado >= 10)
             let b3 = 20 - ((a3===""?0:a3) + (e3===""?0:e3));
             document.getElementById('t3_b').value = b3 < 0 ? 0 : b3;
             document.getElementById('t3_err').style.display = b3 < 0 ? 'inline' : 'none';
-            let n3 = a3 === "" && e3 === "" ? 0 : ((a3||0)*1) - ((e3||0)*0.25);
+            let n3 = a3 === "" && e3 === "" ? 0 : Math.max(0, ((a3||0)*1) - ((e3||0)*0.25));
             document.getElementById('t_res3').innerText = n3.toFixed(2);
             document.getElementById('t_res3_10').innerText = ((n3/20)*10).toFixed(2);
+            let p3 = n3 >= 10;
+            updateStyle('t_res3', p3); updateStyle('t_res3_10', p3);
 
+            // Global Tramitación
             let total = n1 + n2 + n3;
             document.getElementById('t_resG').innerText = total.toFixed(2);
             document.getElementById('t_resG_10').innerText = ((total/100)*10).toFixed(2);
+            
+            let globalPass = (p1 && p2 && p3);
+            updateStyle('t_resG', globalPass); updateStyle('t_resG_10', globalPass);
+            displayVerdict('t_verdict', globalPass, hasData);
         }
 
+        // === CÁLCULOS AUXILIO JUDICIAL ===
         function calcAuxilio() {
             let a1 = getVal('a1_a'), e1 = getVal('a1_e');
             let a2 = getVal('a2_a'), e2 = getVal('a2_e');
 
+            let hasData = (a1!==""||e1!==""||a2!==""||e2!=="");
+
+            // Parte 1 (Máx 60, Aprobado >= 30)
             let b1 = 100 - ((a1===""?0:a1) + (e1===""?0:e1));
             document.getElementById('a1_b').value = b1 < 0 ? 0 : b1;
             document.getElementById('a1_err').style.display = b1 < 0 ? 'inline' : 'none';
-            let n1 = a1 === "" && e1 === "" ? 0 : ((a1||0)*0.6) - ((e1||0)*0.15);
+            let n1 = a1 === "" && e1 === "" ? 0 : Math.max(0, ((a1||0)*0.6) - ((e1||0)*0.15));
             document.getElementById('au_res1').innerText = n1.toFixed(2);
             document.getElementById('au_res1_10').innerText = ((n1/60)*10).toFixed(2);
+            let p1 = n1 >= 30;
+            updateStyle('au_res1', p1); updateStyle('au_res1_10', p1);
 
+            // Parte 2 (Máx 40, Aprobado >= 20)
             let b2 = 40 - ((a2===""?0:a2) + (e2===""?0:e2));
             document.getElementById('a2_b').value = b2 < 0 ? 0 : b2;
             document.getElementById('a2_err').style.display = b2 < 0 ? 'inline' : 'none';
-            let n2 = a2 === "" && e2 === "" ? 0 : ((a2||0)*1) - ((e2||0)*0.25);
+            let n2 = a2 === "" && e2 === "" ? 0 : Math.max(0, ((a2||0)*1) - ((e2||0)*0.25));
             document.getElementById('au_res2').innerText = n2.toFixed(2);
             document.getElementById('au_res2_10').innerText = ((n2/40)*10).toFixed(2);
+            let p2 = n2 >= 20;
+            updateStyle('au_res2', p2); updateStyle('au_res2_10', p2);
 
+            // Global Auxilio
             let total = n1 + n2;
             document.getElementById('au_resG').innerText = total.toFixed(2);
             document.getElementById('au_resG_10').innerText = ((total/100)*10).toFixed(2);
+            
+            let globalPass = (p1 && p2);
+            updateStyle('au_resG', globalPass); updateStyle('au_resG_10', globalPass);
+            displayVerdict('au_verdict', globalPass, hasData);
         }
 
+        // === CÁLCULOS PERSONALIZADO ===
         function calcCustom() {
             let totalPreg = parseInt(document.getElementById('c_total').value) || 0;
             let valA = parseFloat(document.getElementById('c_valA').value) || 0;
@@ -324,16 +404,22 @@
             document.getElementById('c_title_dinamico').innerText = `Examen Personalizado (${totalPreg} preg.)`;
 
             let a = getVal('c_a'), e = getVal('c_e');
-            let b = totalPreg - ((a===""?0:a) + (e===""?0:e));
+            let hasData = (a!==""||e!=="");
             
+            let b = totalPreg - ((a===""?0:a) + (e===""?0:e));
             document.getElementById('c_b').value = b < 0 ? 0 : b;
             document.getElementById('c_err').style.display = b < 0 ? 'inline' : 'none';
 
             let notaMaxPosible = totalPreg * valA;
-            let notaRaw = a === "" && e === "" ? 0 : ((a||0)*valA) - ((e||0)*valE);
+            let notaRaw = a === "" && e === "" ? 0 : Math.max(0, ((a||0)*valA) - ((e||0)*valE));
             
             document.getElementById('c_resG').innerText = notaRaw.toFixed(2);
             document.getElementById('c_resG_10').innerText = notaMaxPosible > 0 ? ((notaRaw / notaMaxPosible) * 10).toFixed(2) : "0.00";
+            
+            // En personalizado, el aprobado es sacar la mitad del máximo total
+            let globalPass = notaMaxPosible > 0 ? (notaRaw >= (notaMaxPosible / 2)) : false;
+            updateStyle('c_resG', globalPass); updateStyle('c_resG_10', globalPass);
+            displayVerdict('c_verdict', globalPass, hasData);
         }
 
         function resetForm(tab) {
