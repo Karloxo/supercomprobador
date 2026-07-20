@@ -5,43 +5,75 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>EL SUPERCOMPROBADOR DE NOTAS</title>
     
-    <!-- Configuración para que funcione como App en iPhone/iPad -->
+    <!-- Configuración App Móvil -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Notas Justicia">
-    
-    <!-- Icono provisional para la pantalla de inicio del iPhone -->
-    <link rel="apple-touch-icon" href="https://i.ibb.co/5Xmz18B8/Whats-App-Image-2026-07-20-at-12-05-13.jpg">
+    <link rel="apple-touch-icon" href="https://img.icons8.com/fluent/180/000000/balance-scale.png">
 
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: #f5f5f7;
             color: #1d1d1f;
-            padding: 20px;
+            padding: 10px 10px 30px 10px;
             max-width: 600px;
             margin: 0 auto;
-            /* Evita rebotes raros al hacer scroll en iOS */
-            overscroll-behavior: none; 
+            overscroll-behavior: none;
         }
         h1 {
             text-align: center;
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             color: #0071e3;
-            margin-top: 10px;
-            margin-bottom: 25px;
+            margin-top: 15px;
+            margin-bottom: 15px;
         }
+        
+        /* Sistema de Pestañas Apple Style */
+        .tabs-container {
+            display: flex;
+            background-color: #e5e5e7;
+            padding: 4px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            flex: 1;
+            border: none;
+            background: none;
+            padding: 10px 5px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #48484a;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .tab-btn.active {
+            background-color: #ffffff;
+            color: #0071e3;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Tablas e Inputs */
         table {
             width: 100%;
             border-collapse: collapse;
             background-color: #ffffff;
             border-radius: 12px;
             overflow: hidden;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
         th, td {
-            padding: 12px 16px;
+            padding: 12px 14px;
             text-align: left;
             border-bottom: 1px solid #e5e5e7;
         }
@@ -55,38 +87,67 @@
             font-weight: bold;
         }
         input[type="number"] {
-            width: 80px;
+            width: 75px;
             padding: 6px;
             border: 1px solid #d1d1d6;
             border-radius: 6px;
             text-align: center;
             font-size: 1rem;
         }
+        .read-only-blank {
+            background-color: #f2f2f7;
+            color: #86868b;
+            font-weight: bold;
+        }
         .error-msg {
             color: #ff3b30;
             font-weight: bold;
-            margin-left: 10px;
+            font-size: 0.85rem;
             display: none;
+            margin-top: 4px;
         }
-        .results-table {
-            background-color: #f2f2f7;
-        }
-        .results-table th {
-            background-color: #0071e3;
+        
+        /* Resultados */
+        .results-table { background-color: #f2f2f7; }
+        .results-table th { background-color: #0071e3; color: white; }
+        .scale-header { text-align: right; font-size: 0.85rem; color: #86868b; }
+        .score-val { text-align: right; font-weight: 500; }
+        .total-row { font-weight: bold; background-color: #e3f2fd; }
+        
+        /* Botones de Acción */
+        .btn-reset {
+            display: block;
+            width: 100%;
+            background-color: #ff3b30;
             color: white;
+            border: none;
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 4px rgba(255,59,48,0.2);
         }
-        .scale-header {
-            text-align: right;
-            font-size: 0.9rem;
-            color: #86868b;
+        .custom-config-box {
+            background-color: #ffffff;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
-        .score-val {
-            text-align: right;
-            font-weight: 500;
+        .custom-config-box label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 0.95rem;
         }
-        .total-row {
-            font-weight: bold;
-            background-color: #e3f2fd;
+        .custom-config-box input {
+            width: 90%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #d1d1d6;
+            border-radius: 6px;
         }
     </style>
 </head>
@@ -94,164 +155,214 @@
 
     <h1>EL SUPERCOMPROBADOR DE NOTAS by Carlos Abal</h1>
 
-    <!-- 1ª PARTE DEL EXAMEN -->
-    <table>
-        <tr>
-            <th colspan="2" class="header-part">1ª parte del examen</th>
-        </tr>
-        <tr>
-            <td>Total de aciertos</td>
-            <td>
-                <input type="number" id="p1_aciertos" min="0" max="100" oninput="calcularNotas()">
-                <span id="p1_error" class="error-msg">❌ Error: debe sumar 100</span>
-            </td>
-        </tr>
-        <tr>
-            <td>Total de errores</td>
-            <td><input type="number" id="p1_errores" min="0" max="100" oninput="calcularNotas()"></td>
-        </tr>
-        <tr>
-            <td>Total en blanco</td>
-            <td><input type="number" id="p1_blanco" min="0" max="100" oninput="calcularNotas()"></td>
-        </tr>
-    </table>
+    <!-- Selector de Pestañas Inferior/Superior Adaptado -->
+    <div class="tabs-container">
+        <button class="tab-btn active" onclick="switchTab('tramitacion')">Tramitación</button>
+        <button class="tab-btn" onclick="switchTab('auxilio')">Auxilio Judicial</button>
+        <button class="tab-btn" onclick="switchTab('personalizado')">Personalizado</button>
+    </div>
 
-    <!-- 2ª PARTE DEL EXAMEN -->
-    <table>
-        <tr>
-            <th colspan="2" class="header-part">2ª parte del examen</th>
-        </tr>
-        <tr>
-            <td>Total de aciertos</td>
-            <td>
-                <input type="number" id="p2_aciertos" min="0" max="10" oninput="calcularNotas()">
-                <span id="p2_error" class="error-msg">❌ Error: debe sumar 10</span>
-            </td>
-        </tr>
-        <tr>
-            <td>Total de errores</td>
-            <td><input type="number" id="p2_errores" min="0" max="10" oninput="calcularNotas()"></td>
-        </tr>
-        <tr>
-            <td>Total en blanco</td>
-            <td><input type="number" id="p2_blanco" min="0" max="10" oninput="calcularNotas()"></td>
-        </tr>
-    </table>
+    <!-- ================= PESTAÑA 1: TRAMITACIÓN ================= -->
+    <div id="tab-tramitacion" class="tab-content active">
+        <!-- Parte 1 -->
+        <table>
+            <tr><th colspan="2" class="header-part">1ª parte del examen (100 preg.)</th></tr>
+            <tr><td>Aciertos</td><td><input type="number" id="t1_a" min="0" max="100" oninput="calcTramitacion()"></td></tr>
+            <tr><td>Errores</td><td><input type="number" id="t1_e" min="0" max="100" oninput="calcTramitacion()"></td></tr>
+            <tr><td>En blanco</td><td><input type="number" id="t1_b" class="read-only-blank" readonly value="100"> <span id="t1_err" class="error-msg">❌ Supera 100 preg.</span></td></tr>
+        </table>
+        <!-- Parte 2 -->
+        <table>
+            <tr><th colspan="2" class="header-part">2ª parte del examen (10 preg.)</th></tr>
+            <tr><td>Aciertos</td><td><input type="number" id="t2_a" min="0" max="10" oninput="calcTramitacion()"></td></tr>
+            <tr><td>Errores</td><td><input type="number" id="t2_e" min="0" max="10" oninput="calcTramitacion()"></td></tr>
+            <tr><td>En blanco</td><td><input type="number" id="t2_b" class="read-only-blank" readonly value="10"> <span id="t2_err" class="error-msg">❌ Supera 10 preg.</span></td></tr>
+        </table>
+        <!-- Parte 3 -->
+        <table>
+            <tr><th colspan="2" class="header-part">3ª parte del examen (20 preg.)</th></tr>
+            <tr><td>Aciertos</td><td><input type="number" id="t3_a" min="0" max="20" oninput="calcTramitacion()"></td></tr>
+            <tr><td>Errores</td><td><input type="number" id="t3_e" min="0" max="20" oninput="calcTramitacion()"></td></tr>
+            <tr><td>En blanco</td><td><input type="number" id="t3_b" class="read-only-blank" readonly value="20"> <span id="t3_err" class="error-msg">❌ Supera 20 preg.</span></td></tr>
+        </table>
+        <!-- Resultados -->
+        <table class="results-table">
+            <tr><th>RESUMEN TRAMITACIÓN</th><th class="scale-header">Nota Ofi.</th><th class="scale-header">Sobre 10</th></tr>
+            <tr><td>Total 1ª parte</td><td id="t_res1" class="score-val">0.00</td><td id="t_res1_10" class="score-val">0.00</td></tr>
+            <tr><td>Total 2ª parte</td><td id="t_res2" class="score-val">0.00</td><td id="t_res2_10" class="score-val">0.00</td></tr>
+            <tr><td>Total 3ª parte</td><td id="t_res3" class="score-val">0.00</td><td id="t_res3_10" class="score-val">0.00</td></tr>
+            <tr class="total-row"><td>Total del examen</td><td id="t_resG" class="score-val">0.00</td><td id="t_resG_10" class="score-val">0.00</td></tr>
+        </table>
+        <button class="btn-reset" onclick="resetForm('tramitacion')">Reiniciar Campos</button>
+    </div>
 
-    <!-- 3ª PARTE DEL EXAMEN -->
-    <table>
-        <tr>
-            <th colspan="2" class="header-part">3ª parte del examen</th>
-        </tr>
-        <tr>
-            <td>Total de aciertos</td>
-            <td>
-                <input type="number" id="p3_aciertos" min="0" max="20" oninput="calcularNotas()">
-                <span id="p3_error" class="error-msg">❌ Error: debe sumar 20</span>
-            </td>
-        </tr>
-        <tr>
-            <td>Total de errores</td>
-            <td><input type="number" id="p3_errores" min="0" max="20" oninput="calcularNotas()"></td>
-        </tr>
-        <tr>
-            <td>Total en blanco</td>
-            <td><input type="number" id="p3_blanco" min="0" max="20" oninput="calcularNotas()"></td>
-        </tr>
-    </table>
+    <!-- ================= PESTAÑA 2: AUXILIO JUDICIAL ================= -->
+    <div id="tab-auxilio" class="tab-content">
+        <!-- Parte 1 -->
+        <table>
+            <tr><th colspan="2" class="header-part">1ª parte del examen (100 preg.)</th></tr>
+            <tr><td>Aciertos</td><td><input type="number" id="a1_a" min="0" max="100" oninput="calcAuxilio()"></td></tr>
+            <tr><td>Errores</td><td><input type="number" id="a1_e" min="0" max="100" oninput="calcAuxilio()"></td></tr>
+            <tr><td>En blanco</td><td><input type="number" id="a1_b" class="read-only-blank" readonly value="100"> <span id="a1_err" class="error-msg">❌ Supera 100 preg.</span></td></tr>
+        </table>
+        <!-- Parte 2 -->
+        <table>
+            <tr><th colspan="2" class="header-part">2ª parte del examen (40 preg.)</th></tr>
+            <tr><td>Aciertos</td><td><input type="number" id="a2_a" min="0" max="40" oninput="calcAuxilio()"></td></tr>
+            <tr><td>Errores</td><td><input type="number" id="a2_e" min="0" max="40" oninput="calcAuxilio()"></td></tr>
+            <tr><td>En blanco</td><td><input type="number" id="a2_b" class="read-only-blank" readonly value="40"> <span id="a2_err" class="error-msg">❌ Supera 40 preg.</span></td></tr>
+        </table>
+        <!-- Resultados -->
+        <table class="results-table">
+            <tr><th>RESUMEN AUXILIO</th><th class="scale-header">Nota Ofi.</th><th class="scale-header">Sobre 10</th></tr>
+            <tr><td>Total 1ª parte</td><td id="au_res1" class="score-val">0.00</td><td id="au_res1_10" class="score-val">0.00</td></tr>
+            <tr><td>Total 2ª parte</td><td id="au_res2" class="score-val">0.00</td><td id="au_res2_10" class="score-val">0.00</td></tr>
+            <tr class="total-row"><td>Total del examen</td><td id="au_resG" class="score-val">0.00</td><td id="au_resG_10" class="score-val">0.00</td></tr>
+        </table>
+        <button class="btn-reset" onclick="resetForm('auxilio')">Reiniciar Campos</button>
+    </div>
 
-    <!-- SECCIÓN DE RESULTADOS -->
-    <table class="results-table">
-        <tr>
-            <th>RESUMEN DE NOTAS</th>
-            <th class="scale-header">Nota Oficial</th>
-            <th class="scale-header">Nota (sobre 10)</th>
-        </tr>
-        <tr>
-            <td>Total 1ª parte del examen</td>
-            <td id="res_p1" class="score-val">0.00</td>
-            <td id="res_p1_10" class="score-val" style="color: #515154;">0.00</td>
-        </tr>
-        <tr>
-            <td>Total 2ª parte del examen</td>
-            <td id="res_p2" class="score-val">0.00</td>
-            <td id="res_p2_10" class="score-val" style="color: #515154;">0.00</td>
-        </tr>
-        <tr>
-            <td>Total 3ª parte del examen</td>
-            <td id="res_p3" class="score-val">0.00</td>
-            <td id="res_p3_10" class="score-val" style="color: #515154;">0.00</td>
-        </tr>
-        <tr class="total-row">
-            <td>Total del examen</td>
-            <td id="res_global" class="score-val" style="color: #0071e3;">0.00</td>
-            <td id="res_global_10" class="score-val" style="color: #0071e3;">0.00</td>
-        </tr>
-    </table>
+    <!-- ================= PESTAÑA 3: PERSONALIZADO ================= -->
+    <div id="tab-personalizado" class="tab-content">
+        <div class="custom-config-box">
+            <h3 style="margin-top:0; color:#0071e3;">Configura la estructura:</h3>
+            <label>Nº Total de Preguntas:</label>
+            <input type="number" id="c_total" value="50" oninput="calcCustom()">
+            
+            <label>Puntos por Acierto:</label>
+            <input type="number" id="c_valA" value="1" step="0.1" oninput="calcCustom()">
+            
+            <label>Puntos que Resta cada Error (en positivo):</label>
+            <input type="number" id="c_valE" value="0.25" step="0.05" oninput="calcCustom()">
+        </div>
+
+        <table>
+            <tr><th colspan="2" class="header-part" id="c_title_dinamico">Examen Personalizado (50 preg.)</th></tr>
+            <tr><td>Aciertos</td><td><input type="number" id="c_a" min="0" oninput="calcCustom()"></td></tr>
+            <tr><td>Errores</td><td><input type="number" id="c_e" min="0" oninput="calcCustom()"></td></tr>
+            <tr><td>En blanco</td><td><input type="number" id="c_b" class="read-only-blank" readonly value="50"> <span id="c_err" class="error-msg">❌ Supera las preguntas.</span></td></tr>
+        </table>
+
+        <table class="results-table">
+            <tr><th>RESUMEN PERSONALIZADO</th><th class="scale-header">Nota Cálculo</th><th class="scale-header">Sobre 10</th></tr>
+            <tr class="total-row"><td>Total del examen</td><td id="c_resG" class="score-val">0.00</td><td id="c_resG_10" class="score-val">0.00</td></tr>
+        </table>
+        <button class="btn-reset" onclick="resetForm('personalizado')">Reiniciar Campos</button>
+    </div>
 
     <script>
-        function calcularNotas() {
-            // --- PARTE 1 ---
-            let rawA1 = document.getElementById('p1_aciertos').value;
-            let rawE1 = document.getElementById('p1_errores').value;
-            let rawB1 = document.getElementById('p1_blanco').value;
-            let nota1 = 0;
-            if (rawA1 !== "" || rawE1 !== "" || rawB1 !== "") {
-                let a1 = parseInt(rawA1) || 0;
-                let e1 = parseInt(rawE1) || 0;
-                let b1 = parseInt(rawB1) || 0;
-                if (rawA1 !== "" && rawE1 !== "" && rawB1 !== "" && (a1 + e1 + b1) !== 100) {
-                    document.getElementById('p1_error').style.display = 'inline';
-                } else {
-                    document.getElementById('p1_error').style.display = 'none';
-                }
-                nota1 = (a1 * 0.6) - (e1 * 0.15);
-            }
-            document.getElementById('res_p1').innerText = nota1.toFixed(2);
-            document.getElementById('res_p1_10').innerText = ((nota1 / 60) * 10).toFixed(2);
+        // Navegación entre pestañas
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.currentTarget.classList.add('active');
+            document.getElementById('tab-' + tabId).classList.add('active');
+        }
 
-            // --- PARTE 2 ---
-            let rawA2 = document.getElementById('p2_aciertos').value;
-            let rawE2 = document.getElementById('p2_errores').value;
-            let rawB2 = document.getElementById('p2_blanco').value;
-            let nota2 = 0;
-            if (rawA2 !== "" || rawE2 !== "" || rawB2 !== "") {
-                let a2 = parseInt(rawA2) || 0;
-                let e2 = parseInt(rawE2) || 0;
-                let b2 = parseInt(rawB2) || 0;
-                if (rawA2 !== "" && rawE2 !== "" && rawB2 !== "" && (a2 + e2 + b2) !== 10) {
-                    document.getElementById('p2_error').style.display = 'inline';
-                } else {
-                    document.getElementById('p2_error').style.display = 'none';
-                }
-                nota2 = (a2 * 2) - (e2 * 0.5);
-            }
-            document.getElementById('res_p2').innerText = nota2.toFixed(2);
-            document.getElementById('res_p2_10').innerText = ((nota2 / 20) * 10).toFixed(2);
+        // Helper para leer números limpios
+        function getVal(id) {
+            let v = document.getElementById(id).value;
+            return v === "" ? "" : (parseInt(v) || 0);
+        }
 
-            // --- PARTE 3 ---
-            let rawA3 = document.getElementById('p3_aciertos').value;
-            let rawE3 = document.getElementById('p3_errores').value;
-            let rawB3 = document.getElementById('p3_blanco').value;
-            let nota3 = 0;
-            if (rawA3 !== "" || rawE3 !== "" || rawB3 !== "") {
-                let a3 = parseInt(rawA3) || 0;
-                let e3 = parseInt(rawE3) || 0;
-                let b3 = parseInt(rawB3) || 0;
-                if (rawA3 !== "" && rawE3 !== "" && rawB3 !== "" && (a3 + e3 + b3) !== 20) {
-                    document.getElementById('p3_error').style.display = 'inline';
-                } else {
-                    document.getElementById('p3_error').style.display = 'none';
-                }
-                nota3 = (a3 * 1) - (e3 * 0.25);
-            }
-            document.getElementById('res_p3').innerText = nota3.toFixed(2);
-            document.getElementById('res_p3_10').innerText = ((nota3 / 20) * 10).toFixed(2);
+        // === CÁLCULOS TRAMITACIÓN ===
+        function calcTramitacion() {
+            let a1 = getVal('t1_a'), e1 = getVal('t1_e');
+            let a2 = getVal('t2_a'), e2 = getVal('t2_e');
+            let a3 = getVal('t3_a'), e3 = getVal('t3_e');
 
-            // --- TOTAL GLOBAL ---
-            let totalGlobal = nota1 + nota2 + nota3;
-            document.getElementById('res_global').innerText = totalGlobal.toFixed(2);
-            document.getElementById('res_global_10').innerText = ((totalGlobal / 100) * 10).toFixed(2);
+            // Lógica Parte 1 (100 preg)
+            let b1 = 100 - ((a1===""?0:a1) + (e1===""?0:e1));
+            document.getElementById('t1_b').value = b1 < 0 ? 0 : b1;
+            document.getElementById('t1_err').style.display = b1 < 0 ? 'inline' : 'none';
+            let n1 = a1 === "" && e1 === "" ? 0 : ((a1||0)*0.6) - ((e1||0)*0.15);
+            document.getElementById('t_res1').innerText = n1.toFixed(2);
+            document.getElementById('t_res1_10').innerText = ((n1/60)*10).toFixed(2);
+
+            // Lógica Parte 2 (10 preg)
+            let b2 = 10 - ((a2===""?0:a2) + (e2===""?0:e2));
+            document.getElementById('t2_b').value = b2 < 0 ? 0 : b2;
+            document.getElementById('t2_err').style.display = b2 < 0 ? 'inline' : 'none';
+            let n2 = a2 === "" && e2 === "" ? 0 : ((a2||0)*2) - ((e2||0)*0.5);
+            document.getElementById('t_res2').innerText = n2.toFixed(2);
+            document.getElementById('t_res2_10').innerText = ((n2/20)*10).toFixed(2);
+
+            // Lógica Parte 3 (20 preg)
+            let b3 = 20 - ((a3===""?0:a3) + (e3===""?0:e3));
+            document.getElementById('t3_b').value = b3 < 0 ? 0 : b3;
+            document.getElementById('t3_err').style.display = b3 < 0 ? 'inline' : 'none';
+            let n3 = a3 === "" && e3 === "" ? 0 : ((a3||0)*1) - ((e3||0)*0.25);
+            document.getElementById('t_res3').innerText = n3.toFixed(2);
+            document.getElementById('t_res3_10').innerText = ((n3/20)*10).toFixed(2);
+
+            // Global
+            let total = n1 + n2 + n3;
+            document.getElementById('t_resG').innerText = total.toFixed(2);
+            document.getElementById('t_resG_10').innerText = ((total/100)*10).toFixed(2);
+        }
+
+        // === CÁLCULOS AUXILIO JUDICIAL ===
+        function calcAuxilio() {
+            let a1 = getVal('a1_a'), e1 = getVal('a1_e');
+            let a2 = getVal('a2_a'), e2 = getVal('a2_e');
+
+            // Parte 1 (100 preg)
+            let b1 = 100 - ((a1===""?0:a1) + (e1===""?0:e1));
+            document.getElementById('a1_b').value = b1 < 0 ? 0 : b1;
+            document.getElementById('a1_err').style.display = b1 < 0 ? 'inline' : 'none';
+            let n1 = a1 === "" && e1 === "" ? 0 : ((a1||0)*0.6) - ((e1||0)*0.15);
+            document.getElementById('au_res1').innerText = n1.toFixed(2);
+            document.getElementById('au_res1_10').innerText = ((n1/60)*10).toFixed(2);
+
+            // Parte 2 (40 preg)
+            let b2 = 40 - ((a2===""?0:a2) + (e2===""?0:e2));
+            document.getElementById('a2_b').value = b2 < 0 ? 0 : b2;
+            document.getElementById('a2_err').style.display = b2 < 0 ? 'inline' : 'none';
+            let n2 = a2 === "" && e2 === "" ? 0 : ((a2||0)*1) - ((e2||0)*0.25);
+            document.getElementById('au_res2').innerText = n2.toFixed(2);
+            document.getElementById('au_res2_10').innerText = ((n2/40)*10).toFixed(2);
+
+            // Global
+            let total = n1 + n2;
+            document.getElementById('au_resG').innerText = total.toFixed(2);
+            document.getElementById('au_resG_10').innerText = ((total/100)*10).toFixed(2);
+        }
+
+        // === CÁLCULOS PERSONALIZADO ===
+        function calcCustom() {
+            let totalPreg = parseInt(document.getElementById('c_total').value) || 0;
+            let valA = parseFloat(document.getElementById('c_valA').value) || 0;
+            let valE = parseFloat(document.getElementById('c_valE').value) || 0;
+
+            document.getElementById('c_title_dinamico').innerText = `Examen Personalizado (${totalPreg} preg.)`;
+
+            let a = getVal('c_a'), e = getVal('c_e');
+            let b = totalPreg - ((a===""?0:a) + (e===""?0:e));
+            
+            document.getElementById('c_b').value = b < 0 ? 0 : b;
+            document.getElementById('c_err').style.display = b < 0 ? 'inline' : 'none';
+
+            let notaMaxPosible = totalPreg * valA;
+            let notaRaw = a === "" && e === "" ? 0 : ((a||0)*valA) - ((e||0)*valE);
+            
+            document.getElementById('c_resG').innerText = notaRaw.toFixed(2);
+            document.getElementById('c_resG_10').innerText = notaMaxPosible > 0 ? ((notaRaw / notaMaxPosible) * 10).toFixed(2) : "0.00";
+        }
+
+        // Resetear formularios
+        function resetForm(tab) {
+            if(tab === 'tramitacion') {
+                document.querySelectorAll('#tab-tramitacion input[type="number"]:not([readonly])').forEach(i => i.value = "");
+                calcTramitacion();
+            } else if(tab === 'auxilio') {
+                document.querySelectorAll('#tab-auxilio input[type="number"]:not([readonly])').forEach(i => i.value = "");
+                calcAuxilio();
+            } else if(tab === 'personalizado') {
+                document.getElementById('c_a').value = "";
+                document.getElementById('c_e').value = "";
+                calcCustom();
+            }
         }
     </script>
 </body>
