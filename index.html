@@ -524,6 +524,7 @@
             let a1 = getVal('t1_a'), e1 = getVal('t1_e'), a2 = getVal('t2_a'), e2 = getVal('t2_e'), a3 = getVal('t3_a'), e3 = getVal('t3_e');
             let hasData = (a1!==""||e1!==""||a2!==""||e2!==""||a3!==""||e3!=="");
 
+            // Parte 1
             let b1 = 100 - ((a1===""?0:a1) + (e1===""?0:e1));
             document.getElementById('t1_b').value = b1 < 0 ? 0 : b1;
             document.getElementById('t1_err').style.display = b1 < 0 ? 'inline' : 'none';
@@ -532,6 +533,7 @@
             document.getElementById('t_res1_10').innerText = ((n1/60)*10).toFixed(2);
             let p1 = n1 >= 30; updateStyle('t_res1', p1); updateStyle('t_res1_10', p1);
 
+            // Parte 2
             let b2 = 10 - ((a2===""?0:a2) + (e2===""?0:e2));
             document.getElementById('t2_b').value = b2 < 0 ? 0 : b2;
             document.getElementById('t2_err').style.display = b2 < 0 ? 'inline' : 'none';
@@ -540,15 +542,16 @@
             document.getElementById('t_res2_10').innerText = ((n2/20)*10).toFixed(2);
             let p2 = n2 >= 10; updateStyle('t_res2', p2); updateStyle('t_res2_10', p2);
 
+            // Parte 3 (CORREGIDO AQUÍ)
             let b3 = 20 - ((a3===""?0:a3) + (e3===""?0:e3));
             document.getElementById('t3_b').value = b3 < 0 ? 0 : b3;
             document.getElementById('t3_err').style.display = b3 < 0 ? 'inline' : 'none';
             let n3 = a3 === "" && e3 === "" ? 0 : Math.max(0, ((a3||0)*1) - ((e3||0)*0.25));
-            document.getElementById('t3_res3').innerText = n3.toFixed(2); // Fix explicit variable fallback
-            if(document.getElementById('t_res3')) document.getElementById('t_res3').innerText = n3.toFixed(2);
+            document.getElementById('t_res3').innerText = n3.toFixed(2); // Ahora apunta correctamente a t_res3
             document.getElementById('t_res3_10').innerText = ((n3/20)*10).toFixed(2);
             let p3 = n3 >= 10; updateStyle('t_res3', p3); updateStyle('t_res3_10', p3);
 
+            // Total
             let total = n1 + n2 + n3;
             let prevGlobal = parseFloat(document.getElementById('t_resG_10').innerText) || 0;
             let globalPass = (p1 && p2 && p3);
@@ -561,7 +564,6 @@
             displayVerdict('t_verdict', 't_save_box', globalPass, hasData);
             if(globalPass && score10 !== prevGlobal) checkTargetCelebration(score10);
         }
-
         // ====== LÓGICA: AUXILIO JUDICIAL ======
         function calcAuxilio() {
             let a1 = getVal('a1_a'), e1 = getVal('a1_e'), a2 = getVal('a2_a'), e2 = getVal('a2_e');
