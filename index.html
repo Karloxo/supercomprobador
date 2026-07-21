@@ -296,7 +296,7 @@
         <button class="btn-action btn-reset" onclick="resetForm('personalizado')" data-i18n="btn_reset">Reiniciar Campos</button>
     </div>
 
-    <!-- ================= PESTAÑA 4: SIMULADOR PREDICTIVO ================= -->
+<!-- ================= PESTAÑA 4: SIMULADOR PREDICTIVO ================= -->
     <div id="tab-predictor" class="tab-content">
         <div class="custom-config-box">
             <h3 style="margin:0 0 10px 0; color:#0071e3;" data-i18n="pred_title">Estrategia de Aprobado</h3>
@@ -310,7 +310,7 @@
             <div id="sim-custom-config" style="display:none; margin-top:10px; border-top:1px dashed var(--border-color); padding-top:10px;">
                 <label data-i18n="pred_cust_label">Partes del Examen Personalizado:</label>
                 <select id="sim-c-partes" onchange="buildPredictorSliders()">
-                    <option value="1">1 </option><option value="2">2 </option><option value="3">3 </option>
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option>
                 </select>
                 <div id="sim-c-baremos" style="margin-top:10px;"></div>
             </div>
@@ -878,7 +878,7 @@
             reader.readAsText(file);
         }
 
-        // --- SIMULADOR PREDICTIVO ---
+// --- SIMULADOR PREDICTIVO ---
         function setupPredictorMode() {
             let type = document.getElementById('sim-type').value;
             let customConfig = document.getElementById('sim-custom-config');
@@ -912,30 +912,84 @@
             let root = document.getElementById('sim-sliders-root');
             root.innerHTML = '';
             let sections = [];
+            let lang = appSettings.lang || 'es';
 
             if (type === 'tramitacion') {
-                sections = [{id: 't1', name: 'Parte 1', max: 100}, {id: 't2', name: 'Parte 2', max: 10}, {id: 't3', name: 'Parte 3', max: 20}];
+                sections = [
+                    {id: 't1', name: 'Parte 1', max: 100, ptsHit: 1, ptsErr: 0.25},
+                    {id: 't2', name: 'Parte 2', max: 10, ptsHit: 1, ptsErr: 0.25},
+                    {id: 't3', name: 'Parte 3', max: 20, ptsHit: 1, ptsErr: 0.25}
+                ];
             } else if (type === 'auxilio') {
-                sections = [{id: 'a1', name: 'Parte 1', max: 100}, {id: 'a2', name: 'Parte 2', max: 40}];
+                sections = [
+                    {id: 'a1', name: 'Parte 1', max: 100, ptsHit: 1, ptsErr: 0.25},
+                    {id: 'a2', name: 'Parte 2', max: 40, ptsHit: 1, ptsErr: 0.25}
+                ];
             } else {
                 let n = parseInt(document.getElementById('sim-c-partes').value) || 1;
                 for (let i = 1; i <= n; i++) {
                     let m = parseInt(document.getElementById(`sim_cp_${i}_preg`) ? document.getElementById(`sim_cp_${i}_preg`).value : 20) || 20;
-                    sections.push({id: `c${i}`, name: `Parte ${i}`, max: m});
+                    let pHit = parseFloat(document.getElementById(`sim_cp_${i}_pts`) ? document.getElementById(`sim_cp_${i}_pts`).value : 1) || 1;
+                    let pErr = parseFloat(document.getElementById(`sim_cp_${i}_res`) ? document.getElementById(`sim_cp_${i}_res`).value : 0.25) || 0.25;
+                    sections.push({id: `c${i}`, name: `Parte ${i}`, max: m, ptsHit: pHit, ptsErr: pErr});
                 }
             }
+
+            let txtAcertos = lenguajes[lang].row_correct;
+            let txtErros = lenguajes[lang].row_errors;
+            let txtBranco = lenguajes[lang].row_blank;
 
             sections.forEach(sec => {
                 root.innerHTML += `
                     <div class="dashboard-card">
+                        <h4 style="margin:0 0 10px 0; color:#0071e3;">${sec.name} (${sec.max} preg.)</h4>
+                        
                         <div class="sim-row">
-                            <label>${sec.name} <span id="val-${sec.id}">0 / ${sec.max} preg.</span></label>
+                            <label>${txtAcertos}: <span id="val-a-${sec.id}">0</span></label>
                             <div class="range-container">
-                                <input type="range" id="slider-${sec.id}" min="0" max="${sec.max}" value="0" oninput="runPrediction()">
+                                <input type="range" id="slider-a-${sec.id}" min="0" max="${sec.max}" value="0" oninput="updateSimSliders('${sec.id}', 'a', ${sec.max})">
                             </div>
+                        </div>
+
+                        <div class="sim-row">
+                            <label>${txtErros}: <span id="val-e-${sec.id}">0</span></label>
+                            <div class="range-container">
+                                <input type="range" id="slider-e-${sec.id}" min="0" max="${sec.max}" value="0" oninput="updateSimSliders('${sec.id}', 'e', ${sec.max})">
+                            </div>
+                        </div>
+
+                        <div style="font-size:0.85rem; color:var(--text-secondary); display:flex; justify-content:space-between; margin-top:8px; border-top:1px dashed var(--border-color); padding-top:8px;">
+                            <span>${txtBranco}: <strong id="val-b-${sec.id}">${sec.max}</strong></span>
+                            <span>Puntos: <strong id="val-pts-${sec.id}" style="color:var(--text-main);">0.00</strong></span>
                         </div>
                     </div>`;
             });
+            runPrediction();
+        }
+
+        function updateSimSliders(secId, changedType, maxPreg) {
+            let sliderA = document.getElementById(`slider-a-${secId}`);
+            let sliderE = document.getElementById(`slider-e-${secId}`);
+            if (!sliderA || !sliderE) return;
+
+            let valA = parseInt(sliderA.value) || 0;
+            let valE = parseInt(sliderE.value) || 0;
+
+            if (valA + valE > maxPreg) {
+                if (changedType === 'a') {
+                    valE = maxPreg - valA;
+                    sliderE.value = valE;
+                } else {
+                    valA = maxPreg - valE;
+                    sliderA.value = valA;
+                }
+            }
+
+            let valB = maxPreg - (valA + valE);
+            document.getElementById(`val-a-${secId}`).innerText = valA;
+            document.getElementById(`val-e-${secId}`).innerText = valE;
+            document.getElementById(`val-b-${secId}`).innerText = valB;
+
             runPrediction();
         }
 
@@ -946,37 +1000,52 @@
             let preguntasRespondidas = 0;
             let puntuacionTotal = 0;
             let maxPuntuacionPosible = 0;
-            let lang = appSettings.lang;
+            let lang = appSettings.lang || 'es';
 
             if (type === 'tramitacion') {
-                sections = [{id: 't1', max: 100, scale: 100}, {id: 't2', max: 10, scale: 10}, {id: 't3', max: 20, scale: 20}];
+                sections = [
+                    {id: 't1', max: 100, ptsHit: 1, ptsErr: 0.25},
+                    {id: 't2', max: 10, ptsHit: 1, ptsErr: 0.25},
+                    {id: 't3', max: 20, ptsHit: 1, ptsErr: 0.25}
+                ];
                 maxPuntuacionPosible = 130;
             } else if (type === 'auxilio') {
-                sections = [{id: 'a1', max: 100, scale: 100}, {id: 'a2', max: 40, scale: 40}];
+                sections = [
+                    {id: 'a1', max: 100, ptsHit: 1, ptsErr: 0.25},
+                    {id: 'a2', max: 40, ptsHit: 1, ptsErr: 0.25}
+                ];
                 maxPuntuacionPosible = 140;
             } else {
                 let n = parseInt(document.getElementById('sim-c-partes').value) || 1;
                 for (let i = 1; i <= n; i++) {
                     let m = parseInt(document.getElementById(`sim_cp_${i}_preg`) ? document.getElementById(`sim_cp_${i}_preg`).value : 20) || 20;
-                    let p = parseFloat(document.getElementById(`sim_cp_${i}_pts`) ? document.getElementById(`sim_cp_${i}_pts`).value : 1) || 1;
-                    sections.push({id: `c${i}`, max: m, pts: p});
-                    maxPuntuacionPosible += (m * p);
+                    let pHit = parseFloat(document.getElementById(`sim_cp_${i}_pts`) ? document.getElementById(`sim_cp_${i}_pts`).value : 1) || 1;
+                    let pErr = parseFloat(document.getElementById(`sim_cp_${i}_res`) ? document.getElementById(`sim_cp_${i}_res`).value : 0.25) || 0.25;
+                    sections.push({id: `c${i}`, max: m, ptsHit: pHit, ptsErr: pErr});
+                    maxPuntuacionPosible += (m * pHit);
                 }
             }
 
             sections.forEach(sec => {
                 totalPreguntasExamen += sec.max;
-                let slider = document.getElementById(`slider-${sec.id}`);
-                if (slider) {
-                    let val = parseInt(slider.value) || 0;
-                    preguntasRespondidas += val;
-                    document.getElementById(`val-${sec.id}`).innerText = `${val} / ${sec.max} preg.`;
+                let sliderA = document.getElementById(`slider-a-${sec.id}`);
+                let sliderE = document.getElementById(`slider-e-${sec.id}`);
+                if (sliderA && sliderE) {
+                    let valA = parseInt(sliderA.value) || 0;
+                    let valE = parseInt(sliderE.value) || 0;
+                    let valB = sec.max - (valA + valE);
+
+                    preguntasRespondidas += (valA + valE);
+
+                    let secPts = Math.max(0, (valA * sec.ptsHit) - (valE * sec.ptsErr));
+                    puntuacionTotal += secPts;
+
+                    let ptsElem = document.getElementById(`val-pts-${sec.id}`);
+                    if (ptsElem) ptsElem.innerText = secPts.toFixed(2);
                     
-                    if (type === 'tramitacion' || type === 'auxilio') {
-                        puntuacionTotal += val;
-                    } else {
-                        puntuacionTotal += (val * sec.pts);
-                    }
+                    document.getElementById(`val-a-${sec.id}`).innerText = valA;
+                    document.getElementById(`val-e-${sec.id}`).innerText = valE;
+                    document.getElementById(`val-b-${sec.id}`).innerText = valB;
                 }
             });
 
