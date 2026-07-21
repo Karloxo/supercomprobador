@@ -758,120 +758,159 @@
             }
         }
 
+// =========================================================================
 // --- LÓGICA DE CÁLCULO EXAMEN PERSONALIZADO (CON DESGLOSE) ---
-        function calcPersonalizado() {
-            let target = appSettings ? appSettings.target : 5.0;
-            let n = parseInt(document.getElementById('c_partes') ? document.getElementById('c_partes').value : 1) || 1;
-            
-            let totalObtenido = 0;
-            let totalMaximo = 0;
-            let hasError = false;
+// =========================================================================
 
-            // Inicio del bloque HTML para el desglose
-            let breakdownHTML = `<div style="margin-top:12px; padding-top:10px; border-top:1px dashed var(--border-color); font-size:0.88rem;">
-                <strong style="display:block; margin-bottom:8px; color:var(--text-secondary); text-transform:uppercase; font-size:0.75rem; letter-spacing:0.5px;">Desglose por partes</strong>`;
+function generateCustomStructure() {
+    const numPartes = parseInt(document.getElementById('c_num_partes')?.value) || 1;
+    const configRoot = document.getElementById('custom-parts-config-root');
+    const lang = (typeof appSettings !== 'undefined' && appSettings.lang) ? appSettings.lang : 'es';
+    const dict = (typeof lenguajes !== 'undefined' && lenguajes[lang]) ? lenguajes[lang] : (typeof lenguajes !== 'undefined' ? lenguajes.es : {});
 
-            for (let i = 1; i <= n; i++) {
-                let aElem = document.getElementById(`c${i}_a`);
-                let eElem = document.getElementById(`c${i}_e`);
-                let pregElem = document.getElementById(`c_p${i}_preg`);
-                let ptsElem = document.getElementById(`c_p${i}_pts`);
-                let resElem = document.getElementById(`c_p${i}_res`);
+    if (!configRoot) return;
 
-                if (!aElem || !eElem) continue;
+    let configHTML = '';
+    for (let i = 1; i <= numPartes; i++) {
+        configHTML += `
+        <div class="part-config-container" style="margin-bottom: 12px; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
+            <strong>${dict.part || 'Parte'} ${i}</strong>
+            <div class="grid-config-inputs" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px;">
+                <div>
+                    <label style="display:block; font-size: 0.85em;">${dict.c_lbl_preg || 'Preguntas'}:</label>
+                    <input type="number" id="c_cfg_q_${i}" value="100" min="1" style="width:100%;" oninput="generateCustomTables();">
+                </div>
+                <div>
+                    <label style="display:block; font-size: 0.85em;">${dict.c_lbl_pts || 'Puntos +'}:</label>
+                    <input type="number" id="c_cfg_p_${i}" value="1" step="0.01" min="0" style="width:100%;" oninput="calcPersonalizado();">
+                </div>
+                <div>
+                    <label style="display:block; font-size: 0.85em;">${dict.c_lbl_rest || 'Resta -'}:</label>
+                    <input type="number" id="c_cfg_r_${i}" value="0.33" step="0.01" min="0" style="width:100%;" oninput="calcPersonalizado();">
+                </div>
+            </div>
+        </div>`;
+    }
+    configRoot.innerHTML = configHTML;
 
-                let a = parseInt(aElem.value) || 0;
-                let e = parseInt(eElem.value) || 0;
-                let maxPreg = parseInt(pregElem ? pregElem.value : 20) || 20;
-                let ptsHit = parseFloat(ptsElem ? ptsElem.value : 1) || 1;
-                let ptsErr = parseFloat(resElem ? resElem.value : 0.25) || 0.25;
+    // Renderiza dinámicamente las tablas de datos de la plantilla
+    generateCustomTables();
+}
 
-                let errBox = document.getElementById(`c${i}_err`);
-                let bElem = document.getElementById(`c${i}_b`);
-                let resPartElem = document.getElementById(`c_res${i}`);
-                let resPart10Elem = document.getElementById(`c_res${i}_10`);
+function generateCustomTables() {
+    const numPartes = parseInt(document.getElementById('c_num_partes')?.value) || 1;
+    const tablesRoot = document.getElementById('custom-tables-root');
+    const breakdownContainer = document.getElementById('c_breakdown_summary');
+    const lang = (typeof appSettings !== 'undefined' && appSettings.lang) ? appSettings.lang : 'es';
+    const dict = (typeof lenguajes !== 'undefined' && lenguajes[lang]) ? lenguajes[lang] : (typeof lenguajes !== 'undefined' ? lenguajes.es : {});
 
-                if (a + e > maxPreg) {
-                    hasError = true;
-                    if (errBox) errBox.style.display = 'inline';
-                    if (bElem) bElem.value = '-';
-                    if (resPartElem) resPartElem.innerText = '-';
-                    if (resPart10Elem) resPart10Elem.innerText = '-';
-                    applyScoreColor(resPart10Elem, null);
-                } else {
-                    if (errBox) errBox.style.display = 'none';
-                    let b = Math.max(0, maxPreg - (a + e));
-                    if (bElem) bElem.value = b;
+    if (!tablesRoot) return;
 
-                    let maxPartPts = maxPreg * ptsHit;
-                    let partPts = Math.max(0, (a * ptsHit) - (e * ptsErr));
-                    let part10 = maxPartPts > 0 ? (partPts / maxPartPts) * 10 : 0;
+    let tablesHTML = '';
+    let breakdownHTML = '';
 
-                    if (resPartElem) resPartElem.innerText = partPts.toFixed(2);
-                    if (resPart10Elem) resPart10Elem.innerText = part10.toFixed(2);
-                    applyScoreColor(resPart10Elem, part10, 5.0);
+    for (let i = 1; i <= numPartes; i++) {
+        const totalPreg = parseInt(document.getElementById(`c_cfg_q_${i}`)?.value) || 100;
 
-                    totalObtenido += partPts;
-                    totalMaximo += maxPartPts;
+        tablesHTML += `
+        <table class="data-table" style="margin-bottom: 15px; width: 100%;">
+            <thead>
+                <tr><th colspan="2" class="header-part" style="text-align: left; padding: 6px;">${dict.part || 'Parte'} ${i} (${totalPreg} preg.)</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="padding: 6px;">${dict.row_correct || 'Acertos'}</td>
+                    <td style="padding: 6px;"><input type="number" id="c_a_${i}" min="0" max="${totalPreg}" style="width: 100%;" oninput="calcPersonalizado()"></td>
+                </tr>
+                <tr>
+                    <td style="padding: 6px;">${dict.row_errors || 'Errores'}</td>
+                    <td style="padding: 6px;"><input type="number" id="c_e_${i}" min="0" max="${totalPreg}" style="width: 100%;" oninput="calcPersonalizado()"></td>
+                </tr>
+                <tr>
+                    <td style="padding: 6px;">${dict.row_blank || 'En blanco'}</td>
+                    <td style="padding: 6px;">
+                        <input type="number" id="c_b_${i}" class="read-only-blank" readonly value="${totalPreg}" style="width: 70%;">
+                        <span id="c_err_${i}" class="error-msg" style="display:none; color: red; font-weight: bold; margin-left: 5px;">❌ &gt; ${totalPreg}</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>`;
 
-                    // Fila individual de desglose
-                    breakdownHTML += `
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                            <span>Parte ${i}:</span>
-                            <span><strong>${partPts.toFixed(2)}</strong> / ${maxPartPts.toFixed(2)} pts <small style="color:var(--text-secondary);">(${part10.toFixed(2)}/10)</small></span>
-                        </div>`;
-                }
-            }
+        breakdownHTML += `
+        <tr>
+            <td>${dict.total_part || 'Total Parte'} ${i}</td>
+            <td id="c_res_${i}" class="score-val">0.00</td>
+            <td id="c_res_${i}_10" class="score-val">0.00</td>
+        </tr>`;
+    }
 
-            breakdownHTML += '</div>';
+    tablesRoot.innerHTML = tablesHTML;
 
-            // Actualización del cuadro resumen
-            let resGElem = document.getElementById('c_resG');
-            let resG10Elem = document.getElementById('c_resG_10');
-            let breakdownContainer = document.getElementById('c_breakdown_summary');
-            let verdictBox = document.getElementById('c_verdict');
-            let saveBox = document.getElementById('c_save_box');
+    if (breakdownContainer) {
+        breakdownContainer.innerHTML = `
+        <table class="results-table" style="margin-top: 10px; width: 100%;">
+            <thead>
+                <tr>
+                    <th>${dict.cust_summary || 'RESUMEN'}</th>
+                    <th class="scale-header">${dict.th_pts || 'Puntos'}</th>
+                    <th class="scale-header">Sobre 10</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${breakdownHTML}
+            </tbody>
+        </table>`;
+    }
 
-            if (hasError) {
-                if (resGElem) resGElem.innerText = '-';
-                if (resG10Elem) resG10Elem.innerText = '-';
-                applyScoreColor(resG10Elem, null);
-                if (breakdownContainer) breakdownContainer.innerHTML = '';
-                if (verdictBox) verdictBox.style.display = 'none';
-                if (saveBox) saveBox.style.display = 'none';
-            } else {
-                let total10 = totalMaximo > 0 ? (totalObtenido / totalMaximo) * 10 : 0;
-                if (resGElem) resGElem.innerText = totalObtenido.toFixed(2);
-                if (resG10Elem) resG10Elem.innerText = total10.toFixed(2);
-                
-                applyScoreColor(resG10Elem, total10, target);
+    calcPersonalizado();
+}
 
-                if (breakdownContainer) {
-                    breakdownContainer.innerHTML = breakdownHTML;
-                }
+function calcPersonalizado() {
+    const numPartes = parseInt(document.getElementById('c_num_partes')?.value) || 1;
+    let totalPuntos = 0;
+    let totalMaxPuntos = 0;
 
-                mostrarVeredictoPersonalizado(total10);
-            }
+    for (let i = 1; i <= numPartes; i++) {
+        const totalQ = parseFloat(document.getElementById(`c_cfg_q_${i}`)?.value) || 0;
+        const ptsPos = parseFloat(document.getElementById(`c_cfg_p_${i}`)?.value) || 0;
+        const ptsNeg = parseFloat(document.getElementById(`c_cfg_r_${i}`)?.value) || 0;
+
+        const aEl = document.getElementById(`c_a_${i}`);
+        const eEl = document.getElementById(`c_e_${i}`);
+        const bEl = document.getElementById(`c_b_${i}`);
+        const errEl = document.getElementById(`c_err_${i}`);
+
+        const a = parseFloat(aEl?.value) || 0;
+        const e = parseFloat(eEl?.value) || 0;
+
+        const contestadas = a + e;
+        const blanco = totalQ - contestadas;
+
+        if (bEl) bEl.value = Math.max(0, blanco);
+
+        if (errEl) {
+            errEl.style.display = contestadas > totalQ ? 'inline' : 'none';
         }
 
-        function mostrarVeredictoPersonalizado(total10) {
-            let box = document.getElementById('c_verdict');
-            let saveBox = document.getElementById('c_save_box');
-            let target = appSettings ? appSettings.target : 5.0;
-            let lang = appSettings ? appSettings.lang : 'es';
+        const scorePart = Math.max(0, (a * ptsPos) - (e * ptsNeg));
+        const maxPart = totalQ * ptsPos;
 
-            if (!box) return;
-            box.style.display = 'block';
-            if (saveBox) saveBox.style.display = 'block';
+        totalPuntos += scorePart;
+        totalMaxPuntos += maxPart;
 
-            if (total10 >= target) {
-                box.className = 'verdict-box verdict-pass';
-                box.innerHTML = (lenguajes[lang].txt_pass || 'APROBADO') + ` (${total10.toFixed(2)} / 10)`;
-            } else {
-                box.className = 'verdict-box verdict-fail';
-                box.innerHTML = (lenguajes[lang].txt_fail || 'SUSPENSO') + ` (${total10.toFixed(2)} / 10)`;
-            }
-        }
+        const resEl = document.getElementById(`c_res_${i}`);
+        const res10El = document.getElementById(`c_res_${i}_10`);
+
+        if (resEl) resEl.innerText = scorePart.toFixed(2);
+        if (res10El) res10El.innerText = maxPart > 0 ? ((scorePart / maxPart) * 10).toFixed(2) : "0.00";
+    }
+
+    const resG = document.getElementById('c_resG');
+    const resG10 = document.getElementById('c_resG_10');
+
+    if (resG) resG.innerText = totalPuntos.toFixed(2);
+    if (resG10) resG10.innerText = totalMaxPuntos > 0 ? ((totalPuntos / totalMaxPuntos) * 10).toFixed(2) : "0.00";
+}
 
         // --- VEREDICTOS Y GUARDADO ---
         function mostrarVeredicto(prefix, nota10) {
