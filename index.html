@@ -439,6 +439,7 @@
             loadSettings();
             generateCustomStructure();
             setupPredictorMode();
+            setupEnterNavigation();
         });
 
         function toggleSidebar() { document.getElementById('app-sidebar').classList.toggle('open'); }
@@ -466,6 +467,34 @@
             document.documentElement.setAttribute('data-theme', appSettings.theme);
             localStorage.setItem('app_comprobador_settings', JSON.stringify(appSettings));
             aplicarIdioma();
+        }
+
+        // --- NAVEGACIÓN CON ENTER ENTRE CAMPOS ---
+        function setupEnterNavigation() {
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    let target = e.target;
+                    if (target && target.tagName === 'INPUT' && target.type === 'number') {
+                        e.preventDefault();
+                        let nextId = target.getAttribute('data-next');
+                        if (nextId) {
+                            let nextInput = document.getElementById(nextId);
+                            if (nextInput) {
+                                nextInput.focus();
+                                nextInput.select();
+                            }
+                        } else {
+                            // Búsqueda automática basada en orden de inputs numéricos si no hay data-next explícito
+                            let inputs = Array.from(document.querySelectorAll('.tab-content.active input[type="number"]'));
+                            let idx = inputs.indexOf(target);
+                            if (idx !== -1 && idx + 1 < inputs.length) {
+                                inputs[idx + 1].focus();
+                                inputs[idx + 1].select();
+                            }
+                        }
+                    }
+                }
+            });
         }
 
         // --- NAVEGACIÓN DE PESTAÑAS ---
@@ -510,7 +539,6 @@
             let res3 = Math.max(0, a3 - (e3 / 4));
             let res3_10 = (res3 / 20) * 10;
 
-            // Corrección de suma de parte 3
             let totalOfi = res1 + res2 + res3;
             let total10 = (totalOfi / 130) * 10;
 
@@ -588,11 +616,12 @@
 
             for (let i = 1; i <= n; i++) {
                 let p = document.getElementById(`cp_${i}_preg`) ? document.getElementById(`cp_${i}_preg`).value : 20;
+                let nextAttr = (i < n) ? `data-next="c${i+1}_a"` : '';
                 rootTables.innerHTML += `
                     <table>
                         <tr><th colspan="2" class="header-part">Parte ${i} (${p} preg.)</th></tr>
-                        <tr><td>Acertos</td><td><input type="number" id="c${i}_a" min="0" max="${p}" oninput="calcCustom()"></td></tr>
-                        <tr><td>Erros</td><td><input type="number" id="c${i}_e" min="0" max="${p}" oninput="calcCustom()"></td></tr>
+                        <tr><td>Acertos</td><td><input type="number" id="c${i}_a" min="0" max="${p}" oninput="calcCustom()" data-next="c${i}_e"></td></tr>
+                        <tr><td>Erros</td><td><input type="number" id="c${i}_e" min="0" max="${p}" oninput="calcCustom()" ${nextAttr}></td></tr>
                         <tr><td>En branco</td><td><input type="number" id="c${i}_b" class="read-only-blank" readonly value="${p}"></td></tr>
                     </table>`;
             }
@@ -687,7 +716,7 @@
             switchTab('evolucion');
         }
 
-        // --- GESTIÓN DE HISTORIAL Y EVOLUCIÓN (CON EDICIÓN Y ELIMINACIÓN INDIVIDUAL) ---
+        // --- GESTIÓN DE HISTORIAL Y EVOLUCIÓN ---
         function renderHistory() {
             let history = JSON.parse(localStorage.getItem('app_comprobador_history') || '{"tramitacion":[], "auxilio":[], "personalizado":[]}');
             let lang = appSettings.lang;
@@ -709,14 +738,12 @@
             document.getElementById('st-count').innerText = count;
             document.getElementById('st-passrate').innerText = count > 0 ? Math.round((passedCount / count) * 100) + '%' : "0%";
 
-            // Racha de aprobados
             let streak = 0, maxStreak = 0;
             allExams.forEach(ex => {
                 if (ex.passed) { streak++; if (streak > maxStreak) maxStreak = streak; } else { streak = 0; }
             });
             document.getElementById('st-streak').innerText = maxStreak;
 
-            // Puntos débiles
             let weakBox = document.getElementById('st-weaknesses');
             if (count < 3) {
                 weakBox.innerHTML = lenguajes[lang].st_no_data;
@@ -729,7 +756,6 @@
                 }
             }
 
-            // Renderizar contenedores por especialidad con opción de editar e individualmente eliminar
             renderContainer('tramitacion', history.tramitacion);
             renderContainer('auxilio', history.auxilio);
             renderContainer('personalizado', history.personalizado);
@@ -947,19 +973,17 @@
                     document.getElementById(`val-${sec.id}`).innerText = `${val} / ${sec.max} preg.`;
                     
                     if (type === 'tramitacion' || type === 'auxilio') {
-                        puntuacionTotal += val; // Asumiendo todo aciertos netos óptimos para el predictor
+                        puntuacionTotal += val;
                     } else {
                         puntuacionTotal += (val * sec.pts);
                     }
                 }
             });
 
-            // Progreso
             let percent = totalPreguntasExamen > 0 ? Math.round((preguntasRespondidas / totalPreguntasExamen) * 100) : 0;
             document.getElementById('sim-progress-bar').style.width = percent + '%';
             document.getElementById('sim-progress-text').innerText = (lenguajes[lang].pred_prog_txt || "{P}%").replace('{P}', percent);
 
-            // Nota final simulada / 10
             let nota10 = maxPuntuacionPosible > 0 ? (puntuacionTotal / maxPuntuacionPosible) * 10 : 0;
             let verdictBox = document.getElementById('sim-verdict-box');
             let target = appSettings.target;
