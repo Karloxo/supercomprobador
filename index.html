@@ -654,16 +654,16 @@ function calcAuxilio() {
     setDisplay('a1_err', (a1 + e1 > 100) ? 'inline' : 'none');
     setDisplay('a2_err', (a2 + e2 > 40) ? 'inline' : 'none');
 
-    // 4. Puntuación de cada parte (1 punto acierto, -0.25 por error)
-    const p1 = Math.max(0, a1 - (e1 * 0.25)); // Máx 100.00
-    const p2 = Math.max(0, a2 - (e2 * 0.25)); // Máx 40.00
+    // 4. Puntuación ponderada de cada parte (Máximo 100 puntos netos totales)
+    const p1 = Math.max(0, (a1 * 0.60) - (e1 * 0.15)); // Máx 60.00
+    const p2 = Math.max(0, (a2 * 1.00) - (e2 * 0.25)); // Máx 40.00
 
-    const totalPuntos = p1 + p2; // Suma total sobre 140
+    const totalPuntos = p1 + p2; // Suma total sobre 100.00
 
     // 5. Escala equivalente sobre 10 para cada bloque
-    const p1_10 = (p1 / 100) * 10;
+    const p1_10 = (p1 / 60) * 10;
     const p2_10 = (p2 / 40) * 10;
-    const total_10 = (totalPuntos / 140) * 10;
+    const total_10 = (totalPuntos / 100) * 10;
 
     // 6. Actualizar textos de las celdas
     setText('a_res1', p1.toFixed(2));
@@ -703,19 +703,19 @@ function calcAuxilio() {
     setCellColor('a_res2_10', p2_10, target, hasP2);
     setCellColor('a_resG_10', total_10, target, hasData);
 
-    // Colores para puntos netos (puntuación de corte proporcional según el target)
-    setCellColor('a_res1', p1, target * 10, hasP1);        // Corte P1: target * 10 (ej. 5.0 -> 50 pts de 100)
-    setCellColor('a_res2', p2, target * 4, hasP2);         // Corte P2: target * 4  (ej. 5.0 -> 20 pts de 40)
-    setCellColor('a_resG', totalPuntos, target * 14, hasData); // Corte Total: target * 14 (ej. 5.0 -> 70 pts de 140)
+    // Colores para puntos netos (corte proporcional al target sobre 60, 40 y 100)
+    setCellColor('a_res1', p1, target * 6, hasP1);        // Corte P1: target * 6 (ej. 5.0 -> 30 pts de 60)
+    setCellColor('a_res2', p2, target * 4, hasP2);         // Corte P2: target * 4 (ej. 5.0 -> 20 pts de 40)
+    setCellColor('a_resG', totalPuntos, target * 10, hasData); // Corte Total: target * 10 (ej. 5.0 -> 50 pts de 100)
 
     // Mantenemos compatibilidad con applyScoreColor si existe globalmente
     if (typeof applyScoreColor === 'function') {
         applyScoreColor('a_res1_10', p1_10, target);
         applyScoreColor('a_res2_10', p2_10, target);
         applyScoreColor('a_resG_10', total_10, target);
-        applyScoreColor('a_res1', p1, target * 10);
+        applyScoreColor('a_res1', p1, target * 6);
         applyScoreColor('a_res2', p2, target * 4);
-        applyScoreColor('a_resG', totalPuntos, target * 14);
+        applyScoreColor('a_resG', totalPuntos, target * 10);
     }
 
     // 8. Veredicto Global (Requiere aprobar las 2 partes)
