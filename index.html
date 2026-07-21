@@ -532,11 +532,11 @@
             }
         }
 
-        // --- LÓGICA DE CÁLCULO TRAMITACIÓN ---
+// --- LÓGICA DE CÁLCULO TRAMITACIÓN (ACTUALIZADA Y CORREGIDA) ---
         function calcTramitacion() {
             let target = appSettings ? appSettings.target : 5.0;
 
-            // Parte 1 (100 preg)
+            // Parte 1 (100 preg - Máx: 60 pts - Corte: 30 pts)
             let a1 = parseInt(document.getElementById('t1_a').value) || 0;
             let e1 = parseInt(document.getElementById('t1_e').value) || 0;
             let invalid1 = (a1 + e1 > 100);
@@ -552,14 +552,14 @@
                 document.getElementById('t1_err').style.display = 'none';
                 let b1 = Math.max(0, 100 - (a1 + e1));
                 document.getElementById('t1_b').value = b1;
-                res1 = Math.max(0, a1 - (e1 / 4));
-                res1_10 = (res1 / 100) * 10;
+                res1 = Math.max(0, (a1 * 0.6) - (e1 * 0.15));
+                res1_10 = (res1 / 60) * 10;
                 document.getElementById('t_res1').innerText = res1.toFixed(2);
                 document.getElementById('t_res1_10').innerText = res1_10.toFixed(2);
-                applyScoreColor(document.getElementById('t_res1_10'), res1_10, target);
+                applyScoreColor(document.getElementById('t_res1_10'), res1_10, 5.0);
             }
 
-            // Parte 2 (10 preg)
+            // Parte 2 (10 preg - Máx: 20 pts - Corte: 10 pts)
             let a2 = parseInt(document.getElementById('t2_a').value) || 0;
             let e2 = parseInt(document.getElementById('t2_e').value) || 0;
             let invalid2 = (a2 + e2 > 10);
@@ -575,14 +575,14 @@
                 document.getElementById('t2_err').style.display = 'none';
                 let b2 = Math.max(0, 10 - (a2 + e2));
                 document.getElementById('t2_b').value = b2;
-                res2 = Math.max(0, a2 - (e2 / 4));
-                res2_10 = (res2 / 10) * 10;
+                res2 = Math.max(0, (a2 * 2.0) - (e2 * 0.5));
+                res2_10 = (res2 / 20) * 10;
                 document.getElementById('t_res2').innerText = res2.toFixed(2);
                 document.getElementById('t_res2_10').innerText = res2_10.toFixed(2);
-                applyScoreColor(document.getElementById('t_res2_10'), res2_10, target);
+                applyScoreColor(document.getElementById('t_res2_10'), res2_10, 5.0);
             }
 
-            // Parte 3 (20 preg)
+            // Parte 3 (20 preg - Máx: 20 pts - Corte: 10 pts)
             let a3 = parseInt(document.getElementById('t3_a').value) || 0;
             let e3 = parseInt(document.getElementById('t3_e').value) || 0;
             let invalid3 = (a3 + e3 > 20);
@@ -598,14 +598,14 @@
                 document.getElementById('t3_err').style.display = 'none';
                 let b3 = Math.max(0, 20 - (a3 + e3));
                 document.getElementById('t3_b').value = b3;
-                res3 = Math.max(0, a3 - (e3 / 4));
+                res3 = Math.max(0, (a3 * 1.0) - (e3 * 0.25));
                 res3_10 = (res3 / 20) * 10;
                 document.getElementById('t_res3').innerText = res3.toFixed(2);
                 document.getElementById('t_res3_10').innerText = res3_10.toFixed(2);
-                applyScoreColor(document.getElementById('t_res3_10'), res3_10, target);
+                applyScoreColor(document.getElementById('t_res3_10'), res3_10, 5.0);
             }
 
-            // Total del examen
+            // Total del examen (Máx: 100 pts oficiales)
             if (invalid1 || invalid2 || invalid3) {
                 document.getElementById('t_resG').innerText = '-';
                 document.getElementById('t_resG_10').innerText = '-';
@@ -614,11 +614,32 @@
                 document.getElementById('t_save_box').style.display = 'none';
             } else {
                 let totalOfi = res1 + res2 + res3;
-                let total10 = (totalOfi / 130) * 10;
+                let total10 = (totalOfi / 100) * 10;
                 document.getElementById('t_resG').innerText = totalOfi.toFixed(2);
                 document.getElementById('t_resG_10').innerText = total10.toFixed(2);
-                applyScoreColor(document.getElementById('t_resG_10'), total10, target);
-                mostrarVeredicto('t', total10);
+
+                // Requisito indispensable: tener al menos la mitad en cada una de las 3 partes
+                let passedAllParts = (res1 >= 30) && (res2 >= 10) && (res3 >= 10);
+
+                applyScoreColor(document.getElementById('t_resG_10'), passedAllParts ? total10 : 0, target);
+                mostrarVeredictoTramitacion(total10, passedAllParts);
+            }
+        }
+
+        function mostrarVeredictoTramitacion(nota10, passedAllParts) {
+            let box = document.getElementById('t_verdict');
+            let saveBox = document.getElementById('t_save_box');
+            let lang = appSettings ? appSettings.lang : 'es';
+
+            box.style.display = 'block';
+            saveBox.style.display = 'block';
+
+            if (passedAllParts) {
+                box.className = 'verdict-box verdict-pass';
+                box.innerHTML = lenguajes[lang].txt_pass + ` (${nota10.toFixed(2)} / 10)`;
+            } else {
+                box.className = 'verdict-box verdict-fail';
+                box.innerHTML = lenguajes[lang].txt_fail + ` (${nota10.toFixed(2)} / 10)`;
             }
         }
 
