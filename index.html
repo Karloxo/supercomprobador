@@ -2,1335 +2,778 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>EL SUPERCOMPROBADOR DE NOTAS</title>
-    
-    <!-- Configuración App Móvil y PWA -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Notas Justicia">
-    <link rel="manifest" href="./manifest.json">
-    
-    <!-- Icono Personalizado Integrado -->
-    <link rel="apple-touch-icon" href="https://i.ibb.co/5Xmz18B8/Whats-App-Image-2026-07-20-at-12-05-13.jpg">
-
-    <!-- Librerías Externas (Gráficos y Confeti) -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Supercomprobador de Notas</title>
     <style>
         :root {
-            --bg-body: #f5f5f7;
-            --bg-card: #ffffff;
-            --text-main: #1d1d1f;
-            --text-secondary: #86868b;
-            --border-color: #e5e5e7;
-            --input-bg: #ffffff;
-            --tab-bg: #e5e5e7;
-            --th-bg: #f2f2f7;
-            --header-part-bg: #e5e5e7;
-            --pass-bg: #e8f5e9;
-            --pass-text: #2e7d32;
-            --pass-border: #a5d6a7;
-            --fail-bg: #fff5f5;
-            --fail-text: #c94444;
-            --fail-border: #ffcccc;
-        }
-
-        [data-theme="dark"] {
-            --bg-body: #1c1c1e;
-            --bg-card: #2c2c2e;
-            --text-main: #f5f5f7;
-            --text-secondary: #aeaeae;
-            --border-color: #3a3a3c;
-            --input-bg: #3a3a3c;
-            --tab-bg: #3a3a3c;
-            --th-bg: #2c2c2e;
-            --header-part-bg: #3a3a3c;
-            --pass-bg: #1c3d22;
-            --pass-text: #81c784;
-            --pass-border: #2e7d32;
-            --fail-bg: #3d1c1c;
-            --fail-text: #e57373;
-            --fail-border: #c94444;
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #e0e0e0;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            padding: 10px 10px 30px 10px;
-            max-width: 600px;
-            margin: 0 auto;
-            overscroll-behavior: none;
-            transition: background 0.3s, color 0.3s;
-            position: relative;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
         }
-        
-        .main-title { margin-top: 15px; margin-bottom: 15px; line-height: 1.2; position: relative; }
-        .main-title .title-text { display: block; text-align: center; font-size: 1.3rem; color: #0071e3; font-weight: bold; }
-        .main-title .author-text { display: block; text-align: right; font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px; }
 
-        .settings-trigger { position: absolute; top: 0; right: 5px; font-size: 1.4rem; cursor: pointer; z-index: 10; background: none; border: none; }
-
-        .sidebar { position: fixed; top: 0; right: -280px; width: 250px; height: 100%; background-color: var(--bg-card); box-shadow: -4px 0 10px rgba(0,0,0,0.15); z-index: 999; transition: right 0.3s ease; padding: 20px; box-sizing: border-box; overflow-y: auto; }
-        .sidebar.open { right: 0; }
-        .sidebar-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 20px; }
-        .sidebar-close { background: none; border: none; font-size: 1.2rem; color: var(--text-main); cursor: pointer; }
-        .sidebar-section { margin-bottom: 25px; }
-        .sidebar-section h4 { margin: 0 0 10px 0; font-size: 0.95rem; color: #0071e3; }
-        
-        .tabs-container { display: flex; background-color: var(--tab-bg); padding: 4px; border-radius: 10px; margin-bottom: 20px; gap: 2px; }
-        .tab-btn { flex: 1; border: none; background: none; padding: 10px 1px; font-size: 0.78rem; font-weight: 600; color: var(--text-main); border-radius: 8px; cursor: pointer; transition: all 0.2s; text-align: center; }
-        .tab-btn.active { background-color: var(--bg-card); color: #0071e3; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
-        table { width: 100%; border-collapse: collapse; background-color: var(--bg-card); border-radius: 12px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.03); }
-        th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border-color); }
-        th { background-color: var(--th-bg); font-weight: 600; text-align: center; }
-        .header-part { background-color: var(--header-part-bg); font-weight: bold; }
-        
-        input[type="number"], select, input[type="text"] { width: 75px; padding: 6px; border: 1px solid var(--border-color); border-radius: 6px; text-align: center; font-size: 1rem; background-color: var(--input-bg); color: var(--text-main); }
-        input[type="text"], select { width: 100%; box-sizing: border-box; text-align: left; }
-        .read-only-blank { background-color: var(--th-bg); color: var(--text-secondary); font-weight: bold; }
-        
-        .error-msg { color: #ff3b30; font-weight: bold; font-size: 0.85rem; display: none; margin-top: 4px; }
-        .results-table { background-color: var(--th-bg); }
-        .results-table th { background-color: #0071e3; color: white; }
-        .scale-header { text-align: right; font-size: 0.85rem; color: rgba(255,255,255,0.8); }
-        .score-val { text-align: right; font-weight: bold; }
-        
-        .score-pass { color: #34c759 !important; } 
-        .score-fail { color: var(--fail-text) !important; } 
-        .total-row { font-weight: bold; background-color: var(--border-color); }
-        
-        @keyframes bounceIn {
-            0% { transform: scale(0.9); opacity: 0; }
-            70% { transform: scale(1.03); }
-            100% { transform: scale(1); opacity: 1; }
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
-        .verdict-box { text-align: center; padding: 15px; border-radius: 12px; font-size: 1.2rem; font-weight: bold; margin-bottom: 20px; display: none; animation: bounceIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        .verdict-pass { background-color: var(--pass-bg); color: var(--pass-text); border: 2px solid var(--pass-border); }
-        .verdict-fail { background-color: var(--fail-bg); color: var(--fail-text); border: 2px solid var(--fail-border); }
-        
-        .save-container, .custom-config-box, .dashboard-card { background-color: var(--bg-card); border-radius: 12px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.03); border: 1px solid var(--border-color); }
-        
-        .btn-action { display: block; width: 100%; border: none; padding: 12px; font-size: 1rem; font-weight: 600; border-radius: 10px; cursor: pointer; margin-bottom: 12px; text-align: center; }
-        .btn-blue { background-color: #0071e3; color: white; }
-        .btn-reset { background-color: #ff3b30; color: white; }
-        .btn-secondary { background-color: var(--tab-bg); color: var(--text-main); border: 1px solid var(--border-color); }
 
-        .history-section-title { font-size: 1.05rem; font-weight: bold; color: #0071e3; margin: 20px 0 10px 0; }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .stat-box { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; text-align: center; }
-        .stat-val { font-size: 1.4rem; font-weight: bold; color: #0071e3; margin-top: 4px; }
-        .stat-lbl { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; }
-        
-        .weak-box { background-color: var(--fail-bg); border: 1px solid var(--fail-border); color: var(--fail-text); border-radius: 10px; padding: 12px; font-size: 0.85rem; line-height: 1.4; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
 
-        .history-item { padding: 10px 14px; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; background-color: var(--bg-card); border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--border-color); }
-        .item-top { display: flex; justify-content: space-between; font-weight: 600; align-items: center; }
-        .item-actions { display: flex; gap: 5px; margin-top: 6px; justify-content: flex-end; }
-        .item-actions button { background: none; border: 1px solid var(--border-color); border-radius: 4px; padding: 2px 6px; font-size: 0.75rem; cursor: pointer; color: var(--text-main); }
-        .item-actions button.btn-delete-item { color: #ff3b30; border-color: #ff3b30; }
-        
-        .badge { padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
-        .badge-pass { background-color: var(--pass-bg); color: var(--pass-text); }
-        .badge-fail { background-color: var(--fail-bg); color: var(--fail-text); }
+        .header h1 {
+            margin: 0;
+            font-size: 1.6rem;
+            color: var(--primary-color);
+        }
 
-        .sim-row { display: flex; flex-direction: column; margin-bottom: 15px; }
-        .sim-row label { font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; display: flex; justify-content: space-between; }
-        .range-container { display: flex; align-items: center; gap: 10px; }
-        .range-container input[type="range"] { flex: 1; height: 6px; border-radius: 3px; background: var(--tab-bg); outline: none; }
-        
-        .progress-bar-container { background-color: var(--tab-bg); border-radius: 8px; height: 16px; width: 100%; overflow: hidden; margin: 10px 0; position: relative; }
-        .progress-bar-fill { background: linear-gradient(90deg, #34c759, #0071e3); height: 100%; width: 0%; transition: width 0.2s ease; }
-        .progress-text { position: absolute; width: 100%; text-align: center; font-size: 0.75rem; font-weight: bold; color: var(--text-main); line-height: 16px; top: 0; }
+        .lang-selector select {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
 
-        .grid-config-inputs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; background-color: var(--th-bg); padding: 8px; border-radius: 8px; margin-top: 6px; }
-        .grid-config-inputs div { display: flex; flex-direction: column; }
-        .grid-config-inputs label { font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 2px; }
-        .grid-config-inputs input { text-align: center; padding: 4px; font-size: 0.9rem; width: 100%; box-sizing: border-box; }
-        .part-config-container { margin-bottom: 10px; border-bottom: 1px dashed var(--border-color); padding-bottom: 10px; }
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: none;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #777;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            color: var(--secondary-color);
+            border-bottom-color: var(--secondary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 0.95rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            margin-bottom: 25px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.95rem;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            color: var(--primary-color);
+        }
+
+        .score-val {
+            font-weight: bold;
+        }
+
+        .comparison-card {
+            background: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .comparison-card h4 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .diff-pos { color: var(--success-color); font-weight: bold; }
+        .diff-neg { color: var(--danger-color); font-weight: bold; }
+        .diff-zero { color: #777; }
+
+        .actions-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
 
-    <!-- Botón Opciones -->
-    <button class="settings-trigger" onclick="toggleSidebar()">⚙️</button>
-
-    <!-- Sidebar Opciones -->
-    <div id="app-sidebar" class="sidebar">
-        <div class="sidebar-header">
-            <h3 data-i18n="opt_title">Opciones</h3>
-            <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
-        </div>
-        
-        <div class="sidebar-section">
-            <h4 data-i18n="opt_target">🎯 Nota Objetivo</h4>
-            <input type="number" id="cfg-target" value="5.0" step="0.5" min="0" max="10" style="width:100%; text-align:left;" onchange="saveSettings()">
-        </div>
-
-        <div class="sidebar-section">
-            <h4 data-i18n="opt_appearance">🌓 Apariencia</h4>
-            <button class="btn-action btn-secondary" onclick="toggleTheme()" id="theme-btn" data-i18n="opt_theme_btn">Modo Oscuro</button>
-        </div>
-
-        <div class="sidebar-section">
-            <h4 data-i18n="opt_language">🌐 Idioma</h4>
-            <select id="cfg-lang" onchange="saveSettings()">
-                <option value="es">Castellano</option>
+<div class="container">
+    <div class="header">
+        <h1 data-i18n="app_title">El Supercomprobador de Notas</h1>
+        <div class="lang-selector">
+            <select id="languageSelect" onchange="changeLanguage(this.value)">
+                <option value="es">Español</option>
                 <option value="gl">Galego</option>
             </select>
         </div>
-
-        <div class="sidebar-section" style="margin-top:40px;">
-            <h4 data-i18n="opt_backup">📦 Copia de Seguridad</h4>
-            <button class="btn-action btn-secondary" style="font-size:0.85rem; padding:8px;" onclick="exportHistory()" data-i18n="opt_export">📤 Exportar Historial</button>
-            <button class="btn-action btn-secondary" style="font-size:0.85rem; padding:8px;" onclick="document.getElementById('import-file').click()" data-i18n="opt_import">📥 Importar Historial</button>
-            <input type="file" id="import-file" style="display:none;" onchange="importHistory(event)">
-        </div>
     </div>
 
-    <!-- Título Principal -->
-    <div class="main-title">
-        <span class="title-text" data-i18n="app_title">EL SUPERCOMPROBADOR DE NOTAS</span>
-        <span class="author-text">by Carlos Abal</span>
+    <!-- Navegación por pestañas -->
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('tramitacion')" data-i18n="tab_tramitacion">Tramitación Procesal</button>
+        <button class="tab-btn" onclick="switchTab('auxilio')" data-i18n="tab_auxilio">Auxilio Judicial</button>
+        <button class="tab-btn" onclick="switchTab('evolucion')" data-i18n="tab_evolucion">Evolución</button>
+        <button class="tab-btn" onclick="switchTab('backup')" data-i18n="tab_backup">Copia de Seguridad</button>
     </div>
 
-    <!-- Menú de Pestañas Principal -->
-    <div class="tabs-container">
-        <button class="tab-btn active" id="btn-tab-tramitacion" onclick="switchTab('tramitacion')" data-i18n="tab_tram">Tramitación</button>
-        <button class="tab-btn" id="btn-tab-auxilio" onclick="switchTab('auxilio')" data-i18n="tab_aux">Auxilio</button>
-        <button class="tab-btn" id="btn-tab-personalizado" onclick="switchTab('personalizado')" data-i18n="tab_custom">Personalizado</button>
-        <button class="tab-btn" id="btn-tab-evolucion" onclick="switchTab('evolucion')" data-i18n="tab_evol">Evolución</button>
-        <button class="tab-btn" id="btn-tab-predictor" onclick="switchTab('predictor')" data-i18n="tab_pred">Simulador</button>
-    </div>
-
-    <!-- ================= PESTAÑA 1: TRAMITACIÓN ================= -->
+    <!-- Pestaña 1: Tramitación Procesal -->
     <div id="tab-tramitacion" class="tab-content active">
-        <table>
-            <tr><th colspan="2" class="header-part"><span data-i18n="part">Parte</span> 1 (100 preg.)</th></tr>
-            <tr><td data-i18n="row_correct">Acertos</td><td><input type="number" id="t1_a" min="0" max="100" oninput="calcTramitacion()" data-next="t1_e"></td></tr>
-            <tr><td data-i18n="row_errors">Erros</td><td><input type="number" id="t1_e" min="0" max="100" oninput="calcTramitacion()" data-next="t2_a"></td></tr>
-            <tr><td data-i18n="row_blank">En branco</td><td><input type="number" id="t1_b" class="read-only-blank" readonly value="100"> <span id="t1_err" class="error-msg">❌ &gt; 100</span></td></tr>
-        </table>
-        <table>
-            <tr><th colspan="2" class="header-part"><span data-i18n="part">Parte</span> 2 (10 preg.)</th></tr>
-            <tr><td data-i18n="row_correct">Acertos</td><td><input type="number" id="t2_a" min="0" max="10" oninput="calcTramitacion()" data-next="t2_e"></td></tr>
-            <tr><td data-i18n="row_errors">Erros</td><td><input type="number" id="t2_e" min="0" max="10" oninput="calcTramitacion()" data-next="t3_a"></td></tr>
-            <tr><td data-i18n="row_blank">En branco</td><td><input type="number" id="t2_b" class="read-only-blank" readonly value="10"> <span id="t2_err" class="error-msg">❌ &gt; 10</span></td></tr>
-        </table>
-        <table>
-            <tr><th colspan="2" class="header-part"><span data-i18n="part">Parte</span> 3 (20 preg.)</th></tr>
-            <tr><td data-i18n="row_correct">Acertos</td><td><input type="number" id="t3_a" min="0" max="20" oninput="calcTramitacion()" data-next="t3_e"></td></tr>
-            <tr><td data-i18n="row_errors">Erros</td><td><input type="number" id="t3_e" min="0" max="20" oninput="calcTramitacion()"></td></tr>
-            <tr><td data-i18n="row_blank">En branco</td><td><input type="number" id="t3_b" class="read-only-blank" readonly value="20"> <span id="t3_err" class="error-msg">❌ &gt; 20</span></td></tr>
-        </table>
-        <table class="results-table">
-            <tr><th data-i18n="summary_tram">RESUMEN TRAMITACIÓN</th><th class="scale-header" data-i18n="th_of">Ofi.</th><th class="scale-header">Sobre 10</th></tr>
-            <tr><td><span data-i18n="total_part">Total Parte</span> 1</td><td id="t_res1" class="score-val">0.00</td><td id="t_res1_10" class="score-val">0.00</td></tr>
-            <tr><td><span data-i18n="total_part">Total Parte</span> 2</td><td id="t_res2" class="score-val">0.00</td><td id="t_res2_10" class="score-val">0.00</td></tr>
-            <tr><td><span data-i18n="total_part">Total Parte</span> 3</td><td id="t_res3" class="score-val">0.00</td><td id="t_res3_10" class="score-val">0.00</td></tr>
-            <tr class="total-row"><td data-i18n="total_exam">Total del examen</td><td id="t_resG" class="score-val">0.00</td><td id="t_resG_10" class="score-val">0.00</td></tr>
-        </table>
-        <div id="t_verdict" class="verdict-box"></div>
-        <div id="t_save_box" class="save-container" style="display:none;">
-            <input type="text" id="t_exam_year" data-i18n-ph="ph_id_sim">
-            <button class="btn-action btn-blue" style="margin-top:10px;" onclick="saveToHistory('tramitacion')" data-i18n="btn_save_sim">📥 Guardar Simulación</button>
+        <h2 class="section-title" data-i18n="title_tramitacion">Cálculo de Notas - Tramitación Procesal</h2>
+        <div class="form-group">
+            <label data-i18n="exam_name_label">Nombre / Identificador del Simulacro:</label>
+            <input type="text" id="t_exam_name" placeholder="Ej: Simulacro 1 - Adams">
         </div>
-        <button class="btn-action btn-reset" onclick="resetForm('tramitacion')" data-i18n="btn_reset">Reiniciar Campos</button>
+
+        <div class="grid-3">
+            <div class="card">
+                <h4 data-i18n="part1_test">Parte 1 (Tipo test)</h4>
+                <div class="form-group">
+                    <label data-i18n="row_correct">Aciertos</label>
+                    <input type="number" id="t_p1_ok" min="0" max="100" value="0" oninput="calcTramitacion()">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="row_errors">Errores</label>
+                    <input type="number" id="t_p1_fail" min="0" max="100" value="0" oninput="calcTramitacion()">
+                </div>
+            </div>
+
+            <div class="card">
+                <h4 data-i18n="part2_practical">Parte 2 (Caso práctico)</h4>
+                <div class="form-group">
+                    <label data-i18n="row_correct">Aciertos</label>
+                    <input type="number" id="t_p2_ok" min="0" max="20" value="0" oninput="calcTramitacion()">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="row_errors">Errores</label>
+                    <input type="number" id="t_p2_fail" min="0" max="20" value="0" oninput="calcTramitacion()">
+                </div>
+            </div>
+
+            <div class="card">
+                <h4 data-i18n="part3_office">Parte 3 (Ofimática)</h4>
+                <div class="form-group">
+                    <label data-i18n="row_correct">Aciertos</label>
+                    <input type="number" id="t_p3_ok" min="0" max="20" value="0" oninput="calcTramitacion()">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="row_errors">Errores</label>
+                    <input type="number" id="t_p3_fail" min="0" max="20" value="0" oninput="calcTramitacion()">
+                </div>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th data-i18n="summary_tramitacion">RESUMEN TRAMITACIÓN</th>
+                    <th data-i18n="col_raw">Nota Base</th>
+                    <th data-i18n="col_scaled">Nota /10</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span data-i18n="total_part">Total Parte</span> 1</td>
+                    <td id="t_res1" class="score-val">0.00</td>
+                    <td id="t_res1_10" class="score-val">0.00</td>
+                </tr>
+                <tr>
+                    <td><span data-i18n="total_part">Total Parte</span> 2</td>
+                    <td id="t_res2" class="score-val">0.00</td>
+                    <td id="t_res2_10" class="score-val">0.00</td>
+                </tr>
+                <tr>
+                    <td><span data-i18n="total_part">Total Parte</span> 3</td>
+                    <td id="t_res3" class="score-val">0.00</td>
+                    <td id="t_res3_10" class="score-val">0.00</td>
+                </tr>
+                <tr>
+                    <td><strong data-i18n="lbl_total">TOTAL GLOBAL</strong></td>
+                    <td id="t_res_total" class="score-val">0.00</td>
+                    <td id="t_res_total_10" class="score-val">0.00</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <button class="btn btn-primary" onclick="saveTramitacionHistory()" data-i18n="btn_save">Guardar Simulacro</button>
     </div>
 
-    <!-- ================= PESTAÑA 2: AUXILIO JUDICIAL ================= -->
+    <!-- Pestaña 2: Auxilio Judicial -->
     <div id="tab-auxilio" class="tab-content">
-        <table>
-            <tr><th colspan="2" class="header-part"><span data-i18n="part">Parte</span> 1 (100 preg.)</th></tr>
-            <tr><td data-i18n="row_correct">Acertos</td><td><input type="number" id="a1_a" min="0" max="100" oninput="calcAuxilio()" data-next="a1_e"></td></tr>
-            <tr><td data-i18n="row_errors">Erros</td><td><input type="number" id="a1_e" min="0" max="100" oninput="calcAuxilio()" data-next="a2_a"></td></tr>
-            <tr><td data-i18n="row_blank">En branco</td><td><input type="number" id="a1_b" class="read-only-blank" readonly value="100"> <span id="a1_err" class="error-msg">❌ &gt; 100</span></td></tr>
-        </table>
-        <table>
-            <tr><th colspan="2" class="header-part"><span data-i18n="part">Parte</span> 2 (40 preg.)</th></tr>
-            <tr><td data-i18n="row_correct">Acertos</td><td><input type="number" id="a2_a" min="0" max="40" oninput="calcAuxilio()" data-next="a2_e"></td></tr>
-            <tr><td data-i18n="row_errors">Erros</td><td><input type="number" id="a2_e" min="0" max="40" oninput="calcAuxilio()"></td></tr>
-            <tr><td data-i18n="row_blank">En branco</td><td><input type="number" id="a2_b" class="read-only-blank" readonly value="40"> <span id="a2_err" class="error-msg">❌ &gt; 40</span></td></tr>
-        </table>
-        <table class="results-table">
-            <tr>
-                <th data-i18n="cust_summary">RESUMEN</th>
-                <th class="scale-header" data-i18n="th_pts">Puntos</th>
-                <th class="scale-header">Sobre 10</th>
-            </tr>
-            <!-- PARTE 1 -->
-            <tr>
-                <td>Parte 1</td>
-                <td id="a_res1" class="score-val">0.00</td>
-                <td id="a_res1_10" class="score-val">0.00</td>
-            </tr>
-            <!-- PARTE 2 -->
-            <tr>
-                <td>Parte 2</td>
-                <td id="a_res2" class="score-val">0.00</td>
-                <td id="a_res2_10" class="score-val">0.00</td>
-            </tr>
-            <!-- TOTAL GLOBAL -->
-            <tr class="total-row">
-                <td data-i18n="total_exam">Total del examen</td>
-                <td id="a_resG" class="score-val">0.00</td>
-                <td id="a_resG_10" class="score-val">0.00</td>
-            </tr>
-        </table>
-        <div id="au_verdict" class="verdict-box"></div>
-        <div id="au_save_box" class="save-container" style="display:none;">
-            <input type="text" id="au_exam_year" data-i18n-ph="ph_id">
-            <button class="btn-action btn-blue" style="margin-top:10px;" onclick="saveToHistory('auxilio')" data-i18n="btn_save_sim">📥 Guardar Simulación</button>
+        <h2 class="section-title" data-i18n="title_auxilio">Cálculo de Notas - Auxilio Judicial</h2>
+        <div class="form-group">
+            <label data-i18n="exam_name_label">Nombre / Identificador del Simulacro:</label>
+            <input type="text" id="a_exam_name" placeholder="Ej: Simulacro 1 - Adams">
         </div>
-        <button class="btn-action btn-reset" onclick="resetForm('auxilio')" data-i18n="btn_reset">Reiniciar Campos</button>
-    </div>
 
-<!-- ================= PESTAÑA 3: PERSONALIZADO ================= -->
-    <div id="tab-personalizado" class="tab-content">
-        <div class="custom-config-box">
-            <label for="c_num_partes" data-i18n="cust_num_parts">Número de Partes (Máx. 10):</label>
-            <select id="c_num_partes" onchange="generateCustomStructure()">
-                <option value="1">1 </option><option value="2">2 </option><option value="3">3 </option>
-                <option value="4">4 </option><option value="5">5 </option><option value="6">6 </option>
-                <option value="7">7 </option><option value="8">8 </option><option value="9">9 </option>
-                <option value="10">10 </option>
-            </select>
-            <div id="custom-parts-config-root" style="margin-top:10px;"></div>
-        </div>
-        <div id="custom-tables-root"></div>
-        <table class="results-table">
-            <tr><th data-i18n="cust_summary">RESUMEN</th><th class="scale-header" data-i18n="th_pts">Puntos</th><th class="scale-header">Sobre 10</th></tr>
-            <tr class="total-row"><td data-i18n="total_exam">Total del examen</td><td id="c_resG" class="score-val">0.00</td><td id="c_resG_10" class="score-val">0.00</td></tr>
-        </table>
+        <div class="grid-3">
+            <div class="card">
+                <h4 data-i18n="part1_test">Parte 1 (Tipo test)</h4>
+                <div class="form-group">
+                    <label data-i18n="row_correct">Aciertos</label>
+                    <input type="number" id="a_p1_ok" min="0" max="100" value="0" oninput="calcAuxilio()">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="row_errors">Errores</label>
+                    <input type="number" id="a_p1_fail" min="0" max="100" value="0" oninput="calcAuxilio()">
+                </div>
+            </div>
 
-        <!-- DESGLOSE POR PARTES -->
-        <div id="c_breakdown_summary"></div>
-
-        <div id="c_verdict" class="verdict-box"></div>
-        <div id="c_save_box" class="save-container" style="display:none;">
-            <input type="text" id="c_exam_year" data-i18n-ph="ph_id">
-            <button class="btn-action btn-blue" style="margin-top:10px;" onclick="saveToHistory('personalizado')" data-i18n="btn_save_sim">📥 Guardar Simulación</button>
-        </div>
-        <button class="btn-action btn-reset" onclick="resetForm('personalizado')" data-i18n="btn_reset">Reiniciar Campos</button>
-    </div>
-
-    <!-- ================= PESTAÑA 4: SIMULADOR PREDICTIVO ================= -->
-    <div id="tab-predictor" class="tab-content">
-        <div class="custom-config-box">
-            <h3 style="margin:0 0 10px 0; color:#0071e3;" data-i18n="pred_title">Estrategia de Aprobado</h3>
-            <label data-i18n="pred_exam_label">Examen a Simular:</label>
-            <select id="sim-type" onchange="setupPredictorMode()">
-                <option value="tramitacion">Tramitación Procesal</option>
-                <option value="auxilio">Auxilio Judicial</option>
-                <option value="personalizado">Examen Personalizado</option>
-            </select>
-            
-            <div id="sim-custom-config" style="display:none; margin-top:10px; border-top:1px dashed var(--border-color); padding-top:10px;">
-                <label data-i18n="pred_cust_label">Partes del Examen Personalizado:</label>
-                <select id="sim-c-partes" onchange="buildPredictorSliders()">
-                    <option value="1">1</option><option value="2">2</option><option value="3">3</option>
-                </select>
-                <div id="sim-c-baremos" style="margin-top:10px;"></div>
+            <div class="card">
+                <h4 data-i18n="part2_practical">Parte 2 (Caso práctico)</h4>
+                <div class="form-group">
+                    <label data-i18n="row_correct">Aciertos</label>
+                    <input type="number" id="a_p2_ok" min="0" max="40" value="0" oninput="calcAuxilio()">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="row_errors">Errores</label>
+                    <input type="number" id="a_p2_fail" min="0" max="40" value="0" oninput="calcAuxilio()">
+                </div>
             </div>
         </div>
 
-        <div class="dashboard-card">
-            <h4 style="margin:0 0 5px 0; font-size:0.85rem; color:var(--text-secondary); text-transform:uppercase;" data-i18n="pred_progress">Porcentaje Cubierto del Examen</h4>
-            <div class="progress-bar-container">
-                <div id="sim-progress-bar" class="progress-bar-fill"></div>
-                <div id="sim-progress-text" class="progress-text">0%</div>
-            </div>
-        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th data-i18n="summary_aux">RESUMEN AUXILIO</th>
+                    <th data-i18n="col_raw">Nota Base</th>
+                    <th data-i18n="col_scaled">Nota /10</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span data-i18n="total_part">Total Parte</span> 1</td>
+                    <td id="a_res1" class="score-val">0.00</td>
+                    <td id="a_res1_10" class="score-val">0.00</td>
+                </tr>
+                <tr>
+                    <td><span data-i18n="total_part">Total Parte</span> 2</td>
+                    <td id="a_res2" class="score-val">0.00</td>
+                    <td id="a_res2_10" class="score-val">0.00</td>
+                </tr>
+                <tr>
+                    <td><strong data-i18n="lbl_total">TOTAL GLOBAL</strong></td>
+                    <td id="a_res_total" class="score-val">0.00</td>
+                    <td id="a_res_total_10" class="score-val">0.00</td>
+                </tr>
+            </tbody>
+        </table>
 
-        <div id="sim-sliders-root"></div>
-
-        <div id="sim-verdict-box" class="verdict-box" style="display:block; font-size:1.05rem;" data-i18n="pred_default">Mueve las barras para calcular.</div>
+        <button class="btn btn-primary" onclick="saveAuxilioHistory()" data-i18n="btn_save">Guardar Simulacro</button>
     </div>
 
-    <!-- ================= PESTAÑA 5: EVOLUCIÓN ================= -->
+    <!-- Pestaña 3: Evolución / Historial -->
     <div id="tab-evolucion" class="tab-content">
-        <div class="stats-grid">
-            <div class="stat-box"><div class="stat-lbl" data-i18n="st_best">Mejor Nota</div><div id="st-best" class="stat-val">0.00</div></div>
-            <div class="stat-box"><div class="stat-lbl" data-i18n="st_avg">Media General</div><div id="st-avg" class="stat-val">0.00</div></div>
-            <div class="stat-box"><div class="stat-lbl" data-i18n="st_count">Simulacros</div><div id="st-count" class="stat-val">0</div></div>
-            <div class="stat-box"><div class="stat-lbl" data-i18n="st_rate">% Aprobados</div><div id="st-passrate" class="stat-val">0%</div></div>
-        </div>
-        
-        <div class="stats-grid" style="grid-template-columns: 1fr;">
-            <div class="stat-box"><div class="stat-lbl" data-i18n="st_streak">🔥 Mejor Racha de Aprobados</div><div id="st-streak" class="stat-val" style="color:#34c759;">0</div></div>
+        <div class="actions-bar">
+            <h2 class="section-title" style="margin:0;" data-i18n="title_history">Historial y Comparativas</h2>
+            <button class="btn btn-danger" onclick="clearAllHistory()" data-i18n="btn_clear_history">Borrar todo el historial</button>
         </div>
 
-        <div class="history-section-title" data-i18n="st_weak_title">🎯 Diagnóstico de Puntos Débiles</div>
-        <div id="st-weaknesses" class="weak-box"></div>
+        <!-- Sección de Comparaciones Agrupadas por Mismo Nombre -->
+        <div id="grouped-comparisons"></div>
 
-        <div class="history-section-title" style="margin-top:25px;" data-i18n="hist_title">📊 Historial por Especialidad</div>
-        <div class="history-section-title" style="font-size:0.9rem; color:var(--text-secondary);" data-i18n="tab_tram">Tramitación Procesal</div>
-        <div id="history-tramitacion-container"></div>
-        <div class="history-section-title" style="font-size:0.9rem; color:var(--text-secondary);" data-i18n="tab_aux">Auxilio Judicial</div>
-        <div id="history-auxilio-container"></div>
-        <div class="history-section-title" style="font-size:0.9rem; color:var(--text-secondary);" data-i18n="hist_cust">Personalizados</div>
-        <div id="history-personalizado-container"></div>
-        
-        <!-- Botón Borrar Historial (Modificado a Minúsculas) -->
-        <button class="btn-action btn-reset" style="margin-top:20px;" onclick="clearAllHistory()" data-i18n="btn_clear_hist">🗑️ Borrar todo el historial</button>
+        <!-- Tabla General de Registro Cronológico -->
+        <h3 data-i18n="title_raw_history">Registro Cronológico General</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th data-i18n="col_date">Fecha</th>
+                    <th data-i18n="col_body">Cuerpo</th>
+                    <th data-i18n="col_name">Simulacro</th>
+                    <th data-i18n="col_score_raw">Nota Base</th>
+                    <th data-i18n="col_score_10">Nota /10</th>
+                    <th data-i18n="col_actions">Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="history-table-body">
+                <!-- Se rellena dinámicamente -->
+            </tbody>
+        </table>
     </div>
 
-    <script>
-        let currentActiveTab = 'tramitacion';
-        let activeCharts = {}; 
-        let appSettings = { theme: 'light', target: 5.0, lang: 'es' };
+    <!-- Pestaña 4: Copia de Seguridad -->
+    <div id="tab-backup" class="tab-content">
+        <h2 class="section-title" data-i18n="title_backup">Gestión de Copia de Seguridad</h2>
+        <p data-i18n="desc_backup">Exporta tus datos a un archivo JSON para tener un respaldo o importar tus notas en otro dispositivo.</p>
+        <div style="margin-top: 20px; display: flex; gap: 15px;">
+            <button class="btn btn-primary" onclick="exportData()" data-i18n="btn_export">Exportar Datos (.json)</button>
+            <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(event)">
+            <button class="btn btn-primary" style="background-color: #27ae60;" onclick="document.getElementById('importFile').click()" data-i18n="btn_import">Importar Datos</button>
+        </div>
+    </div>
+</div>
 
-        // --- DICCIONARIO BILINGÜE COMPLETO ---
-        const lenguajes = {
-            es: {
-                app_title: "EL SUPERCOMPROBADOR DE NOTAS",
-                opt_title: "Opciones", opt_target: "🎯 Nota Objetivo", opt_appearance: "🌓 Apariencia", opt_theme_btn: "Modo Oscuro", opt_theme_btn_light: "Modo Claro", opt_language: "🌐 Idioma", opt_backup: "📦 Copia de Seguridad", opt_export: "📤 Exportar Historial", opt_import: "📥 Importar Historial",
-                tab_tram: "Tramitación", tab_aux: "Auxilio", tab_custom: "Personalizado", tab_pred: "Simulador", tab_evol: "Evolución",
-                part: "Parte", row_correct: "Acertos", row_errors: "Errores", row_blank: "En blanco",
-                summary_tram: "RESUMEN TRAMITACIÓN", summary_aux: "RESUMEN AUXILIO", cust_summary: "RESUMEN", th_of: "Ofi.", th_pts: "Puntos", total_part: "Total Parte", total_exam: "Total del examen",
-                ph_id_sim: "Identificador (Ej: Simulacro 1 2026)...", ph_id: "Identificador...", btn_save_sim: "📥 Guardar Simulación", btn_reset: "Reiniciar Campos",
-                cust_num_parts: "Número de Partes (Máx. 10):", c_part_label: "Partes", c_lbl_preg: "Preguntas", c_lbl_pts: "Puntos +", c_lbl_rest: "Resta -",
-                pred_title: "Estrategia de Aprobado", pred_exam_label: "Examen a Simular:", pred_cust_label: "Partes del Examen Personalizado:", pred_progress: "Porcentaje Cubierto del Examen", pred_default: "Mueve las barras para calcular.",
-                st_best: "Mejor Nota", st_avg: "Media General", st_count: "Simulacros", st_rate: "% Aprobados", st_streak: "🔥 Mejor Racha de Aprobados", st_weak_title: "🎯 Diagnóstico de Puntos Débiles", hist_title: "📊 Historial por Especialidad", hist_cust: "Personalizados",
-                txt_pass: "🎉 APROBADO", txt_fail: "❌ SUSPENSO", no_records: "Sin registros.",
-                alert_saved: "¡Examen guardado!", alert_backup_ok: "¡Historial restaurado con éxito!", alert_backup_err: "El formato del archivo no es válido o hubo un error.",
-                st_no_data: "Aún no hay suficientes datos registrados para analizar tus puntos débiles. ¡Sigue realizando simulacros!",
-                st_weak_high: "⚠️ ATENCIÓN: Tienes una media de {X} fallos por sección. Tu mayor punto débil está en el exceso de riesgos en las segundas partes (Casos Prácticos). Te sugerimos asegurar las respuestas dudosas en blanco.",
-                st_weak_low: "✅ ¡Buen control general! Tu media de fallos es baja ({X} por sección). Tu punto de mejora actual es aumentar la velocidad para reducir las preguntas que dejas en blanco.",
-                pred_win: "🎉 CON ESTA COMBINACIÓN APROBARÍAS (Nota: {N} / 10)",
-                pred_lose: "❌ SUSPENSO (Nota: {N} / 10). Te faltan {F} puntos oficiales para el corte.",
-                pred_prog_txt: "{P}% del examen completado",
-                btn_clear_hist: "🗑️ Borrar todo el historial",
-                confirm_clear: "¿Estás completamente seguro de que deseas eliminar TODO el historial de simulacros? Esta acción no se puede deshacer.",
-                btn_edit: "Editar", btn_delete: "Eliminar", btn_save_edit: "Guardar", btn_cancel: "Cancelar"
-            },
-            gl: {
-                app_title: "O SUPERCOMPROBADOR DE NOTAS",
-                opt_title: "Opcións", opt_target: "🎯 Nota Obxectivo", opt_appearance: "🌓 Apariencia", opt_theme_btn: "Modo Escuro", opt_theme_btn_light: "Modo Claro", opt_language: "🌐 Idioma", opt_backup: "📦 Copia de Seguridade", opt_export: "📤 Exportar Historial", opt_import: "📥 Importar Historial",
-                tab_tram: "Tramitación", tab_aux: "Auxilio", tab_custom: "Personalizado", tab_pred: "Simulador", tab_evol: "Evolución",
-                part: "Parte", row_correct: "Acertos", row_errors: "Erros", row_blank: "En branco",
-                summary_tram: "RESUMO TRAMITACIÓN", summary_aux: "RESUMO AUXILIO", cust_summary: "RESUMO", th_of: "Ofi.", th_pts: "Puntos", total_part: "Total Parte", total_exam: "Total do exame",
-                ph_id_sim: "Identificador (Ex: Simulacro 1 2026)...", ph_id: "Identificador...", btn_save_sim: "📥 Gardar Simulación", btn_reset: "Reiniciar Campos",
-                cust_num_parts: "Número de Partes (Máx. 10):", c_part_label: "Partes", c_lbl_preg: "Preguntas", c_lbl_pts: "Puntos +", c_lbl_rest: "Resta -",
-                pred_title: "Estratexia de Aprobado", pred_exam_label: "Exame a Simular:", pred_cust_label: "Partes del Examen Personalizado:", pred_progress: "Porcentaxe Cuberto do Exame", pred_default: "Move as barras para calcular.",
-                st_best: "Mellor Nota", st_avg: "Media Xeral", st_count: "Simulacros", st_rate: "% Aprobados", st_streak: "🔥 Mellor Racha de Aprobados", st_weak_title: "🎯 Diagnóstico de Puntos Débiles", hist_title: "📊 Historial por Especialidade", hist_cust: "Personalizados",
-                txt_pass: "🎉 APROBADO", txt_fail: "❌ SUSPENSO", no_records: "Sen rexistros.",
-                alert_saved: "¡Exame gardado!", alert_backup_ok: "¡Historial restaurado con éxito!", alert_backup_err: "O formato do arquivo non é válido o houbo un erro.",
-                st_no_data: "Aínda non hai suficientes datos rexistrados para analizar os teus puntos débiles. ¡Sigue realizando simulacros!",
-                st_weak_high: "⚠️ ATENCIÓN: Tes unha media de {X} erros por sección. O teu maior punto débil está no exceso de riscos nas segundas partes (Casos Prácticos). Suxerímosche asegurar as respostas dubidosas en branco.",
-                st_weak_low: "✅ ¡Buen control xeral! A túa media de erros é baixa ({X} por sección). O teu punto de mellora actual é aumentar la velocidade para reducir as preguntas que deixas en branco.",
-                pred_win: "🎉 CON ESTA COMBINACIÓN APROBARÍAS (Nota: {N} / 10)",
-                pred_lose: "❌ SUSPENSO (Nota: {N} / 10). Fáltanche {F} puntos oficiais para o corte.",
-                pred_prog_txt: "{P}% do exame completado",
-                btn_clear_hist: "🗑️ Borrar todo o historial",
-                confirm_clear: "¿Estás completamente seguro de que desexas eliminar TODO o historial de simulacros? Esta acción non se puede deshacer.",
-                btn_edit: "Editar", btn_delete: "Eliminar", btn_save_edit: "Gardar", btn_cancel: "Cancelar"
+<script>
+    // Diccionarios de Idiomas
+    const lenguajes = {
+        es: {
+            app_title: "El Supercomprobador de Notas",
+            tab_tramitacion: "Tramitación Procesal",
+            tab_auxilio: "Auxilio Judicial",
+            tab_evolucion: "Evolución",
+            tab_backup: "Copia de Seguridad",
+            title_tramitacion: "Cálculo de Notas - Tramitación Procesal",
+            title_auxilio: "Cálculo de Notas - Auxilio Judicial",
+            exam_name_label: "Nombre / Identificador del Simulacro:",
+            part1_test: "Parte 1 (Tipo test)",
+            part2_practical: "Parte 2 (Caso práctico)",
+            part3_office: "Parte 3 (Ofimática)",
+            row_correct: "Aciertos",
+            row_errors: "Errores",
+            summary_tramitacion: "RESUMEN TRAMITACIÓN",
+            summary_aux: "RESUMEN AUXILIO",
+            col_raw: "Nota Base",
+            col_scaled: "Nota /10",
+            total_part: "Total Parte",
+            lbl_total: "TOTAL GLOBAL",
+            btn_save: "Guardar Simulacro",
+            title_history: "Historial y Comparativas",
+            btn_clear_history: "Borrar todo el historial",
+            title_raw_history: "Registro Cronológico General",
+            col_date: "Fecha",
+            col_body: "Cuerpo",
+            col_name: "Simulacro",
+            col_score_raw: "Nota Base",
+            col_score_10: "Nota /10",
+            col_actions: "Acciones",
+            title_backup: "Gestión de Copia de Seguridad",
+            desc_backup: "Exporta tus datos a un archivo JSON para tener un respaldo o importar tus notas en otro dispositivo.",
+            btn_export: "Exportar Datos (.json)",
+            btn_import: "Importar Datos",
+            lbl_evolution_title: "Evolución específica para:",
+            lbl_attempt: "Intento",
+            lbl_diff: "Diferencia (/10)"
+        },
+        gl: {
+            app_title: "O Supercomprobador de Notas",
+            tab_tramitacion: "Tramitación Procesal",
+            tab_auxilio: "Auxilio Xudicial",
+            tab_evolucion: "Evolución",
+            tab_backup: "Copia de Seguridade",
+            title_tramitacion: "Cálculo de Notas - Tramitación Procesal",
+            title_auxilio: "Cálculo de Notas - Auxilio Xudicial",
+            exam_name_label: "Nome / Identificador do Simulacro:",
+            part1_test: "Parte 1 (Tipo test)",
+            part2_practical: "Parte 2 (Caso práctico)",
+            part3_office: "Parte 3 (Ofimática)",
+            row_correct: "Acertos",
+            row_errors: "Errores",
+            summary_tramitacion: "RESUMO TRAMITACIÓN",
+            summary_aux: "RESUMO AUXILIO",
+            col_raw: "Nota Base",
+            col_scaled: "Nota /10",
+            total_part: "Total Parte",
+            lbl_total: "TOTAL GLOBAL",
+            btn_save: "Gardar Simulacro",
+            title_history: "Historial e Comparativas",
+            btn_clear_history: "Borrar todo o historial",
+            title_raw_history: "Rexistro Cronolóxico Xeral",
+            col_date: "Data",
+            col_body: "Cuerpo",
+            col_name: "Simulacro",
+            col_score_raw: "Nota Base",
+            col_score_10: "Nota /10",
+            col_actions: "Accións",
+            title_backup: "Xestión de Copia de Seguridade",
+            desc_backup: "Exporta os teus datos a un ficheiro JSON para ter un respaldo ou importar as túas notas noutro dispositivo.",
+            btn_export: "Exportar Datos (.json)",
+            btn_import: "Importar Datos",
+            lbl_evolution_title: "Evolución específica para:",
+            lbl_attempt: "Intento",
+            lbl_diff: "Diferenza (/10)"
+        }
+    };
+
+    let currentLang = 'es';
+
+    function changeLanguage(lang) {
+        currentLang = lang;
+        const texts = lenguajes[lang];
+        document.querySelectorAll('[data-i18n]').forEach(elem => {
+            const key = elem.getAttribute('data-i18n');
+            if (texts[key]) {
+                elem.innerText = texts[key];
             }
+        });
+        renderHistory();
+    }
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        
+        document.getElementById(`tab-${tabId}`).classList.add('active');
+        event.currentTarget.classList.add('active');
+
+        if (tabId === 'evolucion') {
+            renderHistory();
+        }
+    }
+
+    // Cálculo Tramitación
+    function calcTramitacion() {
+        const p1_ok = parseFloat(document.getElementById('t_p1_ok').value) || 0;
+        const p1_fail = parseFloat(document.getElementById('t_p1_fail').value) || 0;
+        const p2_ok = parseFloat(document.getElementById('t_p2_ok').value) || 0;
+        const p2_fail = parseFloat(document.getElementById('t_p2_fail').value) || 0;
+        const p3_ok = parseFloat(document.getElementById('t_p3_ok').value) || 0;
+        const p3_fail = parseFloat(document.getElementById('t_p3_fail').value) || 0;
+
+        const p1_score = Math.max(0, p1_ok - (p1_fail * 0.25));
+        const p1_10 = (p1_score / 100) * 10;
+
+        const p2_score = Math.max(0, p2_ok - (p2_fail * 0.25));
+        const p2_10 = (p2_score / 20) * 10;
+
+        const p3_score = Math.max(0, p3_ok - (p3_fail * 0.25));
+        const p3_10 = (p3_score / 20) * 10;
+
+        const total_score = p1_score + p2_score + p3_score;
+        const total_10 = (p1_10 + p2_10 + p3_10) / 3;
+
+        document.getElementById('t_res1').innerText = p1_score.toFixed(2);
+        document.getElementById('t_res1_10').innerText = p1_10.toFixed(2);
+        document.getElementById('t_res2').innerText = p2_score.toFixed(2);
+        document.getElementById('t_res2_10').innerText = p2_10.toFixed(2);
+        document.getElementById('t_res3').innerText = p3_score.toFixed(2);
+        document.getElementById('t_res3_10').innerText = p3_10.toFixed(2);
+        document.getElementById('t_res_total').innerText = total_score.toFixed(2);
+        document.getElementById('t_res_total_10').innerText = total_10.toFixed(2);
+
+        return { p1_score, p1_10, p2_score, p2_10, p3_score, p3_10, total_score, total_10 };
+    }
+
+    // Cálculo Auxilio
+    function calcAuxilio() {
+        const p1_ok = parseFloat(document.getElementById('a_p1_ok').value) || 0;
+        const p1_fail = parseFloat(document.getElementById('a_p1_fail').value) || 0;
+        const p2_ok = parseFloat(document.getElementById('a_p2_ok').value) || 0;
+        const p2_fail = parseFloat(document.getElementById('a_p2_fail').value) || 0;
+
+        const p1_score = Math.max(0, p1_ok - (p1_fail * 0.25));
+        const p1_10 = (p1_score / 100) * 10;
+
+        const p2_score = Math.max(0, p2_ok - (p2_fail * 0.25));
+        const p2_10 = (p2_score / 40) * 10;
+
+        const total_score = p1_score + p2_score;
+        const total_10 = (p1_10 + p2_10) / 2;
+
+        document.getElementById('a_res1').innerText = p1_score.toFixed(2);
+        document.getElementById('a_res1_10').innerText = p1_10.toFixed(2);
+        document.getElementById('a_res2').innerText = p2_score.toFixed(2);
+        document.getElementById('a_res2_10').innerText = p2_10.toFixed(2);
+        document.getElementById('a_res_total').innerText = total_score.toFixed(2);
+        document.getElementById('a_res_total_10').innerText = total_10.toFixed(2);
+
+        return { p1_score, p1_10, p2_score, p2_10, total_score, total_10 };
+    }
+
+    // Funciones para guardar en LocalStorage
+    function getHistory() {
+        return JSON.parse(localStorage.getItem('supercomprobador_history') || '[]');
+    }
+
+    function saveHistoryData(history) {
+        localStorage.setItem('supercomprobador_history', JSON.stringify(history));
+    }
+
+    function saveTramitacionHistory() {
+        const nameInput = document.getElementById('t_exam_name').value.trim();
+        const examName = nameInput !== '' ? nameInput : 'Simulacro Tramitación';
+        const res = calcTramitacion();
+
+        const entry = {
+            id: Date.now(),
+            date: new Date().toLocaleString(),
+            type: 'Tramitación',
+            name: examName,
+            score_raw: res.total_score.toFixed(2),
+            score_10: res.total_10.toFixed(2)
         };
 
-        function aplicarIdioma() {
-            let lang = appSettings.lang;
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                let clave = el.getAttribute('data-i18n');
-                if (lenguajes[lang] && lenguajes[lang][clave]) {
-                    el.innerText = lenguajes[lang][clave];
-                }
-            });
-            document.querySelectorAll('[data-i18n-ph]').forEach(el => {
-                let clave = el.getAttribute('data-i18n-ph');
-                if (lenguajes[lang] && lenguajes[lang][clave]) {
-                    el.placeholder = lenguajes[lang][clave];
-                }
-            });
+        const history = getHistory();
+        history.push(entry);
+        saveHistoryData(history);
+        alert(currentLang === 'es' ? '¡Simulacro de Tramitación guardado con éxito!' : '¡Simulacro de Tramitación gardado con éxito!');
+    }
 
-            let themeBtn = document.getElementById('theme-btn');
-            if(themeBtn) {
-                themeBtn.innerText = appSettings.theme === 'dark' ? lenguajes[lang].opt_theme_btn_light : lenguajes[lang].opt_theme_btn;
-            }
-            
-            if(currentActiveTab === 'predictor') runPrediction();
-            if(currentActiveTab === 'evolucion') renderHistory();
+    function saveAuxilioHistory() {
+        const nameInput = document.getElementById('a_exam_name').value.trim();
+        const examName = nameInput !== '' ? nameInput : 'Simulacro Auxilio';
+        const res = calcAuxilio();
+
+        const entry = {
+            id: Date.now(),
+            date: new Date().toLocaleString(),
+            type: 'Auxilio Judicial',
+            name: examName,
+            score_raw: res.total_score.toFixed(2),
+            score_10: res.total_10.toFixed(2)
+        };
+
+        const history = getHistory();
+        history.push(entry);
+        saveHistoryData(history);
+        alert(currentLang === 'es' ? '¡Simulacro de Auxilio guardado con éxito!' : '¡Simulacro de Auxilio gardado con éxito!');
+    }
+
+    function deleteEntry(id) {
+        let history = getHistory();
+        history = history.filter(item => item.id !== id);
+        saveHistoryData(history);
+        renderHistory();
+    }
+
+    function clearAllHistory() {
+        const confirmMsg = currentLang === 'es' 
+            ? '¿Estás seguro de que deseas borrar todo el historial?' 
+            : '¿Estás seguro de que desexas borrar todo o historial?';
+        if (confirm(confirmMsg)) {
+            localStorage.removeItem('supercomprobador_history');
+            renderHistory();
+        }
+    }
+
+    // Renderizado del historial y agrupación comparativa de simulacros
+    function renderHistory() {
+        const history = getHistory();
+        const tbody = document.getElementById('history-table-body');
+        const groupedContainer = document.getElementById('grouped-comparisons');
+        
+        tbody.innerHTML = '';
+        groupedContainer.innerHTML = '';
+
+        if (history.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">${currentLang === 'es' ? 'Sin registros guardados.' : 'Sen rexistros gardados.'}</td></tr>`;
+            return;
         }
 
-        // --- INICIALIZACIÓN Y AJUSTES ---
-        window.addEventListener('load', () => {
-            loadSettings();
-            generateCustomStructure();
-            setupPredictorMode();
-            setupEnterNavigation();
+        // 1. Renderizar tabla completa
+        history.slice().reverse().forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${item.date}</td>
+                <td>${item.type}</td>
+                <td><strong>${item.name}</strong></td>
+                <td>${item.score_raw}</td>
+                <td class="score-val">${item.score_10}</td>
+                <td><button class="btn btn-danger" style="padding: 4px 8px; font-size: 0.8rem;" onclick="deleteEntry(${item.id})">X</button></td>
+            `;
+            tbody.appendChild(tr);
         });
 
-        function toggleSidebar() { document.getElementById('app-sidebar').classList.toggle('open'); }
-        
-        function loadSettings() {
-            let saved = localStorage.getItem('app_comprobador_settings');
-            if (saved) {
-                appSettings = JSON.parse(saved);
-                document.getElementById('cfg-target').value = appSettings.target || 5.0;
-                document.getElementById('cfg-lang').value = appSettings.lang || 'es';
+        // 2. Agrupar por nombre exacto para ver evolución
+        const groups = {};
+        history.forEach(item => {
+            const key = item.name.trim().toLowerCase();
+            if (!groups[key]) {
+                groups[key] = {
+                    displayName: item.name.trim(),
+                    items: []
+                };
             }
-            document.documentElement.setAttribute('data-theme', appSettings.theme);
-            aplicarIdioma();
-        }
+            groups[key].items.push(item);
+        });
 
-        function saveSettings() {
-            appSettings.target = parseFloat(document.getElementById('cfg-target').value) || 5.0;
-            appSettings.lang = document.getElementById('cfg-lang').value;
-            localStorage.setItem('app_comprobador_settings', JSON.stringify(appSettings));
-            aplicarIdioma();
-            if (currentActiveTab === 'tramitacion') calcTramitacion();
-            if (currentActiveTab === 'auxilio') calcAuxilio();
-            if (currentActiveTab === 'personalizado') calcCustom();
-        }
+        // 3. Generar tablas comparativas para exámenes con el mismo nombre (2 o más intentos)
+        const texts = lenguajes[currentLang];
+        Object.keys(groups).forEach(key => {
+            const group = groups[key];
+            if (group.items.length >= 2) {
+                const card = document.createElement('div');
+                card.className = 'comparison-card';
 
-        function toggleTheme() {
-            appSettings.theme = appSettings.theme === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', appSettings.theme);
-            localStorage.setItem('app_comprobador_settings', JSON.stringify(appSettings));
-            aplicarIdioma();
-        }
+                let cardHTML = `<h4>${texts.lbl_evolution_title} "${group.displayName}"</h4>`;
+                cardHTML += `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>${texts.lbl_attempt}</th>
+                                <th>${texts.col_date}</th>
+                                <th>${texts.col_body}</th>
+                                <th>${texts.col_score_10}</th>
+                                <th>${texts.lbl_diff}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
 
-        // --- NAVEGACIÓN CON ENTER ENTRE CAMPOS ---
-        function setupEnterNavigation() {
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    let target = e.target;
-                    if (target && target.tagName === 'INPUT' && target.type === 'number') {
-                        e.preventDefault();
-                        let nextId = target.getAttribute('data-next');
-                        if (nextId) {
-                            let nextInput = document.getElementById(nextId);
-                            if (nextInput) {
-                                nextInput.focus();
-                                nextInput.select();
-                            }
+                group.items.forEach((item, index) => {
+                    let diffHTML = '-';
+                    if (index > 0) {
+                        const prevScore = parseFloat(group.items[index - 1].score_10);
+                        const currScore = parseFloat(item.score_10);
+                        const diff = (currScore - prevScore).toFixed(2);
+                        if (diff > 0) {
+                            diffHTML = `<span class="diff-pos">+${diff}</span>`;
+                        } else if (diff < 0) {
+                            diffHTML = `<span class="diff-neg">${diff}</span>`;
                         } else {
-                            let inputs = Array.from(document.querySelectorAll('.tab-content.active input[type="number"]'));
-                            let idx = inputs.indexOf(target);
-                            if (idx !== -1 && idx + 1 < inputs.length) {
-                                inputs[idx + 1].focus();
-                                inputs[idx + 1].select();
-                            }
+                            diffHTML = `<span class="diff-zero">0.00</span>`;
                         }
                     }
-                }
-            });
-        }
 
-        // --- NAVEGACIÓN DE PESTAÑAS ---
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            
-            document.getElementById('tab-' + tabId).classList.add('active');
-            document.getElementById('btn-tab-' + tabId).classList.add('active');
-            currentActiveTab = tabId;
-
-            if (tabId === 'evolucion') {
-                renderHistory();
-            } else if (tabId === 'predictor') {
-                runPrediction();
-            }
-        }
-
-        // --- FUNCIÓN AUXILIAR PARA APLICAR COLORES VERDE/ROJO EN EL RESUMEN ---
-        function applyScoreColor(element, score, cutoff) {
-            if (!element) return;
-            let target = cutoff !== undefined ? cutoff : (appSettings ? appSettings.target : 5.0);
-            if (score === null || isNaN(score)) {
-                element.classList.remove('score-pass', 'score-fail');
-                return;
-            }
-            if (score >= target) {
-                element.classList.add('score-pass');
-                element.classList.remove('score-fail');
-            } else {
-                element.classList.add('score-fail');
-                element.classList.remove('score-pass');
-            }
-        }
-
-// --- LÓGICA DE CÁLCULO TRAMITACIÓN (ACTUALIZADA Y CORREGIDA) ---
-        function calcTramitacion() {
-            let target = appSettings ? appSettings.target : 5.0;
-
-            // Parte 1 (100 preg - Máx: 60 pts - Corte: 30 pts)
-            let a1 = parseInt(document.getElementById('t1_a').value) || 0;
-            let e1 = parseInt(document.getElementById('t1_e').value) || 0;
-            let invalid1 = (a1 + e1 > 100);
-            let res1 = 0, res1_10 = 0;
-
-            if (invalid1) {
-                document.getElementById('t1_err').style.display = 'inline';
-                document.getElementById('t1_b').value = '-';
-                document.getElementById('t_res1').innerText = '-';
-                document.getElementById('t_res1_10').innerText = '-';
-                applyScoreColor(document.getElementById('t_res1_10'), null);
-            } else {
-                document.getElementById('t1_err').style.display = 'none';
-                let b1 = Math.max(0, 100 - (a1 + e1));
-                document.getElementById('t1_b').value = b1;
-                res1 = Math.max(0, (a1 * 0.6) - (e1 * 0.15));
-                res1_10 = (res1 / 60) * 10;
-                document.getElementById('t_res1').innerText = res1.toFixed(2);
-                document.getElementById('t_res1_10').innerText = res1_10.toFixed(2);
-                applyScoreColor(document.getElementById('t_res1_10'), res1_10, 5.0);
-            }
-
-            // Parte 2 (10 preg - Máx: 20 pts - Corte: 10 pts)
-            let a2 = parseInt(document.getElementById('t2_a').value) || 0;
-            let e2 = parseInt(document.getElementById('t2_e').value) || 0;
-            let invalid2 = (a2 + e2 > 10);
-            let res2 = 0, res2_10 = 0;
-
-            if (invalid2) {
-                document.getElementById('t2_err').style.display = 'inline';
-                document.getElementById('t2_b').value = '-';
-                document.getElementById('t_res2').innerText = '-';
-                document.getElementById('t_res2_10').innerText = '-';
-                applyScoreColor(document.getElementById('t_res2_10'), null);
-            } else {
-                document.getElementById('t2_err').style.display = 'none';
-                let b2 = Math.max(0, 10 - (a2 + e2));
-                document.getElementById('t2_b').value = b2;
-                res2 = Math.max(0, (a2 * 2.0) - (e2 * 0.5));
-                res2_10 = (res2 / 20) * 10;
-                document.getElementById('t_res2').innerText = res2.toFixed(2);
-                document.getElementById('t_res2_10').innerText = res2_10.toFixed(2);
-                applyScoreColor(document.getElementById('t_res2_10'), res2_10, 5.0);
-            }
-
-            // Parte 3 (20 preg - Máx: 20 pts - Corte: 10 pts)
-            let a3 = parseInt(document.getElementById('t3_a').value) || 0;
-            let e3 = parseInt(document.getElementById('t3_e').value) || 0;
-            let invalid3 = (a3 + e3 > 20);
-            let res3 = 0, res3_10 = 0;
-
-            if (invalid3) {
-                document.getElementById('t3_err').style.display = 'inline';
-                document.getElementById('t3_b').value = '-';
-                document.getElementById('t_res3').innerText = '-';
-                document.getElementById('t_res3_10').innerText = '-';
-                applyScoreColor(document.getElementById('t_res3_10'), null);
-            } else {
-                document.getElementById('t3_err').style.display = 'none';
-                let b3 = Math.max(0, 20 - (a3 + e3));
-                document.getElementById('t3_b').value = b3;
-                res3 = Math.max(0, (a3 * 1.0) - (e3 * 0.25));
-                res3_10 = (res3 / 20) * 10;
-                document.getElementById('t_res3').innerText = res3.toFixed(2);
-                document.getElementById('t_res3_10').innerText = res3_10.toFixed(2);
-                applyScoreColor(document.getElementById('t_res3_10'), res3_10, 5.0);
-            }
-
-            // Total del examen (Máx: 100 pts oficiales)
-            if (invalid1 || invalid2 || invalid3) {
-                document.getElementById('t_resG').innerText = '-';
-                document.getElementById('t_resG_10').innerText = '-';
-                applyScoreColor(document.getElementById('t_resG_10'), null);
-                document.getElementById('t_verdict').style.display = 'none';
-                document.getElementById('t_save_box').style.display = 'none';
-            } else {
-                let totalOfi = res1 + res2 + res3;
-                let total10 = (totalOfi / 100) * 10;
-                document.getElementById('t_resG').innerText = totalOfi.toFixed(2);
-                document.getElementById('t_resG_10').innerText = total10.toFixed(2);
-
-                // Requisito indispensable: tener al menos la mitad en cada una de las 3 partes
-                let passedAllParts = (res1 >= 30) && (res2 >= 10) && (res3 >= 10);
-
-                applyScoreColor(document.getElementById('t_resG_10'), passedAllParts ? total10 : 0, target);
-                mostrarVeredictoTramitacion(total10, passedAllParts);
-            }
-        }
-
-        function mostrarVeredictoTramitacion(nota10, passedAllParts) {
-            let box = document.getElementById('t_verdict');
-            let saveBox = document.getElementById('t_save_box');
-            let lang = appSettings ? appSettings.lang : 'es';
-
-            box.style.display = 'block';
-            saveBox.style.display = 'block';
-
-            if (passedAllParts) {
-                box.className = 'verdict-box verdict-pass';
-                box.innerHTML = lenguajes[lang].txt_pass + ` (${nota10.toFixed(2)} / 10)`;
-            } else {
-                box.className = 'verdict-box verdict-fail';
-                box.innerHTML = lenguajes[lang].txt_fail + ` (${nota10.toFixed(2)} / 10)`;
-            }
-        }
-
-// --- LÓGICA DE CÁLCULO AUXILIO JUDICIAL (BLINDADA) ---
-        function calcAuxilio() {
-            let target = appSettings ? appSettings.target : 5.0;
-
-            // --- PARTE 1 (100 preg - Máx: 60 pts - Corte: 30 pts) ---
-            let a1Input = document.getElementById('a1_a');
-            let e1Input = document.getElementById('a1_e');
-            let a1 = a1Input ? (parseInt(a1Input.value) || 0) : 0;
-            let e1 = e1Input ? (parseInt(e1Input.value) || 0) : 0;
-
-            let invalid1 = (a1 + e1 > 100);
-            let res1 = 0, res1_10 = 0;
-
-            let err1 = document.getElementById('a1_err');
-            let b1Elem = document.getElementById('a1_b');
-            let r1Elem = document.getElementById('a_res1');
-            let r1_10Elem = document.getElementById('a_res1_10');
-
-            if (invalid1) {
-                if (err1) err1.style.display = 'inline';
-                if (b1Elem) b1Elem.value = '-';
-                if (r1Elem) r1Elem.innerText = '-';
-                if (r1_10Elem) r1_10Elem.innerText = '-';
-                applyScoreColor(r1_10Elem, null);
-            } else {
-                if (err1) err1.style.display = 'none';
-                let b1 = Math.max(0, 100 - (a1 + e1));
-                if (b1Elem) b1Elem.value = b1;
-                res1 = Math.max(0, (a1 * 0.6) - (e1 * 0.15));
-                res1_10 = (res1 / 60) * 10;
-                if (r1Elem) r1Elem.innerText = res1.toFixed(2);
-                if (r1_10Elem) r1_10Elem.innerText = res1_10.toFixed(2);
-                applyScoreColor(r1_10Elem, res1_10, 5.0);
-            }
-
-            // --- PARTE 2 (40 preg - Máx: 40 pts - Corte: 20 pts) ---
-            let a2Input = document.getElementById('a2_a');
-            let e2Input = document.getElementById('a2_e');
-            let a2 = a2Input ? (parseInt(a2Input.value) || 0) : 0;
-            let e2 = e2Input ? (parseInt(e2Input.value) || 0) : 0;
-
-            let invalid2 = (a2 + e2 > 40);
-            let res2 = 0, res2_10 = 0;
-
-            let err2 = document.getElementById('a2_err');
-            let b2Elem = document.getElementById('a2_b');
-            let r2Elem = document.getElementById('a_res2');
-            let r2_10Elem = document.getElementById('a_res2_10');
-
-            if (invalid2) {
-                if (err2) err2.style.display = 'inline';
-                if (b2Elem) b2Elem.value = '-';
-                if (r2Elem) r2Elem.innerText = '-';
-                if (r2_10Elem) r2_10Elem.innerText = '-';
-                applyScoreColor(r2_10Elem, null);
-            } else {
-                if (err2) err2.style.display = 'none';
-                let b2 = Math.max(0, 40 - (a2 + e2));
-                if (b2Elem) b2Elem.value = b2;
-                res2 = Math.max(0, (a2 * 1.0) - (e2 * 0.25));
-                res2_10 = (res2 / 40) * 10;
-                if (r2Elem) r2Elem.innerText = res2.toFixed(2);
-                if (r2_10Elem) r2_10Elem.innerText = res2_10.toFixed(2);
-                applyScoreColor(r2_10Elem, res2_10, 5.0);
-            }
-
-            // --- TOTAL DEL EXAMEN ---
-            let rgElem = document.getElementById('a_resG');
-            let rg10Elem = document.getElementById('a_resG_10');
-            let verdictBox = document.getElementById('a_verdict');
-            let saveBox = document.getElementById('a_save_box');
-
-            if (invalid1 || invalid2) {
-                if (rgElem) rgElem.innerText = '-';
-                if (rg10Elem) rg10Elem.innerText = '-';
-                applyScoreColor(rg10Elem, null);
-                if (verdictBox) verdictBox.style.display = 'none';
-                if (saveBox) saveBox.style.display = 'none';
-            } else {
-                let totalOfi = res1 + res2;
-                let total10 = (totalOfi / 100) * 10;
-                if (rgElem) rgElem.innerText = totalOfi.toFixed(2);
-                if (rg10Elem) rg10Elem.innerText = total10.toFixed(2);
-
-                // Requisito indispensable: aprovar ambas partes de forma independiente
-                let passedAllParts = (res1 >= 30) && (res2 >= 20);
-
-                applyScoreColor(rg10Elem, passedAllParts ? total10 : 0, target);
-                mostrarVeredictoAuxilio(total10, passedAllParts);
-            }
-        }
-
-// =========================================================================
-// --- LÓGICA DE CÁLCULO EXAMEN PERSONALIZADO (CON DESGLOSE) ---
-// =========================================================================
-
-function generateCustomStructure() {
-    const numPartes = parseInt(document.getElementById('c_num_partes')?.value) || 1;
-    const configRoot = document.getElementById('custom-parts-config-root');
-    const lang = (typeof appSettings !== 'undefined' && appSettings.lang) ? appSettings.lang : 'es';
-    const dict = (typeof lenguajes !== 'undefined' && lenguajes[lang]) ? lenguajes[lang] : (typeof lenguajes !== 'undefined' ? lenguajes.es : {});
-
-    if (!configRoot) return;
-
-    let configHTML = '';
-    for (let i = 1; i <= numPartes; i++) {
-        configHTML += `
-        <div class="part-config-container" style="margin-bottom: 12px; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
-            <strong>${dict.part || 'Parte'} ${i}</strong>
-            <div class="grid-config-inputs" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px;">
-                <div>
-                    <label style="display:block; font-size: 0.85em;">${dict.c_lbl_preg || 'Preguntas'}:</label>
-                    <input type="number" id="c_cfg_q_${i}" value="100" min="1" style="width:100%;" oninput="generateCustomTables();">
-                </div>
-                <div>
-                    <label style="display:block; font-size: 0.85em;">${dict.c_lbl_pts || 'Puntos +'}:</label>
-                    <input type="number" id="c_cfg_p_${i}" value="1" step="0.01" min="0" style="width:100%;" oninput="calcPersonalizado();">
-                </div>
-                <div>
-                    <label style="display:block; font-size: 0.85em;">${dict.c_lbl_rest || 'Resta -'}:</label>
-                    <input type="number" id="c_cfg_r_${i}" value="0.33" step="0.01" min="0" style="width:100%;" oninput="calcPersonalizado();">
-                </div>
-            </div>
-        </div>`;
-    }
-    configRoot.innerHTML = configHTML;
-
-    // Renderiza dinámicamente las tablas de datos de la plantilla
-    generateCustomTables();
-}
-
-function generateCustomTables() {
-    const numPartes = parseInt(document.getElementById('c_num_partes')?.value) || 1;
-    const tablesRoot = document.getElementById('custom-tables-root');
-    const breakdownContainer = document.getElementById('c_breakdown_summary');
-    const lang = (typeof appSettings !== 'undefined' && appSettings.lang) ? appSettings.lang : 'es';
-    const dict = (typeof lenguajes !== 'undefined' && lenguajes[lang]) ? lenguajes[lang] : (typeof lenguajes !== 'undefined' ? lenguajes.es : {});
-
-    if (!tablesRoot) return;
-
-    let tablesHTML = '';
-    let breakdownHTML = '';
-
-    for (let i = 1; i <= numPartes; i++) {
-        const totalPreg = parseInt(document.getElementById(`c_cfg_q_${i}`)?.value) || 100;
-
-        tablesHTML += `
-        <table class="data-table" style="margin-bottom: 15px; width: 100%;">
-            <thead>
-                <tr><th colspan="2" class="header-part" style="text-align: left; padding: 6px;">${dict.part || 'Parte'} ${i} (${totalPreg} preg.)</th></tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td style="padding: 6px;">${dict.row_correct || 'Acertos'}</td>
-                    <td style="padding: 6px;"><input type="number" id="c_a_${i}" min="0" max="${totalPreg}" style="width: 100%;" oninput="calcPersonalizado()"></td>
-                </tr>
-                <tr>
-                    <td style="padding: 6px;">${dict.row_errors || 'Errores'}</td>
-                    <td style="padding: 6px;"><input type="number" id="c_e_${i}" min="0" max="${totalPreg}" style="width: 100%;" oninput="calcPersonalizado()"></td>
-                </tr>
-                <tr>
-                    <td style="padding: 6px;">${dict.row_blank || 'En blanco'}</td>
-                    <td style="padding: 6px;">
-                        <input type="number" id="c_b_${i}" class="read-only-blank" readonly value="${totalPreg}" style="width: 70%;">
-                        <span id="c_err_${i}" class="error-msg" style="display:none; color: red; font-weight: bold; margin-left: 5px;">❌ &gt; ${totalPreg}</span>
-                    </td>
-                </tr>
-            </tbody>
-        </table>`;
-
-        breakdownHTML += `
-        <tr>
-            <td>${dict.total_part || 'Total Parte'} ${i}</td>
-            <td id="c_res_${i}" class="score-val">0.00</td>
-            <td id="c_res_${i}_10" class="score-val">0.00</td>
-        </tr>`;
-    }
-
-    tablesRoot.innerHTML = tablesHTML;
-
-    if (breakdownContainer) {
-        breakdownContainer.innerHTML = `
-        <table class="results-table" style="margin-top: 10px; width: 100%;">
-            <thead>
-                <tr>
-                    <th>${dict.cust_summary || 'RESUMEN'}</th>
-                    <th class="scale-header">${dict.th_pts || 'Puntos'}</th>
-                    <th class="scale-header">Sobre 10</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${breakdownHTML}
-            </tbody>
-        </table>`;
-    }
-
-    calcPersonalizado();
-}
-
-function calcPersonalizado() {
-    const numPartes = parseInt(document.getElementById('c_num_partes')?.value) || 1;
-    let totalPuntos = 0;
-    let totalMaxPuntos = 0;
-
-    for (let i = 1; i <= numPartes; i++) {
-        const totalQ = parseFloat(document.getElementById(`c_cfg_q_${i}`)?.value) || 0;
-        const ptsPos = parseFloat(document.getElementById(`c_cfg_p_${i}`)?.value) || 0;
-        const ptsNeg = parseFloat(document.getElementById(`c_cfg_r_${i}`)?.value) || 0;
-
-        const aEl = document.getElementById(`c_a_${i}`);
-        const eEl = document.getElementById(`c_e_${i}`);
-        const bEl = document.getElementById(`c_b_${i}`);
-        const errEl = document.getElementById(`c_err_${i}`);
-
-        const a = parseFloat(aEl?.value) || 0;
-        const e = parseFloat(eEl?.value) || 0;
-
-        const contestadas = a + e;
-        const blanco = totalQ - contestadas;
-
-        if (bEl) bEl.value = Math.max(0, blanco);
-
-        if (errEl) {
-            errEl.style.display = contestadas > totalQ ? 'inline' : 'none';
-        }
-
-        const scorePart = Math.max(0, (a * ptsPos) - (e * ptsNeg));
-        const maxPart = totalQ * ptsPos;
-
-        totalPuntos += scorePart;
-        totalMaxPuntos += maxPart;
-
-        const resEl = document.getElementById(`c_res_${i}`);
-        const res10El = document.getElementById(`c_res_${i}_10`);
-
-        if (resEl) resEl.innerText = scorePart.toFixed(2);
-        if (res10El) res10El.innerText = maxPart > 0 ? ((scorePart / maxPart) * 10).toFixed(2) : "0.00";
-    }
-
-    const resG = document.getElementById('c_resG');
-    const resG10 = document.getElementById('c_resG_10');
-
-    if (resG) resG.innerText = totalPuntos.toFixed(2);
-    if (resG10) resG10.innerText = totalMaxPuntos > 0 ? ((totalPuntos / totalMaxPuntos) * 10).toFixed(2) : "0.00";
-}
-
-        // --- VEREDICTOS Y GUARDADO ---
-        function mostrarVeredicto(prefix, nota10) {
-            let box = document.getElementById(prefix + '_verdict');
-            let saveBox = document.getElementById(prefix + '_save_box');
-            let target = appSettings.target;
-            let lang = appSettings.lang;
-
-            box.style.display = 'block';
-            saveBox.style.display = 'block';
-
-            if (nota10 >= target) {
-                box.className = 'verdict-box verdict-pass';
-                box.innerHTML = lenguajes[lang].txt_pass + ` (${nota10.toFixed(2)} / 10)`;
-            } else {
-                box.className = 'verdict-box verdict-fail';
-                box.innerHTML = lenguajes[lang].txt_fail + ` (${nota10.toFixed(2)} / 10)`;
-            }
-        }
-
-        function resetForm(tipo) {
-            if (tipo === 'tramitacion') {
-                ['t1_a', 't1_e', 't2_a', 't2_e', 't3_a', 't3_e'].forEach(id => document.getElementById(id).value = '');
-                calcTramitacion();
-            } else if (tipo === 'auxilio') {
-                ['a1_a', 'a1_e', 'a2_a', 'a2_e'].forEach(id => document.getElementById(id).value = '');
-                calcAuxilio();
-            } else if (tipo === 'personalizado') {
-                let n = parseInt(document.getElementById('c_num_partes').value) || 1;
-                for (let i = 1; i <= n; i++) {
-                    if(document.getElementById(`c${i}_a`)) document.getElementById(`c${i}_a`).value = '';
-                    if(document.getElementById(`c${i}_e`)) document.getElementById(`c${i}_e`).value = '';
-                }
-                calcCustom();
-            }
-        }
-
-        function saveToHistory(tipo) {
-            let inputId = tipo === 'tramitacion' ? 't_exam_year' : (tipo === 'auxilio' ? 'au_exam_year' : 'c_exam_year');
-            let identifier = document.getElementById(inputId).value.trim();
-            if (!identifier) identifier = "Simulacro " + new Date().toLocaleDateString();
-
-            let score10 = parseFloat(document.getElementById(tipo === 'tramitacion' ? 't_resG_10' : (tipo === 'auxilio' ? 'au_resG_10' : 'c_resG_10')).innerText) || 0;
-            let passed = score10 >= appSettings.target;
-
-            let history = JSON.parse(localStorage.getItem('app_comprobador_history') || '{"tramitacion":[], "auxilio":[], "personalizado":[]}');
-            
-            history[tipo].push({
-                id: Date.now().toString(),
-                name: identifier,
-                score: score10,
-                passed: passed,
-                date: new Date().toLocaleDateString()
-            });
-
-            localStorage.setItem('app_comprobador_history', JSON.stringify(history));
-            alert(lenguajes[appSettings.lang].alert_saved);
-            document.getElementById(inputId).value = '';
-            switchTab('evolucion');
-        }
-
-        // --- GESTIÓN DE HISTORIAL Y EVOLUCIÓN ---
-        function renderHistory() {
-            let history = JSON.parse(localStorage.getItem('app_comprobador_history') || '{"tramitacion":[], "auxilio":[], "personalizado":[]}');
-            let lang = appSettings.lang;
-
-            let allExams = [...history.tramitacion, ...history.auxilio, ...history.personalizado];
-            let count = allExams.length;
-            
-            let best = 0, sum = 0, passedCount = 0;
-            if (count > 0) {
-                allExams.forEach(ex => {
-                    if (ex.score > best) best = ex.score;
-                    sum += ex.score;
-                    if (ex.passed) passedCount++;
+                    cardHTML += `
+                        <tr>
+                            <td>#${index + 1}</td>
+                            <td>${item.date}</td>
+                            <td>${item.type}</td>
+                            <td class="score-val">${item.score_10}</td>
+                            <td>${diffHTML}</td>
+                        </tr>
+                    `;
                 });
+
+                cardHTML += `</tbody></table>`;
+                card.innerHTML = cardHTML;
+                groupedContainer.appendChild(card);
             }
+        });
+    }
 
-            document.getElementById('st-best').innerText = best.toFixed(2);
-            document.getElementById('st-avg').innerText = count > 0 ? (sum / count).toFixed(2) : "0.00";
-            document.getElementById('st-count').innerText = count;
-            document.getElementById('st-passrate').innerText = count > 0 ? Math.round((passedCount / count) * 100) + '%' : "0%";
+    // Importación y Exportación JSON
+    function exportData() {
+        const history = getHistory();
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(history, null, 2));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", `supercomprobador_backup_${Date.now()}.json`);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+    }
 
-            let streak = 0, maxStreak = 0;
-            allExams.forEach(ex => {
-                if (ex.passed) { streak++; if (streak > maxStreak) maxStreak = streak; } else { streak = 0; }
-            });
-            document.getElementById('st-streak').innerText = maxStreak;
-
-            let weakBox = document.getElementById('st-weaknesses');
-            if (count < 3) {
-                weakBox.innerHTML = lenguajes[lang].st_no_data;
-            } else {
-                let avgScore = sum / count;
-                if (avgScore < 6) {
-                    weakBox.innerHTML = lenguajes[lang].st_weak_high.replace('{X}', '3-4');
+    function importData(event) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const importedHistory = JSON.parse(e.target.result);
+                if (Array.isArray(importedHistory)) {
+                    saveHistoryData(importedHistory);
+                    alert(currentLang === 'es' ? '¡Datos importados con éxito!' : '¡Datos importados con éxito!');
+                    renderHistory();
                 } else {
-                    weakBox.innerHTML = lenguajes[lang].st_weak_low.replace('{X}', '1-2');
+                    alert(currentLang === 'es' ? 'El archivo no tiene un formato válido.' : 'O ficheiro non ten un formato válido.');
                 }
+            } catch (err) {
+                alert(currentLang === 'es' ? 'Error al leer el archivo JSON.' : 'Erro ao ler o ficheiro JSON.');
             }
-
-            renderContainer('tramitacion', history.tramitacion);
-            renderContainer('auxilio', history.auxilio);
-            renderContainer('personalizado', history.personalizado);
+        };
+        if (event.target.files[0]) {
+            reader.readAsText(event.target.files[0]);
         }
+    }
 
-        function renderContainer(tipo, items) {
-            let container = document.getElementById(`history-${tipo}-container`);
-            let lang = appSettings.lang;
-            if (!items || items.length === 0) {
-                container.innerHTML = `<div class="history-item" style="color:var(--text-secondary); text-align:center;">${lenguajes[lang].no_records}</div>`;
-                return;
-            }
+    // Inicialización al cargar la página
+    window.onload = function() {
+        calcTramitacion();
+        calcAuxilio();
+        renderHistory();
+    };
+</script>
 
-            container.innerHTML = '';
-            items.forEach(item => {
-                let badgeClass = item.passed ? 'badge-pass' : 'badge-fail';
-                let badgeText = item.passed ? (lenguajes[lang].txt_pass.split(' ')[1] || 'APROBADO') : (lenguajes[lang].txt_fail.split(' ')[1] || 'SUSPENSO');
-                
-                let div = document.createElement('div');
-                div.className = 'history-item';
-                div.id = `item-card-${item.id}`;
-                div.innerHTML = `
-                    <div class="item-top">
-                        <span class="item-title-text" id="title-text-${item.id}">${escapeHtml(item.name)}</span>
-                        <div>
-                            <span class="badge ${badgeClass}">${badgeText}</span>
-                            <span style="margin-left:8px; font-weight:bold;">${item.score.toFixed(2)} / 10</span>
-                        </div>
-                    </div>
-                    <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">${item.date}</div>
-                    <div class="item-actions">
-                        <button onclick="enableEditItem('${tipo}', '${item.id}')">${lenguajes[lang].btn_edit}</button>
-                        <button class="btn-delete-item" onclick="deleteHistoryItem('${tipo}', '${item.id}')">${lenguajes[lang].btn_delete}</button>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function enableEditItem(tipo, id) {
-            let history = JSON.parse(localStorage.getItem('app_comprobador_history') || '{"tramitacion":[], "auxilio":[], "personalizado":[]}');
-            let item = history[tipo].find(x => x.id === id);
-            if (!item) return;
-
-            let card = document.getElementById(`item-card-${id}`);
-            let lang = appSettings.lang;
-
-            card.innerHTML = `
-                <div style="display:flex; flex-direction:column; gap:6px;">
-                    <input type="text" id="edit-input-${id}" value="${escapeHtml(item.name)}" style="padding:4px; font-size:0.85rem;">
-                    <div style="display:flex; gap:6px; justify-content:flex-end;">
-                        <button onclick="saveEditItem('${tipo}', '${id}')" style="background:#0071e3; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">${lenguajes[lang].btn_save_edit}</button>
-                        <button onclick="renderHistory()" style="background:var(--tab-bg); border:1px solid var(--border-color); padding:4px 8px; border-radius:4px; cursor:pointer;">${lenguajes[lang].btn_cancel}</button>
-                    </div>
-                </div>
-            `;
-        }
-
-        function saveEditItem(tipo, id) {
-            let newName = document.getElementById(`edit-input-${id}`).value.trim();
-            if (!newName) return;
-
-            let history = JSON.parse(localStorage.getItem('app_comprobador_history') || '{"tramitacion":[], "auxilio":[], "personalizado":[]}');
-            let item = history[tipo].find(x => x.id === id);
-            if (item) {
-                item.name = newName;
-                localStorage.setItem('app_comprobador_history', JSON.stringify(history));
-            }
-            renderHistory();
-        }
-
-        function deleteHistoryItem(tipo, id) {
-            let history = JSON.parse(localStorage.getItem('app_comprobador_history') || '{"tramitacion":[], "auxilio":[], "personalizado":[]}');
-            history[tipo] = history[tipo].filter(x => x.id !== id);
-            localStorage.setItem('app_comprobador_history', JSON.stringify(history));
-            renderHistory();
-        }
-
-        function clearAllHistory() {
-            let lang = appSettings.lang;
-            if (confirm(lenguajes[lang].confirm_clear)) {
-                localStorage.removeItem('app_comprobador_history');
-                renderHistory();
-            }
-        }
-
-        function escapeHtml(text) {
-            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-        }
-
-        function exportHistory() {
-            let data = localStorage.getItem('app_comprobador_history') || '{}';
-            let blob = new Blob([data], {type: "application/json"});
-            let url = URL.createObjectURL(blob);
-            let a = document.createElement('a');
-            a.href = url;
-            a.download = "historial_supercomprobador.json";
-            a.click();
-        }
-
-        function importHistory(event) {
-            let file = event.target.files[0];
-            if (!file) return;
-            let reader = new FileReader();
-            let lang = appSettings.lang;
-            reader.onload = function(e) {
-                try {
-                    let parsed = JSON.parse(e.target.result);
-                    if (parsed.tramitacion || parsed.auxilio || parsed.personalizado) {
-                        localStorage.setItem('app_comprobador_history', JSON.stringify(parsed));
-                        alert(lenguajes[lang].alert_backup_ok);
-                        renderHistory();
-                    } else {
-                        alert(lenguajes[lang].alert_backup_err);
-                    }
-                } catch(err) {
-                    alert(lenguajes[lang].alert_backup_err);
-                }
-            };
-            reader.readAsText(file);
-        }
-
-// --- SIMULADOR PREDICTIVO ---
-        function setupPredictorMode() {
-            let type = document.getElementById('sim-type').value;
-            let customConfig = document.getElementById('sim-custom-config');
-            if (type === 'personalizado') {
-                customConfig.style.display = 'block';
-                buildPredictorCustomBaremos();
-            } else {
-                customConfig.style.display = 'none';
-                buildPredictorSliders();
-            }
-        }
-
-        function buildPredictorCustomBaremos() {
-            let n = parseInt(document.getElementById('sim-c-partes').value) || 1;
-            let root = document.getElementById('sim-c-baremos');
-            root.innerHTML = '';
-            for (let i = 1; i <= n; i++) {
-                root.innerHTML += `
-                    <div style="font-size:0.8rem; margin-top:5px; font-weight:bold;">Parte ${i}</div>
-                    <div class="grid-config-inputs">
-                        <div><label>Preguntas</label><input type="number" id="sim_cp_${i}_preg" value="20" min="1" oninput="buildPredictorSliders()"></div>
-                        <div><label>Puntos +</label><input type="number" id="sim_cp_${i}_pts" value="1" step="0.1" oninput="buildPredictorSliders()"></div>
-                        <div><label>Resta -</label><input type="number" id="sim_cp_${i}_res" value="0.25" step="0.05" oninput="buildPredictorSliders()"></div>
-                    </div>`;
-            }
-            buildPredictorSliders();
-        }
-
-        function buildPredictorSliders() {
-            let type = document.getElementById('sim-type').value;
-            let root = document.getElementById('sim-sliders-root');
-            root.innerHTML = '';
-            let sections = [];
-            let lang = appSettings.lang || 'es';
-
-            if (type === 'tramitacion') {
-                sections = [
-                    {id: 't1', name: 'Parte 1', max: 100, ptsHit: 1, ptsErr: 0.25},
-                    {id: 't2', name: 'Parte 2', max: 10, ptsHit: 1, ptsErr: 0.25},
-                    {id: 't3', name: 'Parte 3', max: 20, ptsHit: 1, ptsErr: 0.25}
-                ];
-            } else if (type === 'auxilio') {
-                sections = [
-                    {id: 'a1', name: 'Parte 1', max: 100, ptsHit: 1, ptsErr: 0.25},
-                    {id: 'a2', name: 'Parte 2', max: 40, ptsHit: 1, ptsErr: 0.25}
-                ];
-            } else {
-                let n = parseInt(document.getElementById('sim-c-partes').value) || 1;
-                for (let i = 1; i <= n; i++) {
-                    let m = parseInt(document.getElementById(`sim_cp_${i}_preg`) ? document.getElementById(`sim_cp_${i}_preg`).value : 20) || 20;
-                    let pHit = parseFloat(document.getElementById(`sim_cp_${i}_pts`) ? document.getElementById(`sim_cp_${i}_pts`).value : 1) || 1;
-                    let pErr = parseFloat(document.getElementById(`sim_cp_${i}_res`) ? document.getElementById(`sim_cp_${i}_res`).value : 0.25) || 0.25;
-                    sections.push({id: `c${i}`, name: `Parte ${i}`, max: m, ptsHit: pHit, ptsErr: pErr});
-                }
-            }
-
-            let txtAcertos = lenguajes[lang].row_correct;
-            let txtErros = lenguajes[lang].row_errors;
-            let txtBranco = lenguajes[lang].row_blank;
-
-            sections.forEach(sec => {
-                root.innerHTML += `
-                    <div class="dashboard-card">
-                        <h4 style="margin:0 0 10px 0; color:#0071e3;">${sec.name} (${sec.max} preg.)</h4>
-                        
-                        <div class="sim-row">
-                            <label>${txtAcertos}: <span id="val-a-${sec.id}">0</span></label>
-                            <div class="range-container">
-                                <input type="range" id="slider-a-${sec.id}" min="0" max="${sec.max}" value="0" oninput="updateSimSliders('${sec.id}', 'a', ${sec.max})">
-                            </div>
-                        </div>
-
-                        <div class="sim-row">
-                            <label>${txtErros}: <span id="val-e-${sec.id}">0</span></label>
-                            <div class="range-container">
-                                <input type="range" id="slider-e-${sec.id}" min="0" max="${sec.max}" value="0" oninput="updateSimSliders('${sec.id}', 'e', ${sec.max})">
-                            </div>
-                        </div>
-
-                        <div style="font-size:0.85rem; color:var(--text-secondary); display:flex; justify-content:space-between; margin-top:8px; border-top:1px dashed var(--border-color); padding-top:8px;">
-                            <span>${txtBranco}: <strong id="val-b-${sec.id}">${sec.max}</strong></span>
-                            <span>Puntos: <strong id="val-pts-${sec.id}" style="color:var(--text-main);">0.00</strong></span>
-                        </div>
-                    </div>`;
-            });
-            runPrediction();
-        }
-
-        function updateSimSliders(secId, changedType, maxPreg) {
-            let sliderA = document.getElementById(`slider-a-${secId}`);
-            let sliderE = document.getElementById(`slider-e-${secId}`);
-            if (!sliderA || !sliderE) return;
-
-            let valA = parseInt(sliderA.value) || 0;
-            let valE = parseInt(sliderE.value) || 0;
-
-            if (valA + valE > maxPreg) {
-                if (changedType === 'a') {
-                    valE = maxPreg - valA;
-                    sliderE.value = valE;
-                } else {
-                    valA = maxPreg - valE;
-                    sliderA.value = valA;
-                }
-            }
-
-            let valB = maxPreg - (valA + valE);
-            document.getElementById(`val-a-${secId}`).innerText = valA;
-            document.getElementById(`val-e-${secId}`).innerText = valE;
-            document.getElementById(`val-b-${secId}`).innerText = valB;
-
-            runPrediction();
-        }
-
-        function runPrediction() {
-            let type = document.getElementById('sim-type').value;
-            let sections = [];
-            let totalPreguntasExamen = 0;
-            let preguntasRespondidas = 0;
-            let puntuacionTotal = 0;
-            let maxPuntuacionPosible = 0;
-            let lang = appSettings.lang || 'es';
-
-            if (type === 'tramitacion') {
-                sections = [
-                    {id: 't1', max: 100, ptsHit: 1, ptsErr: 0.25},
-                    {id: 't2', max: 10, ptsHit: 1, ptsErr: 0.25},
-                    {id: 't3', max: 20, ptsHit: 1, ptsErr: 0.25}
-                ];
-                maxPuntuacionPosible = 130;
-            } else if (type === 'auxilio') {
-                sections = [
-                    {id: 'a1', max: 100, ptsHit: 1, ptsErr: 0.25},
-                    {id: 'a2', max: 40, ptsHit: 1, ptsErr: 0.25}
-                ];
-                maxPuntuacionPosible = 140;
-            } else {
-                let n = parseInt(document.getElementById('sim-c-partes').value) || 1;
-                for (let i = 1; i <= n; i++) {
-                    let m = parseInt(document.getElementById(`sim_cp_${i}_preg`) ? document.getElementById(`sim_cp_${i}_preg`).value : 20) || 20;
-                    let pHit = parseFloat(document.getElementById(`sim_cp_${i}_pts`) ? document.getElementById(`sim_cp_${i}_pts`).value : 1) || 1;
-                    let pErr = parseFloat(document.getElementById(`sim_cp_${i}_res`) ? document.getElementById(`sim_cp_${i}_res`).value : 0.25) || 0.25;
-                    sections.push({id: `c${i}`, max: m, ptsHit: pHit, ptsErr: pErr});
-                    maxPuntuacionPosible += (m * pHit);
-                }
-            }
-
-            sections.forEach(sec => {
-                totalPreguntasExamen += sec.max;
-                let sliderA = document.getElementById(`slider-a-${sec.id}`);
-                let sliderE = document.getElementById(`slider-e-${sec.id}`);
-                if (sliderA && sliderE) {
-                    let valA = parseInt(sliderA.value) || 0;
-                    let valE = parseInt(sliderE.value) || 0;
-                    let valB = sec.max - (valA + valE);
-
-                    preguntasRespondidas += (valA + valE);
-
-                    let secPts = Math.max(0, (valA * sec.ptsHit) - (valE * sec.ptsErr));
-                    puntuacionTotal += secPts;
-
-                    let ptsElem = document.getElementById(`val-pts-${sec.id}`);
-                    if (ptsElem) ptsElem.innerText = secPts.toFixed(2);
-                    
-                    document.getElementById(`val-a-${sec.id}`).innerText = valA;
-                    document.getElementById(`val-e-${sec.id}`).innerText = valE;
-                    document.getElementById(`val-b-${sec.id}`).innerText = valB;
-                }
-            });
-
-            let percent = totalPreguntasExamen > 0 ? Math.round((preguntasRespondidas / totalPreguntasExamen) * 100) : 0;
-            document.getElementById('sim-progress-bar').style.width = percent + '%';
-            document.getElementById('sim-progress-text').innerText = (lenguajes[lang].pred_prog_txt || "{P}%").replace('{P}', percent);
-
-            let nota10 = maxPuntuacionPosible > 0 ? (puntuacionTotal / maxPuntuacionPosible) * 10 : 0;
-            let verdictBox = document.getElementById('sim-verdict-box');
-            let target = appSettings.target;
-
-            if (preguntasRespondidas === 0) {
-                verdictBox.className = 'verdict-box';
-                verdictBox.style.display = 'block';
-                verdictBox.innerText = lenguajes[lang].pred_default;
-                return;
-            }
-
-            if (nota10 >= target) {
-                verdictBox.className = 'verdict-box verdict-pass';
-                verdictBox.style.display = 'block';
-                verdictBox.innerHTML = (lenguajes[lang].pred_win || "").replace('{N}', nota10.toFixed(2));
-            } else {
-                verdictBox.className = 'verdict-box verdict-fail';
-                verdictBox.style.display = 'block';
-                let faltan = (target - nota10).toFixed(2);
-                verdictBox.innerHTML = (lenguajes[lang].pred_lose || "").replace('{N}', nota10.toFixed(2)).replace('{F}', faltan);
-            }
-        }
-    </script>
 </body>
 </html>
