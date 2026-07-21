@@ -287,6 +287,7 @@
         <table class="results-table">
             <tr><th data-i18n="cust_summary">RESUMEN</th><th class="scale-header" data-i18n="th_pts">Puntos</th><th class="scale-header">s/ 10</th></tr>
             <tr class="total-row"><td data-i18n="total_exam">Total del examen</td><td id="c_resG" class="score-val">0.00</td><td id="c_resG_10" class="score-val">0.00</td></tr>
+            <div id="c_breakdown_summary"></div>
         </table>
         <div id="c_verdict" class="verdict-box"></div>
         <div id="c_save_box" class="save-container" style="display:none;">
@@ -712,73 +713,119 @@
             }
         }
 
-        // --- LÓGICA EXAMEN PERSONALIZADO ---
-        function generateCustomStructure() {
-            let n = parseInt(document.getElementById('c_num_partes').value) || 1;
-            let rootConfig = document.getElementById('custom-parts-config-root');
-            let rootTables = document.getElementById('custom-tables-root');
-            rootConfig.innerHTML = '';
-            rootTables.innerHTML = '';
+// --- LÓGICA DE CÁLCULO EXAMEN PERSONALIZADO (CON DESGLOSE) ---
+        function calcPersonalizado() {
+            let target = appSettings ? appSettings.target : 5.0;
+            let n = parseInt(document.getElementById('c_partes') ? document.getElementById('c_partes').value : 1) || 1;
+            
+            let totalObtenido = 0;
+            let totalMaximo = 0;
+            let hasError = false;
+
+            // Inicio del bloque HTML para el desglose
+            let breakdownHTML = `<div style="margin-top:12px; padding-top:10px; border-top:1px dashed var(--border-color); font-size:0.88rem;">
+                <strong style="display:block; margin-bottom:8px; color:var(--text-secondary); text-transform:uppercase; font-size:0.75rem; letter-spacing:0.5px;">Desglose por partes</strong>`;
 
             for (let i = 1; i <= n; i++) {
-                rootConfig.innerHTML += `
-                    <div class="part-config-container">
-                        <label>Parte ${i}</label>
-                        <div class="grid-config-inputs">
-                            <div><label>Preguntas</label><input type="number" id="cp_${i}_preg" value="20" min="1" oninput="buildCustomTables()"></div>
-                            <div><label>Puntos +</label><input type="number" id="cp_${i}_pts" value="1" step="0.1" oninput="buildCustomTables()"></div>
-                            <div><label>Resta -</label><input type="number" id="cp_${i}_res" value="0.25" step="0.05" oninput="buildCustomTables()"></div>
-                        </div>
-                    </div>`;
+                let aElem = document.getElementById(`c${i}_a`);
+                let eElem = document.getElementById(`c${i}_e`);
+                let pregElem = document.getElementById(`c_p${i}_preg`);
+                let ptsElem = document.getElementById(`c_p${i}_pts`);
+                let resElem = document.getElementById(`c_p${i}_res`);
+
+                if (!aElem || !eElem) continue;
+
+                let a = parseInt(aElem.value) || 0;
+                let e = parseInt(eElem.value) || 0;
+                let maxPreg = parseInt(pregElem ? pregElem.value : 20) || 20;
+                let ptsHit = parseFloat(ptsElem ? ptsElem.value : 1) || 1;
+                let ptsErr = parseFloat(resElem ? resElem.value : 0.25) || 0.25;
+
+                let errBox = document.getElementById(`c${i}_err`);
+                let bElem = document.getElementById(`c${i}_b`);
+                let resPartElem = document.getElementById(`c_res${i}`);
+                let resPart10Elem = document.getElementById(`c_res${i}_10`);
+
+                if (a + e > maxPreg) {
+                    hasError = true;
+                    if (errBox) errBox.style.display = 'inline';
+                    if (bElem) bElem.value = '-';
+                    if (resPartElem) resPartElem.innerText = '-';
+                    if (resPart10Elem) resPart10Elem.innerText = '-';
+                    applyScoreColor(resPart10Elem, null);
+                } else {
+                    if (errBox) errBox.style.display = 'none';
+                    let b = Math.max(0, maxPreg - (a + e));
+                    if (bElem) bElem.value = b;
+
+                    let maxPartPts = maxPreg * ptsHit;
+                    let partPts = Math.max(0, (a * ptsHit) - (e * ptsErr));
+                    let part10 = maxPartPts > 0 ? (partPts / maxPartPts) * 10 : 0;
+
+                    if (resPartElem) resPartElem.innerText = partPts.toFixed(2);
+                    if (resPart10Elem) resPart10Elem.innerText = part10.toFixed(2);
+                    applyScoreColor(resPart10Elem, part10, 5.0);
+
+                    totalObtenido += partPts;
+                    totalMaximo += maxPartPts;
+
+                    // Fila individual de desglose
+                    breakdownHTML += `
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                            <span>Parte ${i}:</span>
+                            <span><strong>${partPts.toFixed(2)}</strong> / ${maxPartPts.toFixed(2)} pts <small style="color:var(--text-secondary);">(${part10.toFixed(2)}/10)</small></span>
+                        </div>`;
+                }
             }
-            buildCustomTables();
+
+            breakdownHTML += '</div>';
+
+            // Actualización del cuadro resumen
+            let resGElem = document.getElementById('c_resG');
+            let resG10Elem = document.getElementById('c_resG_10');
+            let breakdownContainer = document.getElementById('c_breakdown_summary');
+            let verdictBox = document.getElementById('c_verdict');
+            let saveBox = document.getElementById('c_save_box');
+
+            if (hasError) {
+                if (resGElem) resGElem.innerText = '-';
+                if (resG10Elem) resG10Elem.innerText = '-';
+                applyScoreColor(resG10Elem, null);
+                if (breakdownContainer) breakdownContainer.innerHTML = '';
+                if (verdictBox) verdictBox.style.display = 'none';
+                if (saveBox) saveBox.style.display = 'none';
+            } else {
+                let total10 = totalMaximo > 0 ? (totalObtenido / totalMaximo) * 10 : 0;
+                if (resGElem) resGElem.innerText = totalObtenido.toFixed(2);
+                if (resG10Elem) resG10Elem.innerText = total10.toFixed(2);
+                
+                applyScoreColor(resG10Elem, total10, target);
+
+                if (breakdownContainer) {
+                    breakdownContainer.innerHTML = breakdownHTML;
+                }
+
+                mostrarVeredictoPersonalizado(total10);
+            }
         }
 
-        function buildCustomTables() {
-            let n = parseInt(document.getElementById('c_num_partes').value) || 1;
-            let rootTables = document.getElementById('custom-tables-root');
-            rootTables.innerHTML = '';
+        function mostrarVeredictoPersonalizado(total10) {
+            let box = document.getElementById('c_verdict');
+            let saveBox = document.getElementById('c_save_box');
+            let target = appSettings ? appSettings.target : 5.0;
+            let lang = appSettings ? appSettings.lang : 'es';
 
-            for (let i = 1; i <= n; i++) {
-                let p = document.getElementById(`cp_${i}_preg`) ? document.getElementById(`cp_${i}_preg`).value : 20;
-                let nextAttr = (i < n) ? `data-next="c${i+1}_a"` : '';
-                rootTables.innerHTML += `
-                    <table>
-                        <tr><th colspan="2" class="header-part">Parte ${i} (${p} preg.)</th></tr>
-                        <tr><td>Acertos</td><td><input type="number" id="c${i}_a" min="0" max="${p}" oninput="calcCustom()" data-next="c${i}_e"></td></tr>
-                        <tr><td>Erros</td><td><input type="number" id="c${i}_e" min="0" max="${p}" oninput="calcCustom()" ${nextAttr}></td></tr>
-                        <tr><td>En branco</td><td><input type="number" id="c${i}_b" class="read-only-blank" readonly value="${p}"></td></tr>
-                    </table>`;
+            if (!box) return;
+            box.style.display = 'block';
+            if (saveBox) saveBox.style.display = 'block';
+
+            if (total10 >= target) {
+                box.className = 'verdict-box verdict-pass';
+                box.innerHTML = (lenguajes[lang].txt_pass || 'APROBADO') + ` (${total10.toFixed(2)} / 10)`;
+            } else {
+                box.className = 'verdict-box verdict-fail';
+                box.innerHTML = (lenguajes[lang].txt_fail || 'SUSPENSO') + ` (${total10.toFixed(2)} / 10)`;
             }
-            calcCustom();
-        }
-
-        function calcCustom() {
-            let n = parseInt(document.getElementById('c_num_partes').value) || 1;
-            let totalPuntos = 0;
-            let totalMaxPuntos = 0;
-
-            for (let i = 1; i <= n; i++) {
-                let preg = parseInt(document.getElementById(`cp_${i}_preg`).value) || 0;
-                let ptsVal = parseFloat(document.getElementById(`cp_${i}_pts`).value) || 1;
-                let resVal = parseFloat(document.getElementById(`cp_${i}_res`).value) || 0.25;
-
-                let a = parseInt(document.getElementById(`c${i}_a`).value) || 0;
-                let e = parseInt(document.getElementById(`c${i}_e`).value) || 0;
-                if (a + e > preg) { a = preg; document.getElementById(`c${i}_a`).value = a; }
-                let b = Math.max(0, preg - (a + e));
-                document.getElementById(`c${i}_b`).value = b;
-
-                let scorePart = Math.max(0, (a * ptsVal) - (e * resVal));
-                totalPuntos += scorePart;
-                totalMaxPuntos += (preg * ptsVal);
-            }
-
-            let total10 = totalMaxPuntos > 0 ? (totalPuntos / totalMaxPuntos) * 10 : 0;
-            document.getElementById('c_resG').innerText = totalPuntos.toFixed(2);
-            document.getElementById('c_resG_10').innerText = total10.toFixed(2);
-
-            mostrarVeredicto('c', total10);
         }
 
         // --- VEREDICTOS Y GUARDADO ---
