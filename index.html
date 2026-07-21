@@ -871,6 +871,24 @@
             };
             reader.readAsText(file);
         }
+        function setScoreColor(elPtsId, el10Id, isPass) {
+    const elPts = document.getElementById(elPtsId);
+    const el10 = document.getElementById(el10Id);
+    
+    if (!elPts || !el10) return;
+
+    if (isPass) {
+        elPts.classList.add('score-pass');
+        elPts.classList.remove('score-fail');
+        el10.classList.add('score-pass');
+        el10.classList.remove('score-fail');
+    } else {
+        elPts.classList.add('score-fail');
+        elPts.classList.remove('score-pass');
+        el10.classList.add('score-fail');
+        el10.classList.remove('score-pass');
+    }
+}
     </script>
 </body>
 </html>
