@@ -666,91 +666,95 @@
             }
         }
 
-// --- LÓGICA DE CÁLCULO AUXILIO JUDICIAL (ACTUALIZADA Y CORREGIDA) ---
+// --- LÓGICA DE CÁLCULO AUXILIO JUDICIAL (BLINDADA) ---
         function calcAuxilio() {
             let target = appSettings ? appSettings.target : 5.0;
 
-            // Parte 1 (100 preg - Máx: 60 pts - Corte: 30 pts)
-            let a1 = parseInt(document.getElementById('a1_a').value) || 0;
-            let e1 = parseInt(document.getElementById('a1_e').value) || 0;
+            // --- PARTE 1 (100 preg - Máx: 60 pts - Corte: 30 pts) ---
+            let a1Input = document.getElementById('a1_a');
+            let e1Input = document.getElementById('a1_e');
+            let a1 = a1Input ? (parseInt(a1Input.value) || 0) : 0;
+            let e1 = e1Input ? (parseInt(e1Input.value) || 0) : 0;
+
             let invalid1 = (a1 + e1 > 100);
             let res1 = 0, res1_10 = 0;
 
+            let err1 = document.getElementById('a1_err');
+            let b1Elem = document.getElementById('a1_b');
+            let r1Elem = document.getElementById('a_res1');
+            let r1_10Elem = document.getElementById('a_res1_10');
+
             if (invalid1) {
-                document.getElementById('a1_err').style.display = 'inline';
-                document.getElementById('a1_b').value = '-';
-                document.getElementById('a_res1').innerText = '-';
-                document.getElementById('a_res1_10').innerText = '-';
-                applyScoreColor(document.getElementById('a_res1_10'), null);
+                if (err1) err1.style.display = 'inline';
+                if (b1Elem) b1Elem.value = '-';
+                if (r1Elem) r1Elem.innerText = '-';
+                if (r1_10Elem) r1_10Elem.innerText = '-';
+                applyScoreColor(r1_10Elem, null);
             } else {
-                document.getElementById('a1_err').style.display = 'none';
+                if (err1) err1.style.display = 'none';
                 let b1 = Math.max(0, 100 - (a1 + e1));
-                document.getElementById('a1_b').value = b1;
+                if (b1Elem) b1Elem.value = b1;
                 res1 = Math.max(0, (a1 * 0.6) - (e1 * 0.15));
                 res1_10 = (res1 / 60) * 10;
-                document.getElementById('a_res1').innerText = res1.toFixed(2);
-                document.getElementById('a_res1_10').innerText = res1_10.toFixed(2);
-                applyScoreColor(document.getElementById('a_res1_10'), res1_10, 5.0);
+                if (r1Elem) r1Elem.innerText = res1.toFixed(2);
+                if (r1_10Elem) r1_10Elem.innerText = res1_10.toFixed(2);
+                applyScoreColor(r1_10Elem, res1_10, 5.0);
             }
 
-            // Parte 2 (40 preg - Máx: 40 pts - Corte: 20 pts)
-            let a2 = parseInt(document.getElementById('a2_a').value) || 0;
-            let e2 = parseInt(document.getElementById('a2_e').value) || 0;
+            // --- PARTE 2 (40 preg - Máx: 40 pts - Corte: 20 pts) ---
+            let a2Input = document.getElementById('a2_a');
+            let e2Input = document.getElementById('a2_e');
+            let a2 = a2Input ? (parseInt(a2Input.value) || 0) : 0;
+            let e2 = e2Input ? (parseInt(e2Input.value) || 0) : 0;
+
             let invalid2 = (a2 + e2 > 40);
             let res2 = 0, res2_10 = 0;
 
+            let err2 = document.getElementById('a2_err');
+            let b2Elem = document.getElementById('a2_b');
+            let r2Elem = document.getElementById('a_res2');
+            let r2_10Elem = document.getElementById('a_res2_10');
+
             if (invalid2) {
-                document.getElementById('a2_err').style.display = 'inline';
-                document.getElementById('a2_b').value = '-';
-                document.getElementById('a_res2').innerText = '-';
-                document.getElementById('a_res2_10').innerText = '-';
-                applyScoreColor(document.getElementById('a_res2_10'), null);
+                if (err2) err2.style.display = 'inline';
+                if (b2Elem) b2Elem.value = '-';
+                if (r2Elem) r2Elem.innerText = '-';
+                if (r2_10Elem) r2_10Elem.innerText = '-';
+                applyScoreColor(r2_10Elem, null);
             } else {
-                document.getElementById('a2_err').style.display = 'none';
+                if (err2) err2.style.display = 'none';
                 let b2 = Math.max(0, 40 - (a2 + e2));
-                document.getElementById('a2_b').value = b2;
+                if (b2Elem) b2Elem.value = b2;
                 res2 = Math.max(0, (a2 * 1.0) - (e2 * 0.25));
                 res2_10 = (res2 / 40) * 10;
-                document.getElementById('a_res2').innerText = res2.toFixed(2);
-                document.getElementById('a_res2_10').innerText = res2_10.toFixed(2);
-                applyScoreColor(document.getElementById('a_res2_10'), res2_10, 5.0);
+                if (r2Elem) r2Elem.innerText = res2.toFixed(2);
+                if (r2_10Elem) r2_10Elem.innerText = res2_10.toFixed(2);
+                applyScoreColor(r2_10Elem, res2_10, 5.0);
             }
 
-            // Total del examen (Máx: 100 pts oficiales)
+            // --- TOTAL DEL EXAMEN ---
+            let rgElem = document.getElementById('a_resG');
+            let rg10Elem = document.getElementById('a_resG_10');
+            let verdictBox = document.getElementById('a_verdict');
+            let saveBox = document.getElementById('a_save_box');
+
             if (invalid1 || invalid2) {
-                document.getElementById('a_resG').innerText = '-';
-                document.getElementById('a_resG_10').innerText = '-';
-                applyScoreColor(document.getElementById('a_resG_10'), null);
-                document.getElementById('a_verdict').style.display = 'none';
-                document.getElementById('a_save_box').style.display = 'none';
+                if (rgElem) rgElem.innerText = '-';
+                if (rg10Elem) rg10Elem.innerText = '-';
+                applyScoreColor(rg10Elem, null);
+                if (verdictBox) verdictBox.style.display = 'none';
+                if (saveBox) saveBox.style.display = 'none';
             } else {
                 let totalOfi = res1 + res2;
                 let total10 = (totalOfi / 100) * 10;
-                document.getElementById('a_resG').innerText = totalOfi.toFixed(2);
-                document.getElementById('a_resG_10').innerText = total10.toFixed(2);
+                if (rgElem) rgElem.innerText = totalOfi.toFixed(2);
+                if (rg10Elem) rg10Elem.innerText = total10.toFixed(2);
 
-                // Requisito indispensable: tener al menos la mitad en cada una de las 2 partes
+                // Requisito indispensable: aprovar ambas partes de forma independiente
                 let passedAllParts = (res1 >= 30) && (res2 >= 20);
 
-                applyScoreColor(document.getElementById('a_resG_10'), passedAllParts ? total10 : 0, target);
+                applyScoreColor(rg10Elem, passedAllParts ? total10 : 0, target);
                 mostrarVeredictoAuxilio(total10, passedAllParts);
-            }
-        }
-
-        function mostrarVeredictoAuxilio(nota10, passedAllParts) {
-            let box = document.getElementById('a_verdict');
-            let saveBox = document.getElementById('a_save_box');
-            let lang = appSettings ? appSettings.lang : 'es';
-
-            box.style.display = 'block';
-            saveBox.style.display = 'block';
-
-            if (passedAllParts) {
-                box.className = 'verdict-box verdict-pass';
-                box.innerHTML = lenguajes[lang].txt_pass + ` (${nota10.toFixed(2)} / 10)`;
-            } else {
-                box.className = 'verdict-box verdict-fail';
-                box.innerHTML = lenguajes[lang].txt_fail + ` (${nota10.toFixed(2)} / 10)`;
             }
         }
 
