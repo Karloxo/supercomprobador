@@ -483,31 +483,44 @@
         }
 
         // --- CÁLCULOS TRAMITACIÓN ---
-        function calcTramitacion() {
+function calcTramitacion() {
+    // Helpers para evitar que la función falle si falta algún ID en el HTML
+    const getVal = (id) => parseFloat(document.getElementById(id)?.value) || 0;
+    const setText = (id, text) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = text;
+    };
+    const setVal = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val;
+    };
+    const setDisplay = (id, disp) => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = disp;
+    };
+
     // 1. Obtención de valores ingresados
-    const a1 = parseFloat(document.getElementById('t1_a').value) || 0;
-    const e1 = parseFloat(document.getElementById('t1_e').value) || 0;
-    const a2 = parseFloat(document.getElementById('t2_a').value) || 0;
-    const e2 = parseFloat(document.getElementById('t2_e').value) || 0;
-    const a3 = parseFloat(document.getElementById('t3_a').value) || 0;
-    const e3 = parseFloat(document.getElementById('t3_e').value) || 0;
+    const a1 = getVal('t1_a'), e1 = getVal('t1_e');
+    const a2 = getVal('t2_a'), e2 = getVal('t2_e');
+    const a3 = getVal('t3_a'), e3 = getVal('t3_e');
 
     // 2. Cálculo automático de preguntas en blanco
-    document.getElementById('t1_b').value = Math.max(0, 100 - a1 - e1);
-    document.getElementById('t2_b').value = Math.max(0, 10 - a2 - e2);
-    document.getElementById('t3_b').value = Math.max(0, 20 - a3 - e3);
+    setVal('t1_b', Math.max(0, 100 - a1 - e1));
+    setVal('t2_b', Math.max(0, 10 - a2 - e2));
+    setVal('t3_b', Math.max(0, 20 - a3 - e3));
 
     // 3. Indicadores de error visual si se superan los límites de preguntas
-    document.getElementById('t1_err').style.display = (a1 + e1 > 100) ? 'inline' : 'none';
-    document.getElementById('t2_err').style.display = (a2 + e2 > 10) ? 'inline' : 'none';
-    document.getElementById('t3_err').style.display = (a3 + e3 > 20) ? 'inline' : 'none';
+    setDisplay('t1_err', (a1 + e1 > 100) ? 'inline' : 'none');
+    setDisplay('t2_err', (a2 + e2 > 10) ? 'inline' : 'none');
+    setDisplay('t3_err', (a3 + e3 > 20) ? 'inline' : 'none');
 
-    // 4. Puntuación ponderada sobre 100 puntos totales
+    // 4. Puntuación ponderada de cada parte (sobre 60, 20 y 20)
     const p1 = Math.max(0, (a1 * 0.60) - (e1 * 0.15)); // Máx 60.00
     const p2 = Math.max(0, (a2 * 2.00) - (e2 * 0.50)); // Máx 20.00
     const p3 = Math.max(0, (a3 * 1.00) - (e3 * 0.25)); // Máx 20.00
 
-    const totalPuntos = p1 + p2 + p3; // Máx 100.00 puntos
+    // SUMA DIRECTA DE PUNTOS TOTALES (Máx 100.00)
+    const totalPuntos = p1 + p2 + p3;
 
     // 5. Escala equivalente sobre 10 para cada bloque
     const p1_10 = (p1 / 60) * 10;
@@ -516,60 +529,58 @@
     const total_10 = (totalPuntos / 100) * 10;
 
     // 6. Actualizar las celdas del DOM
-    document.getElementById('t_res1').textContent = p1.toFixed(2);
-    document.getElementById('t_res2').textContent = p2.toFixed(2);
-    document.getElementById('t_res3').textContent = p3.toFixed(2);
-    document.getElementById('t_resG').textContent = totalPuntos.toFixed(2);
+    setText('t_res1', p1.toFixed(2));
+    setText('t_res2', p2.toFixed(2));
+    setText('t_res3', p3.toFixed(2));
+    setText('t_resG', totalPuntos.toFixed(2));
 
-    document.getElementById('t_res1_10').textContent = p1_10.toFixed(2);
-    document.getElementById('t_res2_10').textContent = p2_10.toFixed(2);
-    document.getElementById('t_res3_10').textContent = p3_10.toFixed(2);
-    document.getElementById('t_resG_10').textContent = total_10.toFixed(2);
+    setText('t_res1_10', p1_10.toFixed(2));
+    setText('t_res2_10', p2_10.toFixed(2));
+    setText('t_res3_10', p3_10.toFixed(2));
+    setText('t_resG_10', total_10.toFixed(2));
 
-    // 7. Código de colores (aplicado a TODAS las celdas)
-    const target = (appSettings && appSettings.target) ? appSettings.target : 5.0;
-    
+    // 7. Código de colores seguro
+    const target = (typeof appSettings !== 'undefined' && appSettings?.target) ? appSettings.target : 5.0;
+
     if (typeof applyScoreColor === 'function') {
-        // Colores para notas escaladas sobre 10
         applyScoreColor('t_res1_10', p1_10, target);
         applyScoreColor('t_res2_10', p2_10, target);
         applyScoreColor('t_res3_10', p3_10, target);
         applyScoreColor('t_resG_10', total_10, target);
 
-        // Colores para puntos netos (corte proporcional al máximo de cada parte)
-        applyScoreColor('t_res1', p1, target * 6);       // p.ej. si target es 5/10, corte en 30/60
-        applyScoreColor('t_res2', p2, target * 2);       // p.ej. corte en 10/20
-        applyScoreColor('t_res3', p3, target * 2);       // p.ej. corte en 10/20
-        applyScoreColor('t_resG', totalPuntos, target * 10); // p.ej. corte en 50/100
+        applyScoreColor('t_res1', p1, target * 6);
+        applyScoreColor('t_res2', p2, target * 2);
+        applyScoreColor('t_res3', p3, target * 2);
+        applyScoreColor('t_resG', totalPuntos, target * 10);
     }
 
     // 8. Veredicto: Requiere aprobar CADA PARTE individualmente
     const verdictBox = document.getElementById('t_verdict');
     if (verdictBox) {
         const hasData = (a1 > 0 || a2 > 0 || a3 > 0 || e1 > 0 || e2 > 0 || e3 > 0);
-        
+
         if (hasData) {
             verdictBox.style.display = 'block';
 
-            // Comprobación condición de aprobado: cada parte individual debe superar la nota corte
             const apruebaP1 = p1_10 >= target;
             const apruebaP2 = p2_10 >= target;
             const apruebaP3 = p3_10 >= target;
             const apruebaGlobal = total_10 >= target;
 
+            const currentLang = (typeof appSettings !== 'undefined' && appSettings?.lang) ? appSettings.lang : 'es';
+            const langDict = (typeof lenguajes !== 'undefined' && lenguajes) ? lenguajes[currentLang] : null;
+
             if (apruebaP1 && apruebaP2 && apruebaP3 && apruebaGlobal) {
                 verdictBox.className = 'verdict-box verdict-pass';
-                verdictBox.textContent = (lenguajes[appSettings.lang] && lenguajes[appSettings.lang].txt_pass) || '🎉 APROBADO';
+                verdictBox.textContent = (langDict && langDict.txt_pass) || '🎉 APROBADO';
                 if (typeof triggerConfetti === 'function') triggerConfetti();
             } else {
                 verdictBox.className = 'verdict-box verdict-fail';
-                verdictBox.textContent = (lenguajes[appSettings.lang] && lenguajes[appSettings.lang].txt_fail) || '❌ SUSPENSO';
+                verdictBox.textContent = (langDict && langDict.txt_fail) || '❌ SUSPENSO';
             }
         } else {
             verdictBox.style.display = 'none';
         }
-    }
-}
     }
 }
 
