@@ -258,10 +258,29 @@
             <tr><td data-i18n="row_blank">En branco</td><td><input type="number" id="a2_b" class="read-only-blank" readonly value="40"> <span id="a2_err" class="error-msg">❌ &gt; 40</span></td></tr>
         </table>
         <table class="results-table">
-            <tr><th data-i18n="summary_aux">RESUMEN AUXILIO</th><th class="scale-header" data-i18n="th_of">Ofi.</th><th class="scale-header">Sobre 10</th></tr>
-            <tr><td><span data-i18n="total_part">Total Parte</span> 1</td><td id="au_res1" class="score-val">0.00</td><td id="au_res1_10" class="score-val">0.00</td></tr>
-            <tr><td><span data-i18n="total_part">Total Parte</span> 2</td><td id="au_res2" class="score-val">0.00</td><td id="au_res2_10" class="score-val">0.00</td></tr>
-            <tr class="total-row"><td data-i18n="total_exam">Total del examen</td><td id="au_resG" class="score-val">0.00</td><td id="au_resG_10" class="score-val">0.00</td></tr>
+            <tr>
+                <th data-i18n="cust_summary">RESUMEN</th>
+                <th class="scale-header" data-i18n="th_pts">Puntos</th>
+                <th class="scale-header">Sobre 10</th>
+            </tr>
+            <!-- PARTE 1 -->
+            <tr>
+                <td>Parte 1</td>
+                <td id="a_res1" class="score-val">0.00</td>
+                <td id="a_res1_10" class="score-val">0.00</td>
+            </tr>
+            <!-- PARTE 2 -->
+            <tr>
+                <td>Parte 2</td>
+                <td id="a_res2" class="score-val">0.00</td>
+                <td id="a_res2_10" class="score-val">0.00</td>
+            </tr>
+            <!-- TOTAL GLOBAL -->
+            <tr class="total-row">
+                <td data-i18n="total_exam">Total del examen</td>
+                <td id="a_resG" class="score-val">0.00</td>
+                <td id="a_resG_10" class="score-val">0.00</td>
+            </tr>
         </table>
         <div id="au_verdict" class="verdict-box"></div>
         <div id="au_save_box" class="save-container" style="display:none;">
