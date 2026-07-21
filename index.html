@@ -532,7 +532,17 @@
                 runPrediction();
             }
         }
-
+// --- FUNCIÓN AUXILIAR DE COLORES (ASIGNACIÓN VERDE / ROJO) ---
+function applyScoreColor(element, score, minPass = 5.0) {
+    if (!element) return;
+    element.classList.remove('score-pass', 'score-fail');
+    if (score === null || score === undefined || isNaN(score)) return;
+    if (score >= minPass) {
+        element.classList.add('score-pass');
+    } else {
+        element.classList.add('score-fail');
+    }
+}
 // --- LÓGICA DE CÁLCULO TRAMITACIÓN (ACTUALIZADA Y CORREGIDA) ---
         function calcTramitacion() {
             let target = appSettings ? appSettings.target : 5.0;
