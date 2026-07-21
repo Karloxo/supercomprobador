@@ -914,7 +914,7 @@ function calcTramitacion() {
             if (el) el.value = '';
         });
         calcTramitacion();
-            } else if (tipo === 'personalizado') {
+            } else if (tipo === 'auxilio') {
                 let n = parseInt(document.getElementById('c_num_partes').value) || 1;
                 for (let i = 1; i <= n; i++) {
                     if(document.getElementById(`c${i}_a`)) document.getElementById(`c${i}_a`).value = '';
