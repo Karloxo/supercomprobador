@@ -271,7 +271,7 @@
         <button class="btn-action btn-reset" onclick="resetForm('auxilio')" data-i18n="btn_reset">Reiniciar Campos</button>
     </div>
 
-    <!-- ================= PESTAÑA 3: PERSONALIZADO ================= -->
+<!-- ================= PESTAÑA 3: PERSONALIZADO ================= -->
     <div id="tab-personalizado" class="tab-content">
         <div class="custom-config-box">
             <label for="c_num_partes" data-i18n="cust_num_parts">Número de Partes (Máx. 10):</label>
@@ -288,6 +288,10 @@
             <tr><th data-i18n="cust_summary">RESUMEN</th><th class="scale-header" data-i18n="th_pts">Puntos</th><th class="scale-header">Sobre 10</th></tr>
             <tr class="total-row"><td data-i18n="total_exam">Total del examen</td><td id="c_resG" class="score-val">0.00</td><td id="c_resG_10" class="score-val">0.00</td></tr>
         </table>
+
+        <!-- DESGLOSE POR PARTES -->
+        <div id="c_breakdown_summary"></div>
+
         <div id="c_verdict" class="verdict-box"></div>
         <div id="c_save_box" class="save-container" style="display:none;">
             <input type="text" id="c_exam_year" data-i18n-ph="ph_id">
