@@ -484,7 +484,7 @@
 
         // --- CÁLCULOS TRAMITACIÓN ---
 function calcTramitacion() {
-    // Helpers para evitar que la función falle si falta algún ID en el HTML
+    // Helpers de seguridad para manipular el DOM
     const getVal = (id) => parseFloat(document.getElementById(id)?.value) || 0;
     const setText = (id, text) => {
         const el = document.getElementById(id);
@@ -504,6 +504,12 @@ function calcTramitacion() {
     const a2 = getVal('t2_a'), e2 = getVal('t2_e');
     const a3 = getVal('t3_a'), e3 = getVal('t3_e');
 
+    // Comprobación de datos por cada bloque
+    const hasP1 = (a1 > 0 || e1 > 0);
+    const hasP2 = (a2 > 0 || e2 > 0);
+    const hasP3 = (a3 > 0 || e3 > 0);
+    const hasData = hasP1 || hasP2 || hasP3;
+
     // 2. Cálculo automático de preguntas en blanco
     setVal('t1_b', Math.max(0, 100 - a1 - e1));
     setVal('t2_b', Math.max(0, 10 - a2 - e2));
@@ -514,13 +520,12 @@ function calcTramitacion() {
     setDisplay('t2_err', (a2 + e2 > 10) ? 'inline' : 'none');
     setDisplay('t3_err', (a3 + e3 > 20) ? 'inline' : 'none');
 
-    // 4. Puntuación ponderada de cada parte (sobre 60, 20 y 20)
+    // 4. Puntuación ponderada de cada parte (Máximo 100 puntos netos)
     const p1 = Math.max(0, (a1 * 0.60) - (e1 * 0.15)); // Máx 60.00
     const p2 = Math.max(0, (a2 * 2.00) - (e2 * 0.50)); // Máx 20.00
     const p3 = Math.max(0, (a3 * 1.00) - (e3 * 0.25)); // Máx 20.00
 
-    // SUMA DIRECTA DE PUNTOS TOTALES (Máx 100.00)
-    const totalPuntos = p1 + p2 + p3;
+    const totalPuntos = p1 + p2 + p3; // Suma total sobre 100
 
     // 5. Escala equivalente sobre 10 para cada bloque
     const p1_10 = (p1 / 60) * 10;
@@ -528,7 +533,7 @@ function calcTramitacion() {
     const p3_10 = (p3 / 20) * 10;
     const total_10 = (totalPuntos / 100) * 10;
 
-    // 6. Actualizar las celdas del DOM
+    // 6. Actualizar textos de las celdas
     setText('t_res1', p1.toFixed(2));
     setText('t_res2', p2.toFixed(2));
     setText('t_res3', p3.toFixed(2));
@@ -539,26 +544,57 @@ function calcTramitacion() {
     setText('t_res3_10', p3_10.toFixed(2));
     setText('t_resG_10', total_10.toFixed(2));
 
-    // 7. Código de colores seguro
+    // 7. APLICACIÓN DIRECTA DEL CÓDIGO DE COLORES (Verde / Rojo)
     const target = (typeof appSettings !== 'undefined' && appSettings?.target) ? appSettings.target : 5.0;
 
+    const setCellColor = (id, score, cutoff, active) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        if (!active) {
+            el.style.color = '';
+            el.classList.remove('score-pass', 'score-fail');
+            return;
+        }
+
+        if (score >= cutoff) {
+            el.style.color = '#2e7d32'; // Verde (Aprobado)
+            el.classList.add('score-pass');
+            el.classList.remove('score-fail');
+        } else {
+            el.style.color = '#c62828'; // Rojo (Suspenso)
+            el.classList.add('score-fail');
+            el.classList.remove('score-pass');
+        }
+    };
+
+    // Colores para notas escaladas sobre 10
+    setCellColor('t_res1_10', p1_10, target, hasP1);
+    setCellColor('t_res2_10', p2_10, target, hasP2);
+    setCellColor('t_res3_10', p3_10, target, hasP3);
+    setCellColor('t_resG_10', total_10, target, hasData);
+
+    // Colores para puntos netos
+    setCellColor('t_res1', p1, target * 6, hasP1);
+    setCellColor('t_res2', p2, target * 2, hasP2);
+    setCellColor('t_res3', p3, target * 2, hasP3);
+    setCellColor('t_resG', totalPuntos, target * 10, hasData);
+
+    // Mantenemos compatibilidad con applyScoreColor si existe globalmente
     if (typeof applyScoreColor === 'function') {
         applyScoreColor('t_res1_10', p1_10, target);
         applyScoreColor('t_res2_10', p2_10, target);
         applyScoreColor('t_res3_10', p3_10, target);
         applyScoreColor('t_resG_10', total_10, target);
-
         applyScoreColor('t_res1', p1, target * 6);
         applyScoreColor('t_res2', p2, target * 2);
         applyScoreColor('t_res3', p3, target * 2);
         applyScoreColor('t_resG', totalPuntos, target * 10);
     }
 
-    // 8. Veredicto: Requiere aprobar CADA PARTE individualmente
+    // 8. Veredicto Global (Requiere aprobar las 3 partes)
     const verdictBox = document.getElementById('t_verdict');
     if (verdictBox) {
-        const hasData = (a1 > 0 || a2 > 0 || a3 > 0 || e1 > 0 || e2 > 0 || e3 > 0);
-
         if (hasData) {
             verdictBox.style.display = 'block';
 
