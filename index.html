@@ -908,12 +908,12 @@ function calcTramitacion() {
         }
 
         function resetForm(tipo) {
-            if (tipo === 'tramitacion') {
-                ['t1_a', 't1_e', 't2_a', 't2_e', 't3_a', 't3_e'].forEach(id => document.getElementById(id).value = '');
-                calcTramitacion();
-            } else if (tipo === 'auxilio') {
-                ['a1_a', 'a1_e', 'a2_a', 'a2_e'].forEach(id => document.getElementById(id).value = '');
-                calcAuxilio();
+    if (tipo === 'tramitacion') {
+        ['t1_a', 't1_e', 't2_a', 't2_e', 't3_a', 't3_e', 't_exam_year'].forEach(id => {
+            let el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+        calcTramitacion();
             } else if (tipo === 'personalizado') {
                 let n = parseInt(document.getElementById('c_num_partes').value) || 1;
                 for (let i = 1; i <= n; i++) {
