@@ -2,778 +2,960 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>El Supercomprobador de Notas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>EL SUPERCOMPROBADOR DE NOTAS</title>
+    
+    <!-- Configuración App Móvil y PWA -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Notas Justicia">
+    <link rel="manifest" href="./manifest.json">
+    
+    <!-- Icono Personalizado Integrado -->
+    <link rel="apple-touch-icon" href="https://i.ibb.co/5Xmz18B8/Whats-App-Image-2026-07-20-at-12-05-13.jpg">
+
+    <!-- Librerías Externas (Gráficos y Confeti) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
     <style>
         :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --bg-color: #f4f7f6;
-            --card-bg: #ffffff;
-            --text-color: #333333;
-            --border-color: #e0e0e0;
-            --success-color: #2ecc71;
-            --danger-color: #e74c3c;
+            --bg-body: #f5f5f7;
+            --bg-card: #ffffff;
+            --text-main: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #e5e5e7;
+            --input-bg: #ffffff;
+            --tab-bg: #e5e5e7;
+            --th-bg: #f2f2f7;
+            --header-part-bg: #e5e5e7;
+            --pass-bg: #e8f5e9;
+            --pass-text: #2e7d32;
+            --pass-border: #a5d6a7;
+            --fail-bg: #fff5f5;
+            --fail-text: #c94444;
+            --fail-border: #ffcccc;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #1c1c1e;
+            --bg-card: #2c2c2e;
+            --text-main: #f5f5f7;
+            --text-secondary: #aeaeae;
+            --border-color: #3a3a3c;
+            --input-bg: #3a3a3c;
+            --tab-bg: #3a3a3c;
+            --th-bg: #2c2c2e;
+            --header-part-bg: #3a3a3c;
+            --pass-bg: #1c3d22;
+            --pass-text: #81c784;
+            --pass-border: #2e7d32;
+            --fail-bg: #3d1c1c;
+            --fail-text: #e57373;
+            --fail-border: #c94444;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            padding: 10px 10px 30px 10px;
+            max-width: 600px;
+            margin: 0 auto;
+            overscroll-behavior: none;
+            transition: background 0.3s, color 0.3s;
+            position: relative;
         }
+        
+        .main-title { margin-top: 15px; margin-bottom: 15px; line-height: 1.2; position: relative; }
+        .main-title .title-text { display: block; text-align: center; font-size: 1.3rem; color: #0071e3; font-weight: bold; }
+        .main-title .author-text { display: block; text-align: right; font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px; }
 
-        .container {
-            width: 100%;
-            max-width: 900px;
-            background: var(--card-bg);
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        .settings-trigger { position: absolute; top: 0; right: 5px; font-size: 1.4rem; cursor: pointer; z-index: 10; background: none; border: none; }
+
+        .sidebar { position: fixed; top: 0; right: -280px; width: 250px; height: 100%; background-color: var(--bg-card); box-shadow: -4px 0 10px rgba(0,0,0,0.15); z-index: 999; transition: right 0.3s ease; padding: 20px; box-sizing: border-box; overflow-y: auto; }
+        .sidebar.open { right: 0; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 20px; }
+        .sidebar-close { background: none; border: none; font-size: 1.2rem; color: var(--text-main); cursor: pointer; }
+        .sidebar-section { margin-bottom: 25px; }
+        .sidebar-section h4 { margin: 0 0 10px 0; font-size: 0.95rem; color: #0071e3; }
+        
+        .tabs-container { display: flex; background-color: var(--tab-bg); padding: 4px; border-radius: 10px; margin-bottom: 20px; gap: 2px; }
+        .tab-btn { flex: 1; border: none; background: none; padding: 10px 1px; font-size: 0.78rem; font-weight: 600; color: var(--text-main); border-radius: 8px; cursor: pointer; transition: all 0.2s; text-align: center; }
+        .tab-btn.active { background-color: var(--bg-card); color: #0071e3; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        table { width: 100%; border-collapse: collapse; background-color: var(--bg-card); border-radius: 12px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.03); }
+        th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { background-color: var(--th-bg); font-weight: 600; text-align: center; }
+        .header-part { background-color: var(--header-part-bg); font-weight: bold; }
+        
+        input[type="number"], select, input[type="text"] { width: 75px; padding: 6px; border: 1px solid var(--border-color); border-radius: 6px; text-align: center; font-size: 1rem; background-color: var(--input-bg); color: var(--text-main); }
+        input[type="text"], select { width: 100%; box-sizing: border-box; text-align: left; }
+        .read-only-blank { background-color: var(--th-bg); color: var(--text-secondary); font-weight: bold; }
+        
+        .error-msg { color: #ff3b30; font-weight: bold; font-size: 0.85rem; display: none; margin-top: 4px; }
+        .results-table { background-color: var(--th-bg); }
+        .results-table th { background-color: #0071e3; color: white; }
+        .scale-header { text-align: right; font-size: 0.85rem; color: rgba(255,255,255,0.8); }
+        .score-val { text-align: right; font-weight: bold; }
+        
+        .score-pass { color: #34c759 !important; } 
+        .score-fail { color: var(--fail-text) !important; } 
+        .total-row { font-weight: bold; background-color: var(--border-color); }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            70% { transform: scale(1.03); }
+            100% { transform: scale(1); opacity: 1; }
         }
+        .verdict-box { text-align: center; padding: 15px; border-radius: 12px; font-size: 1.2rem; font-weight: bold; margin-bottom: 20px; display: none; animation: bounceIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .verdict-pass { background-color: var(--pass-bg); color: var(--pass-text); border: 2px solid var(--pass-border); }
+        .verdict-fail { background-color: var(--fail-bg); color: var(--fail-text); border: 2px solid var(--fail-border); }
+        
+        .save-container, .custom-config-box, .dashboard-card { background-color: var(--bg-card); border-radius: 12px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.03); border: 1px solid var(--border-color); }
+        
+        .btn-action { display: block; width: 100%; border: none; padding: 12px; font-size: 1rem; font-weight: 600; border-radius: 10px; cursor: pointer; margin-bottom: 12px; text-align: center; }
+        .btn-blue { background-color: #0071e3; color: white; }
+        .btn-reset { background-color: #ff3b30; color: white; }
+        .btn-secondary { background-color: var(--tab-bg); color: var(--text-main); border: 1px solid var(--border-color); }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
+        .history-section-title { font-size: 1.05rem; font-weight: bold; color: #0071e3; margin: 20px 0 10px 0; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .stat-box { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; text-align: center; }
+        .stat-val { font-size: 1.4rem; font-weight: bold; color: #0071e3; margin-top: 4px; }
+        .stat-lbl { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; }
+        
+        .weak-box { background-color: var(--fail-bg); border: 1px solid var(--fail-border); color: var(--fail-text); border-radius: 10px; padding: 12px; font-size: 0.85rem; line-height: 1.4; }
 
-        .header h1 {
-            margin: 0;
-            font-size: 1.6rem;
-            color: var(--primary-color);
-        }
+        .history-item { padding: 10px 14px; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; background-color: var(--bg-card); border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--border-color); }
+        .item-top { display: flex; justify-content: space-between; font-weight: 600; align-items: center; }
+        .item-actions { display: flex; gap: 5px; margin-top: 6px; justify-content: flex-end; }
+        .item-actions button { background: none; border: 1px solid var(--border-color); border-radius: 4px; padding: 2px 6px; font-size: 0.75rem; cursor: pointer; color: var(--text-main); }
+        .item-actions button.btn-delete-item { color: #ff3b30; border-color: #ff3b30; }
+        
+        .badge { padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
+        .badge-pass { background-color: var(--pass-bg); color: var(--pass-text); }
+        .badge-fail { background-color: var(--fail-bg); color: var(--fail-text); }
 
-        .lang-selector select {
-            padding: 6px 12px;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-            font-size: 0.9rem;
-            cursor: pointer;
-        }
+        .sim-row { display: flex; flex-direction: column; margin-bottom: 15px; }
+        .sim-row label { font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; display: flex; justify-content: space-between; }
+        .range-container { display: flex; align-items: center; gap: 10px; }
+        .range-container input[type="range"] { flex: 1; height: 6px; border-radius: 3px; background: var(--tab-bg); outline: none; }
+        
+        .progress-bar-container { background-color: var(--tab-bg); border-radius: 8px; height: 16px; width: 100%; overflow: hidden; margin: 10px 0; position: relative; }
+        .progress-bar-fill { background: linear-gradient(90deg, #34c759, #0071e3); height: 100%; width: 0%; transition: width 0.2s ease; }
+        .progress-text { position: absolute; width: 100%; text-align: center; font-size: 0.75rem; font-weight: bold; color: var(--text-main); line-height: 16px; top: 0; }
 
-        .nav-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .tab-btn {
-            padding: 10px 20px;
-            border: none;
-            background: none;
-            font-size: 1rem;
-            font-weight: 600;
-            color: #777;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            transition: all 0.2s;
-        }
-
-        .tab-btn.active {
-            color: var(--secondary-color);
-            border-bottom-color: var(--secondary-color);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .section-title {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-            color: var(--primary-color);
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        input[type="text"], input[type="number"] {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 0.95rem;
-        }
-
-        .grid-3 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        .btn {
-            padding: 10px 18px;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn-primary {
-            background-color: var(--secondary-color);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: #2980b9;
-        }
-
-        .btn-danger {
-            background-color: var(--danger-color);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background-color: #c0392b;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            margin-bottom: 25px;
-        }
-
-        th, td {
-            text-align: left;
-            padding: 10px;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 0.95rem;
-        }
-
-        th {
-            background-color: #f8f9fa;
-            color: var(--primary-color);
-        }
-
-        .score-val {
-            font-weight: bold;
-        }
-
-        .comparison-card {
-            background: #f8f9fa;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-
-        .comparison-card h4 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            color: var(--primary-color);
-        }
-
-        .diff-pos { color: var(--success-color); font-weight: bold; }
-        .diff-neg { color: var(--danger-color); font-weight: bold; }
-        .diff-zero { color: #777; }
-
-        .actions-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
+        .grid-config-inputs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; background-color: var(--th-bg); padding: 8px; border-radius: 8px; margin-top: 6px; }
+        .grid-config-inputs div { display: flex; flex-direction: column; }
+        .grid-config-inputs label { font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 2px; }
+        .grid-config-inputs input { text-align: center; padding: 4px; font-size: 0.9rem; width: 100%; box-sizing: border-box; }
+        .part-config-container { margin-bottom: 10px; border-bottom: 1px dashed var(--border-color); padding-bottom: 10px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <h1 data-i18n="app_title">El Supercomprobador de Notas</h1>
-        <div class="lang-selector">
-            <select id="languageSelect" onchange="changeLanguage(this.value)">
-                <option value="es">Español</option>
+    <!-- Botón Opciones -->
+    <button class="settings-trigger" onclick="toggleSidebar()">⚙️</button>
+
+    <!-- Sidebar Opciones -->
+    <div id="app-sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <h3 data-i18n="opt_title">Opciones</h3>
+            <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
+        </div>
+        
+        <div class="sidebar-section">
+            <h4 data-i18n="opt_target">🎯 Nota Objetivo</h4>
+            <input type="number" id="cfg-target" value="5.0" step="0.5" min="0" max="10" style="width:100%; text-align:left;" onchange="saveSettings()">
+        </div>
+
+        <div class="sidebar-section">
+            <h4 data-i18n="opt_appearance">🌓 Apariencia</h4>
+            <button class="btn-action btn-secondary" onclick="toggleTheme()" id="theme-btn" data-i18n="opt_theme_btn">Modo Oscuro</button>
+        </div>
+
+        <div class="sidebar-section">
+            <h4 data-i18n="opt_language">🌐 Idioma</h4>
+            <select id="cfg-lang" onchange="saveSettings()">
+                <option value="es">Castellano</option>
                 <option value="gl">Galego</option>
             </select>
         </div>
+
+        <div class="sidebar-section" style="margin-top:40px;">
+            <h4 data-i18n="opt_backup">📦 Copia de Seguridad</h4>
+            <button class="btn-action btn-secondary" style="font-size:0.85rem; padding:8px;" onclick="exportHistory()" data-i18n="opt_export">📤 Exportar Historial</button>
+            <button class="btn-action btn-secondary" style="font-size:0.85rem; padding:8px;" onclick="document.getElementById('import-file').click()" data-i18n="opt_import">📥 Importar Historial</button>
+            <input type="file" id="import-file" style="display:none;" onchange="importHistory(event)">
+        </div>
     </div>
 
-    <!-- Navegación por pestañas -->
-    <div class="nav-tabs">
-        <button class="tab-btn active" onclick="switchTab('tramitacion')" data-i18n="tab_tramitacion">Tramitación Procesal</button>
-        <button class="tab-btn" onclick="switchTab('auxilio')" data-i18n="tab_auxilio">Auxilio Judicial</button>
-        <button class="tab-btn" onclick="switchTab('evolucion')" data-i18n="tab_evolucion">Evolución</button>
-        <button class="tab-btn" onclick="switchTab('backup')" data-i18n="tab_backup">Copia de Seguridad</button>
+    <!-- Título Principal -->
+    <div class="main-title">
+        <span class="title-text" data-i18n="app_title">EL SUPERCOMPROBADOR DE NOTAS</span>
+        <span class="author-text">by Carlos Abal</span>
     </div>
 
-    <!-- Pestaña 1: Tramitación Procesal -->
+    <!-- Menú de Pestañas Principal -->
+    <div class="tabs-container">
+        <button class="tab-btn active" id="btn-tab-tramitacion" onclick="switchTab('tramitacion')" data-i18n="tab_tram">Tramitación</button>
+        <button class="tab-btn" id="btn-tab-auxilio" onclick="switchTab('auxilio')" data-i18n="tab_aux">Auxilio</button>
+        <button class="tab-btn" id="btn-tab-personalizado" onclick="switchTab('personalizado')" data-i18n="tab_custom">Personalizado</button>
+        <button class="tab-btn" id="btn-tab-evolucion" onclick="switchTab('evolucion')" data-i18n="tab_evol">Evolución</button>
+        <button class="tab-btn" id="btn-tab-predictor" onclick="switchTab('predictor')" data-i18n="tab_pred">Simulador</button>
+    </div>
+
+    <!-- ================= PESTAÑA 1: TRAMITACIÓN ================= -->
     <div id="tab-tramitacion" class="tab-content active">
-        <h2 class="section-title" data-i18n="title_tramitacion">Cálculo de Notas - Tramitación Procesal</h2>
-        <div class="form-group">
-            <label data-i18n="exam_name_label">Nombre / Identificador del Simulacro:</label>
-            <input type="text" id="t_exam_name" placeholder="Ej: Simulacro 1 - Adams">
-        </div>
-
-        <div class="grid-3">
-            <div class="card">
-                <h4 data-i18n="part1_test">Parte 1 (Tipo test)</h4>
-                <div class="form-group">
-                    <label data-i18n="row_correct">Aciertos</label>
-                    <input type="number" id="t_p1_ok" min="0" max="100" value="0" oninput="calcTramitacion()">
-                </div>
-                <div class="form-group">
-                    <label data-i18n="row_errors">Errores</label>
-                    <input type="number" id="t_p1_fail" min="0" max="100" value="0" oninput="calcTramitacion()">
-                </div>
-            </div>
-
-            <div class="card">
-                <h4 data-i18n="part2_practical">Parte 2 (Caso práctico)</h4>
-                <div class="form-group">
-                    <label data-i18n="row_correct">Aciertos</label>
-                    <input type="number" id="t_p2_ok" min="0" max="20" value="0" oninput="calcTramitacion()">
-                </div>
-                <div class="form-group">
-                    <label data-i18n="row_errors">Errores</label>
-                    <input type="number" id="t_p2_fail" min="0" max="20" value="0" oninput="calcTramitacion()">
-                </div>
-            </div>
-
-            <div class="card">
-                <h4 data-i18n="part3_office">Parte 3 (Ofimática)</h4>
-                <div class="form-group">
-                    <label data-i18n="row_correct">Aciertos</label>
-                    <input type="number" id="t_p3_ok" min="0" max="20" value="0" oninput="calcTramitacion()">
-                </div>
-                <div class="form-group">
-                    <label data-i18n="row_errors">Errores</label>
-                    <input type="number" id="t_p3_fail" min="0" max="20" value="0" oninput="calcTramitacion()">
-                </div>
-            </div>
-        </div>
-
         <table>
-            <thead>
-                <tr>
-                    <th data-i18n="summary_tramitacion">RESUMEN TRAMITACIÓN</th>
-                    <th data-i18n="col_raw">Nota Base</th>
-                    <th data-i18n="col_scaled">Nota /10</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><span data-i18n="total_part">Total Parte</span> 1</td>
-                    <td id="t_res1" class="score-val">0.00</td>
-                    <td id="t_res1_10" class="score-val">0.00</td>
-                </tr>
-                <tr>
-                    <td><span data-i18n="total_part">Total Parte</span> 2</td>
-                    <td id="t_res2" class="score-val">0.00</td>
-                    <td id="t_res2_10" class="score-val">0.00</td>
-                </tr>
-                <tr>
-                    <td><span data-i18n="total_part">Total Parte</span> 3</td>
-                    <td id="t_res3" class="score-val">0.00</td>
-                    <td id="t_res3_10" class="score-val">0.00</td>
-                </tr>
-                <tr>
-                    <td><strong data-i18n="lbl_total">TOTAL GLOBAL</strong></td>
-                    <td id="t_res_total" class="score-val">0.00</td>
-                    <td id="t_res_total_10" class="score-val">0.00</td>
-                </tr>
-            </tbody>
+            <tr><th colspan="2" class="header-part"><span data-i18n="part">Parte</span> 1 - Tipo test (100 preg.)</th></tr>
+            <tr><td data-i18n="row_correct">Acertos</td><td><input type="number" id="t1_a" min="0" max="100" oninput="calcTramitacion()" data-next="t1_e"></td></tr>
+            <tr><td data-i18n="row_errors">Errores</td><td><input type="number" id="t1_e" min="0" max="100" oninput="calcTramitacion()" data-next="t2_a"></td></tr>
+            <tr><td data-i18n="row_blank">En blanco</td><td><input type="number" id="t1_b" class="read-only-blank" readonly value="100"> <span id="t1_err" class="error-msg">❌ &gt; 100</span></td></tr>
         </table>
-
-        <button class="btn btn-primary" onclick="saveTramitacionHistory()" data-i18n="btn_save">Guardar Simulacro</button>
+        <table>
+            <tr><th colspan="2" class="header-part"><span data-i18n="part">Parte</span> 2 - Caso práctico (10 preg.)</th></tr>
+            <tr><td data-i18n="row_correct">Acertos</td><td><input type="number" id="t2_a" min="0" max="10" oninput="calcTramitacion()" data-next="t2_e"></td></tr>
+            <tr><td data-i18n="row_errors">Errores</td><td><input type="number" id="t2_e" min="0" max="10" oninput="calcTramitacion()" data-next="t3_a"></td></tr>
+            <tr><td data-i18n="row_blank">En blanco</td><td><input type="number" id="t2_b" class="read-only-blank" readonly value="10"> <span id="t2_err" class="error-msg">❌ &gt; 10</span></td></tr>
+        </table>
+        <table>
+            <tr><th colspan="2" class="header-part"><span data-i18n="part">Parte</span> 3 - Ofimática (20 preg.)</th></tr>
+            <tr><td data-i18n="row_correct">Acertos</td><td><input type="number" id="t3_a" min="0" max="20" oninput="calcTramitacion()" data-next="t3_e"></td></tr>
+            <tr><td data-i18n="row_errors">Errores</td><td><input type="number" id="t3_e" min="0" max="20" oninput="calcTramitacion()"></td></tr>
+            <tr><td data-i18n="row_blank">En blanco</td><td><input type="number" id="t3_b" class="read-only-blank" readonly value="20"> <span id="t3_err" class="error-msg">❌ &gt; 20</span></td></tr>
+        </table>
+        <table class="results-table">
+            <tr><th data-i18n="summary_tram">RESUMEN TRAMITACIÓN</th><th class="scale-header" data-i18n="th_of">Ofi.</th><th class="scale-header">Sobre 10</th></tr>
+            <tr><td><span data-i18n="total_part">Total Parte</span> 1 (Tipo test)</td><td id="t_res1" class="score-val">0.00</td><td id="t_res1_10" class="score-val">0.00</td></tr>
+            <tr><td><span data-i18n="total_part">Total Parte</span> 2 (Caso práctico)</td><td id="t_res2" class="score-val">0.00</td><td id="t_res2_10" class="score-val">0.00</td></tr>
+            <tr><td><span data-i18n="total_part">Total Parte</span> 3 (Ofimática)</td><td id="t_res3" class="score-val">0.00</td><td id="t_res3_10" class="score-val">0.00</td></tr>
+            <tr class="total-row"><td data-i18n="total_exam">Total del examen</td><td id="t_resG" class="score-val">0.00</td><td id="t_resG_10" class="score-val">0.00</td></tr>
+        </table>
+        <div id="t_verdict" class="verdict-box"></div>
+        <div id="t_save_box" class="save-container" style="display:none;">
+            <input type="text" id="t_exam_year" data-i18n-ph="ph_id_sim">
+            <button class="btn-action btn-blue" style="margin-top:10px;" onclick="saveToHistory('tramitacion')" data-i18n="btn_save_sim">📥 Guardar Simulación</button>
+        </div>
+        <button class="btn-action btn-reset" onclick="resetForm('tramitacion')" data-i18n="btn_reset">Reiniciar Campos</button>
     </div>
 
-    <!-- Pestaña 2: Auxilio Judicial -->
+    <!-- ================= PESTAÑA 2: AUXILIO JUDICIAL ================= -->
     <div id="tab-auxilio" class="tab-content">
-        <h2 class="section-title" data-i18n="title_auxilio">Cálculo de Notas - Auxilio Judicial</h2>
-        <div class="form-group">
-            <label data-i18n="exam_name_label">Nombre / Identificador del Simulacro:</label>
-            <input type="text" id="a_exam_name" placeholder="Ej: Simulacro 1 - Adams">
-        </div>
-
-        <div class="grid-3">
-            <div class="card">
-                <h4 data-i18n="part1_test">Parte 1 (Tipo test)</h4>
-                <div class="form-group">
-                    <label data-i18n="row_correct">Aciertos</label>
-                    <input type="number" id="a_p1_ok" min="0" max="100" value="0" oninput="calcAuxilio()">
-                </div>
-                <div class="form-group">
-                    <label data-i18n="row_errors">Errores</label>
-                    <input type="number" id="a_p1_fail" min="0" max="100" value="0" oninput="calcAuxilio()">
-                </div>
-            </div>
-
-            <div class="card">
-                <h4 data-i18n="part2_practical">Parte 2 (Caso práctico)</h4>
-                <div class="form-group">
-                    <label data-i18n="row_correct">Aciertos</label>
-                    <input type="number" id="a_p2_ok" min="0" max="40" value="0" oninput="calcAuxilio()">
-                </div>
-                <div class="form-group">
-                    <label data-i18n="row_errors">Errores</label>
-                    <input type="number" id="a_p2_fail" min="0" max="40" value="0" oninput="calcAuxilio()">
-                </div>
-            </div>
-        </div>
-
         <table>
-            <thead>
-                <tr>
-                    <th data-i18n="summary_aux">RESUMEN AUXILIO</th>
-                    <th data-i18n="col_raw">Nota Base</th>
-                    <th data-i18n="col_scaled">Nota /10</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><span data-i18n="total_part">Total Parte</span> 1</td>
-                    <td id="a_res1" class="score-val">0.00</td>
-                    <td id="a_res1_10" class="score-val">0.00</td>
-                </tr>
-                <tr>
-                    <td><span data-i18n="total_part">Total Parte</span> 2</td>
-                    <td id="a_res2" class="score-val">0.00</td>
-                    <td id="a_res2_10" class="score-val">0.00</td>
-                </tr>
-                <tr>
-                    <td><strong data-i18n="lbl_total">TOTAL GLOBAL</strong></td>
-                    <td id="a_res_total" class="score-val">0.00</td>
-                    <td id="a_res_total_10" class="score-val">0.00</td>
-                </tr>
-            </tbody>
+            <tr><th colspan="2" class="header-part"><span data-i18n="part">Parte</span> 1 - Tipo test (100 preg.)</th></tr>
+            <tr><td data-i18n="row_correct">Acertos</td><td><input type="number" id="a1_a" min="0" max="100" oninput="calcAuxilio()" data-next="a1_e"></td></tr>
+            <tr><td data-i18n="row_errors">Errores</td><td><input type="number" id="a1_e" min="0" max="100" oninput="calcAuxilio()" data-next="a2_a"></td></tr>
+            <tr><td data-i18n="row_blank">En blanco</td><td><input type="number" id="a1_b" class="read-only-blank" readonly value="100"> <span id="a1_err" class="error-msg">❌ &gt; 100</span></td></tr>
         </table>
-
-        <button class="btn btn-primary" onclick="saveAuxilioHistory()" data-i18n="btn_save">Guardar Simulacro</button>
+        <table>
+            <tr><th colspan="2" class="header-part"><span data-i18n="part">Parte</span> 2 - Caso práctico (40 preg.)</th></tr>
+            <tr><td data-i18n="row_correct">Acertos</td><td><input type="number" id="a2_a" min="0" max="40" oninput="calcAuxilio()" data-next="a2_e"></td></tr>
+            <tr><td data-i18n="row_errors">Errores</td><td><input type="number" id="a2_e" min="0" max="40" oninput="calcAuxilio()"></td></tr>
+            <tr><td data-i18n="row_blank">En blanco</td><td><input type="number" id="a2_b" class="read-only-blank" readonly value="40"> <span id="a2_err" class="error-msg">❌ &gt; 40</span></td></tr>
+        </table>
+        <table class="results-table">
+            <tr>
+                <th data-i18n="cust_summary">RESUMEN AUXILIO</th>
+                <th class="scale-header" data-i18n="th_pts">Puntos</th>
+                <th class="scale-header">Sobre 10</th>
+            </tr>
+            <tr>
+                <td>Parte 1 (Tipo test)</td>
+                <td id="a_res1" class="score-val">0.00</td>
+                <td id="a_res1_10" class="score-val">0.00</td>
+            </tr>
+            <tr>
+                <td>Parte 2 (Caso práctico)</td>
+                <td id="a_res2" class="score-val">0.00</td>
+                <td id="a_res2_10" class="score-val">0.00</td>
+            </tr>
+            <tr class="total-row">
+                <td data-i18n="total_exam">Total del examen</td>
+                <td id="a_resG" class="score-val">0.00</td>
+                <td id="a_resG_10" class="score-val">0.00</td>
+            </tr>
+        </table>
+        <div id="au_verdict" class="verdict-box"></div>
+        <div id="au_save_box" class="save-container" style="display:none;">
+            <input type="text" id="au_exam_year" data-i18n-ph="ph_id">
+            <button class="btn-action btn-blue" style="margin-top:10px;" onclick="saveToHistory('auxilio')" data-i18n="btn_save_sim">📥 Guardar Simulación</button>
+        </div>
+        <button class="btn-action btn-reset" onclick="resetForm('auxilio')" data-i18n="btn_reset">Reiniciar Campos</button>
     </div>
 
-    <!-- Pestaña 3: Evolución / Historial -->
+    <!-- ================= PESTAÑA 3: PERSONALIZADO ================= -->
+    <div id="tab-personalizado" class="tab-content">
+        <div class="custom-config-box">
+            <label for="c_num_partes" data-i18n="cust_num_parts">Número de Partes (Máx. 10):</label>
+            <select id="c_num_partes" onchange="generateCustomStructure()">
+                <option value="1">1 </option><option value="2">2 </option><option value="3">3 </option>
+                <option value="4">4 </option><option value="5">5 </option><option value="6">6 </option>
+                <option value="7">7 </option><option value="8">8 </option><option value="9">9 </option>
+                <option value="10">10 </option>
+            </select>
+            <div id="custom-parts-config-root" style="margin-top:10px;"></div>
+        </div>
+        <div id="custom-tables-root"></div>
+        <table class="results-table">
+            <tr><th data-i18n="cust_summary">RESUMEN</th><th class="scale-header" data-i18n="th_pts">Puntos</th><th class="scale-header">Sobre 10</th></tr>
+            <tr class="total-row"><td data-i18n="total_exam">Total del examen</td><td id="c_resG" class="score-val">0.00</td><td id="c_resG_10" class="score-val">0.00</td></tr>
+        </table>
+
+        <!-- DESGLOSE POR PARTES -->
+        <div id="c_breakdown_summary"></div>
+
+        <div id="c_verdict" class="verdict-box"></div>
+        <div id="c_save_box" class="save-container" style="display:none;">
+            <input type="text" id="c_exam_year" data-i18n-ph="ph_id">
+            <button class="btn-action btn-blue" style="margin-top:10px;" onclick="saveToHistory('personalizado')" data-i18n="btn_save_sim">📥 Guardar Simulación</button>
+        </div>
+        <button class="btn-action btn-reset" onclick="resetForm('personalizado')" data-i18n="btn_reset">Reiniciar Campos</button>
+    </div>
+
+    <!-- ================= PESTAÑA 4: SIMULADOR PREDICTIVO ================= -->
+    <div id="tab-predictor" class="tab-content">
+        <div class="custom-config-box">
+            <h3 style="margin:0 0 10px 0; color:#0071e3;" data-i18n="pred_title">Estrategia de Aprobado</h3>
+            <label data-i18n="pred_exam_label">Examen a Simular:</label>
+            <select id="sim-type" onchange="setupPredictorMode()">
+                <option value="tramitacion">Tramitación Procesal</option>
+                <option value="auxilio">Auxilio Judicial</option>
+                <option value="personalizado">Examen Personalizado</option>
+            </select>
+            
+            <div id="sim-custom-config" style="display:none; margin-top:10px; border-top:1px dashed var(--border-color); padding-top:10px;">
+                <label data-i18n="pred_cust_label">Partes del Examen Personalizado:</label>
+                <select id="sim-c-partes" onchange="buildPredictorSliders()">
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                </select>
+                <div id="sim-c-baremos" style="margin-top:10px;"></div>
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <h4 style="margin:0 0 5px 0; font-size:0.85rem; color:var(--text-secondary); text-transform:uppercase;" data-i18n="pred_progress">Porcentaje Cubierto del Examen</h4>
+            <div class="progress-bar-container">
+                <div id="sim-progress-bar" class="progress-bar-fill"></div>
+                <div id="sim-progress-text" class="progress-text">0%</div>
+            </div>
+        </div>
+
+        <div id="sim-sliders-root"></div>
+
+        <div id="sim-verdict-box" class="verdict-box" style="display:block; font-size:1.05rem;" data-i18n="pred_default">Mueve las barras para calcular.</div>
+    </div>
+
+    <!-- ================= PESTAÑA 5: EVOLUCIÓN ================= -->
     <div id="tab-evolucion" class="tab-content">
-        <div class="actions-bar">
-            <h2 class="section-title" style="margin:0;" data-i18n="title_history">Historial y Comparativas</h2>
-            <button class="btn btn-danger" onclick="clearAllHistory()" data-i18n="btn_clear_history">Borrar todo el historial</button>
+        <div class="stats-grid">
+            <div class="stat-box"><div class="stat-lbl" data-i18n="st_best">Mejor Nota</div><div id="st-best" class="stat-val">0.00</div></div>
+            <div class="stat-box"><div class="stat-lbl" data-i18n="st_avg">Media General</div><div id="st-avg" class="stat-val">0.00</div></div>
+            <div class="stat-box"><div class="stat-lbl" data-i18n="st_count">Simulacros</div><div id="st-count" class="stat-val">0</div></div>
+            <div class="stat-box"><div class="stat-lbl" data-i18n="st_rate">% Aprobados</div><div id="st-passrate" class="stat-val">0%</div></div>
+        </div>
+        
+        <div class="stats-grid" style="grid-template-columns: 1fr;">
+            <div class="stat-box"><div class="stat-lbl" data-i18n="st_streak">🔥 Mejor Racha de Aprobados</div><div id="st-streak" class="stat-val" style="color:#34c759;">0</div></div>
         </div>
 
-        <!-- Sección de Comparaciones Agrupadas por Mismo Nombre -->
-        <div id="grouped-comparisons"></div>
+        <div class="history-section-title" data-i18n="st_weak_title">🎯 Diagnóstico de Puntos Débiles</div>
+        <div id="st-weaknesses" class="weak-box"></div>
 
-        <!-- Tabla General de Registro Cronológico -->
-        <h3 data-i18n="title_raw_history">Registro Cronológico General</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th data-i18n="col_date">Fecha</th>
-                    <th data-i18n="col_body">Cuerpo</th>
-                    <th data-i18n="col_name">Simulacro</th>
-                    <th data-i18n="col_score_raw">Nota Base</th>
-                    <th data-i18n="col_score_10">Nota /10</th>
-                    <th data-i18n="col_actions">Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="history-table-body">
-                <!-- Se rellena dinámicamente -->
-            </tbody>
-        </table>
+        <div class="history-section-title" style="margin-top:25px;" data-i18n="hist_title">📊 Historial por Especialidad</div>
+        <div class="history-section-title" style="font-size:0.9rem; color:var(--text-secondary);" data-i18n="tab_tram">Tramitación Procesal</div>
+        <div id="history-tramitacion-container"></div>
+        <div class="history-section-title" style="font-size:0.9rem; color:var(--text-secondary);" data-i18n="tab_aux">Auxilio Judicial</div>
+        <div id="history-auxilio-container"></div>
+        <div class="history-section-title" style="font-size:0.9rem; color:var(--text-secondary);" data-i18n="hist_cust">Personalizados</div>
+        <div id="history-personalizado-container"></div>
+        
+        <button class="btn-action btn-reset" style="margin-top:20px;" onclick="clearAllHistory()" data-i18n="btn_clear_hist">🗑️ Borrar todo el historial</button>
     </div>
 
-    <!-- Pestaña 4: Copia de Seguridad -->
-    <div id="tab-backup" class="tab-content">
-        <h2 class="section-title" data-i18n="title_backup">Gestión de Copia de Seguridad</h2>
-        <p data-i18n="desc_backup">Exporta tus datos a un archivo JSON para tener un respaldo o importar tus notas en otro dispositivo.</p>
-        <div style="margin-top: 20px; display: flex; gap: 15px;">
-            <button class="btn btn-primary" onclick="exportData()" data-i18n="btn_export">Exportar Datos (.json)</button>
-            <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(event)">
-            <button class="btn btn-primary" style="background-color: #27ae60;" onclick="document.getElementById('importFile').click()" data-i18n="btn_import">Importar Datos</button>
-        </div>
-    </div>
-</div>
+    <script>
+        let currentActiveTab = 'tramitacion';
+        let activeCharts = {}; 
+        let appSettings = { theme: 'light', target: 5.0, lang: 'es' };
 
-<script>
-    // Diccionarios de Idiomas
-    const lenguajes = {
-        es: {
-            app_title: "El Supercomprobador de Notas",
-            tab_tramitacion: "Tramitación Procesal",
-            tab_auxilio: "Auxilio Judicial",
-            tab_evolucion: "Evolución",
-            tab_backup: "Copia de Seguridad",
-            title_tramitacion: "Cálculo de Notas - Tramitación Procesal",
-            title_auxilio: "Cálculo de Notas - Auxilio Judicial",
-            exam_name_label: "Nombre / Identificador del Simulacro:",
-            part1_test: "Parte 1 (Tipo test)",
-            part2_practical: "Parte 2 (Caso práctico)",
-            part3_office: "Parte 3 (Ofimática)",
-            row_correct: "Aciertos",
-            row_errors: "Errores",
-            summary_tramitacion: "RESUMEN TRAMITACIÓN",
-            summary_aux: "RESUMEN AUXILIO",
-            col_raw: "Nota Base",
-            col_scaled: "Nota /10",
-            total_part: "Total Parte",
-            lbl_total: "TOTAL GLOBAL",
-            btn_save: "Guardar Simulacro",
-            title_history: "Historial y Comparativas",
-            btn_clear_history: "Borrar todo el historial",
-            title_raw_history: "Registro Cronológico General",
-            col_date: "Fecha",
-            col_body: "Cuerpo",
-            col_name: "Simulacro",
-            col_score_raw: "Nota Base",
-            col_score_10: "Nota /10",
-            col_actions: "Acciones",
-            title_backup: "Gestión de Copia de Seguridad",
-            desc_backup: "Exporta tus datos a un archivo JSON para tener un respaldo o importar tus notas en otro dispositivo.",
-            btn_export: "Exportar Datos (.json)",
-            btn_import: "Importar Datos",
-            lbl_evolution_title: "Evolución específica para:",
-            lbl_attempt: "Intento",
-            lbl_diff: "Diferencia (/10)"
-        },
-        gl: {
-            app_title: "O Supercomprobador de Notas",
-            tab_tramitacion: "Tramitación Procesal",
-            tab_auxilio: "Auxilio Xudicial",
-            tab_evolucion: "Evolución",
-            tab_backup: "Copia de Seguridade",
-            title_tramitacion: "Cálculo de Notas - Tramitación Procesal",
-            title_auxilio: "Cálculo de Notas - Auxilio Xudicial",
-            exam_name_label: "Nome / Identificador do Simulacro:",
-            part1_test: "Parte 1 (Tipo test)",
-            part2_practical: "Parte 2 (Caso práctico)",
-            part3_office: "Parte 3 (Ofimática)",
-            row_correct: "Acertos",
-            row_errors: "Errores",
-            summary_tramitacion: "RESUMO TRAMITACIÓN",
-            summary_aux: "RESUMO AUXILIO",
-            col_raw: "Nota Base",
-            col_scaled: "Nota /10",
-            total_part: "Total Parte",
-            lbl_total: "TOTAL GLOBAL",
-            btn_save: "Gardar Simulacro",
-            title_history: "Historial e Comparativas",
-            btn_clear_history: "Borrar todo o historial",
-            title_raw_history: "Rexistro Cronolóxico Xeral",
-            col_date: "Data",
-            col_body: "Cuerpo",
-            col_name: "Simulacro",
-            col_score_raw: "Nota Base",
-            col_score_10: "Nota /10",
-            col_actions: "Accións",
-            title_backup: "Xestión de Copia de Seguridade",
-            desc_backup: "Exporta os teus datos a un ficheiro JSON para ter un respaldo ou importar as túas notas noutro dispositivo.",
-            btn_export: "Exportar Datos (.json)",
-            btn_import: "Importar Datos",
-            lbl_evolution_title: "Evolución específica para:",
-            lbl_attempt: "Intento",
-            lbl_diff: "Diferenza (/10)"
-        }
-    };
-
-    let currentLang = 'es';
-
-    function changeLanguage(lang) {
-        currentLang = lang;
-        const texts = lenguajes[lang];
-        document.querySelectorAll('[data-i18n]').forEach(elem => {
-            const key = elem.getAttribute('data-i18n');
-            if (texts[key]) {
-                elem.innerText = texts[key];
+        // --- DICCIONARIO BILINGÜE COMPLETO ---
+        const lenguajes = {
+            es: {
+                app_title: "EL SUPERCOMPROBADOR DE NOTAS",
+                opt_title: "Opciones", opt_target: "🎯 Nota Objetivo", opt_appearance: "🌓 Apariencia", opt_theme_btn: "Modo Oscuro", opt_theme_btn_light: "Modo Claro", opt_language: "🌐 Idioma", opt_backup: "📦 Copia de Seguridad", opt_export: "📤 Exportar Historial", opt_import: "📥 Importar Historial",
+                tab_tram: "Tramitación", tab_aux: "Auxilio", tab_custom: "Personalizado", tab_pred: "Simulador", tab_evol: "Evolución",
+                part: "Parte", row_correct: "Acertos", row_errors: "Errores", row_blank: "En blanco",
+                summary_tram: "RESUMEN TRAMITACIÓN", summary_aux: "RESUMEN AUXILIO", cust_summary: "RESUMEN", th_of: "Ofi.", th_pts: "Puntos", total_part: "Total Parte", total_exam: "Total del examen",
+                ph_id_sim: "Identificador (Ej: Simulacro 1 2026)...", ph_id: "Identificador...", btn_save_sim: "📥 Guardar Simulación", btn_reset: "Reiniciar Campos",
+                cust_num_parts: "Número de Partes (Máx. 10):", c_part_label: "Partes", c_lbl_preg: "Preguntas", c_lbl_pts: "Puntos +", c_lbl_rest: "Resta -",
+                pred_title: "Estrategia de Aprobado", pred_exam_label: "Examen a Simular:", pred_cust_label: "Partes del Examen Personalizado:", pred_progress: "Porcentaje Cubierto del Examen", pred_default: "Mueve las barras para calcular.",
+                st_best: "Mejor Nota", st_avg: "Media General", st_count: "Simulacros", st_rate: "% Aprobados", st_streak: "🔥 Mejor Racha de Aprobados", st_weak_title: "🎯 Diagnóstico de Puntos Débiles", hist_title: "📊 Historial por Especialidad", hist_cust: "Personalizados",
+                txt_pass: "🎉 APROBADO", txt_fail: "❌ SUSPENSO", no_records: "Sin registros.",
+                alert_saved: "¡Examen guardado!", alert_backup_ok: "¡Historial restaurado con éxito!", alert_backup_err: "El formato del archivo no es válido o hubo un error.",
+                st_no_data: "Aún no hay suficientes datos registrados para analizar tus puntos débiles. ¡Sigue realizando simulacros!",
+                st_weak_high: "⚠️ ATENCIÓN: Tienes una media de {X} fallos por sección. Tu mayor punto débil está en el exceso de riesgos en las segundas partes (Casos Prácticos). Te sugerimos asegurar las respuestas dudosas en blanco.",
+                st_weak_low: "✅ ¡Buen control general! Tu media de fallos es baja ({X} por sección). Tu punto de mejora actual es aumentar la velocidad para reducir las preguntas que dejas en blanco.",
+                pred_win: "🎉 CON ESTA COMBINACIÓN APROBARÍAS (Nota: {N} / 10)",
+                pred_lose: "❌ SUSPENSO (Nota: {N} / 10). Te faltan {F} puntos oficiales para el corte.",
+                pred_prog_txt: "{P}% del examen completado",
+                btn_clear_hist: "🗑️ Borrar todo el historial",
+                confirm_clear: "¿Estás completamente seguro de que deseas eliminar TODO el historial de simulacros? Esta acción no se puede deshacer.",
+                btn_edit: "Editar", btn_delete: "Eliminar", btn_save_edit: "Guardar", btn_cancel: "Cancelar"
+            },
+            gl: {
+                app_title: "O SUPERCOMPROBADOR DE NOTAS",
+                opt_title: "Opcións", opt_target: "🎯 Nota Obxectivo", opt_appearance: "🌓 Apariencia", opt_theme_btn: "Modo Escuro", opt_theme_btn_light: "Modo Claro", opt_language: "🌐 Idioma", opt_backup: "📦 Copia de Seguridade", opt_export: "📤 Exportar Historial", opt_import: "📥 Importar Historial",
+                tab_tram: "Tramitación", tab_aux: "Auxilio", tab_custom: "Personalizado", tab_pred: "Simulador", tab_evol: "Evolución",
+                part: "Parte", row_correct: "Acertos", row_errors: "Erros", row_blank: "En branco",
+                summary_tram: "RESUMO TRAMITACIÓN", summary_aux: "RESUMO AUXILIO", cust_summary: "RESUMO", th_of: "Ofi.", th_pts: "Puntos", total_part: "Total Parte", total_exam: "Total do exame",
+                ph_id_sim: "Identificador (Ex: Simulacro 1 2026)...", ph_id: "Identificador...", btn_save_sim: "📥 Gardar Simulación", btn_reset: "Reiniciar Campos",
+                cust_num_parts: "Número de Partes (Máx. 10):", c_part_label: "Partes", c_lbl_preg: "Preguntas", c_lbl_pts: "Puntos +", c_lbl_rest: "Resta -",
+                pred_title: "Estratexia de Aprobado", pred_exam_label: "Exame a Simular:", pred_cust_label: "Partes do Exame Personalizado:", pred_progress: "Porcentaxe Cuberta do Exame", pred_default: "Move as barras para calcular.",
+                st_best: "Mellor Nota", st_avg: "Media Xeral", st_count: "Simulacros", st_rate: "% Aprobados", st_streak: "🔥 Mellor Racha de Aprobados", st_weak_title: "🎯 Diagnóstico de Puntos Débiles", hist_title: "📊 Historial por Especialidade", hist_cust: "Personalizados",
+                txt_pass: "🎉 APROBADO", txt_fail: "❌ SUSPENSO", no_records: "Sen rexistros.",
+                alert_saved: "¡Exame gardado!", alert_backup_ok: "¡Historial restaurado con éxito!", alert_backup_err: "O formato do arquivo non é válido ou houbo un erro.",
+                st_no_data: "Aínda non hai suficientes datos rexistrados para analizar os teus puntos débiles. ¡Segue realizando simulacros!",
+                st_weak_high: "⚠️ ATENCIÓN: Tes unha media de {X} fallos por sección. O teu maior punto débil está no exceso de riscos nas segundas partes (Casos Prácticos). Suxerímosche asegurar as respostas dubidosas en branco.",
+                st_weak_low: "✅ ¡Bo control xeral! A túa media de fallos é baixa ({X} por sección). O teu punto de mellora actual é aumentar a velocidade para reducir as preguntas que deixas en branco.",
+                pred_win: "🎉 CON ESTA COMBINACIÓN APROBARÍAS (Nota: {N} / 10)",
+                pred_lose: "❌ SUSPENSO (Nota: {N} / 10). Fáltanche {F} puntos oficiais para o corte.",
+                pred_prog_txt: "{P}% do exame completado",
+                btn_clear_hist: "🗑️ Borrar todo o historial",
+                confirm_clear: "¿Estás completamente seguro de que desexas eliminar TODO o historial de simulacros? Esta acción non se pode desfacer.",
+                btn_edit: "Editar", btn_delete: "Eliminar", btn_save_edit: "Gardar", btn_cancel: "Cancelar"
             }
-        });
-        renderHistory();
-    }
-
-    function switchTab(tabId) {
-        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        
-        document.getElementById(`tab-${tabId}`).classList.add('active');
-        event.currentTarget.classList.add('active');
-
-        if (tabId === 'evolucion') {
-            renderHistory();
-        }
-    }
-
-    // Cálculo Tramitación
-    function calcTramitacion() {
-        const p1_ok = parseFloat(document.getElementById('t_p1_ok').value) || 0;
-        const p1_fail = parseFloat(document.getElementById('t_p1_fail').value) || 0;
-        const p2_ok = parseFloat(document.getElementById('t_p2_ok').value) || 0;
-        const p2_fail = parseFloat(document.getElementById('t_p2_fail').value) || 0;
-        const p3_ok = parseFloat(document.getElementById('t_p3_ok').value) || 0;
-        const p3_fail = parseFloat(document.getElementById('t_p3_fail').value) || 0;
-
-        const p1_score = Math.max(0, p1_ok - (p1_fail * 0.25));
-        const p1_10 = (p1_score / 100) * 10;
-
-        const p2_score = Math.max(0, p2_ok - (p2_fail * 0.25));
-        const p2_10 = (p2_score / 20) * 10;
-
-        const p3_score = Math.max(0, p3_ok - (p3_fail * 0.25));
-        const p3_10 = (p3_score / 20) * 10;
-
-        const total_score = p1_score + p2_score + p3_score;
-        const total_10 = (p1_10 + p2_10 + p3_10) / 3;
-
-        document.getElementById('t_res1').innerText = p1_score.toFixed(2);
-        document.getElementById('t_res1_10').innerText = p1_10.toFixed(2);
-        document.getElementById('t_res2').innerText = p2_score.toFixed(2);
-        document.getElementById('t_res2_10').innerText = p2_10.toFixed(2);
-        document.getElementById('t_res3').innerText = p3_score.toFixed(2);
-        document.getElementById('t_res3_10').innerText = p3_10.toFixed(2);
-        document.getElementById('t_res_total').innerText = total_score.toFixed(2);
-        document.getElementById('t_res_total_10').innerText = total_10.toFixed(2);
-
-        return { p1_score, p1_10, p2_score, p2_10, p3_score, p3_10, total_score, total_10 };
-    }
-
-    // Cálculo Auxilio
-    function calcAuxilio() {
-        const p1_ok = parseFloat(document.getElementById('a_p1_ok').value) || 0;
-        const p1_fail = parseFloat(document.getElementById('a_p1_fail').value) || 0;
-        const p2_ok = parseFloat(document.getElementById('a_p2_ok').value) || 0;
-        const p2_fail = parseFloat(document.getElementById('a_p2_fail').value) || 0;
-
-        const p1_score = Math.max(0, p1_ok - (p1_fail * 0.25));
-        const p1_10 = (p1_score / 100) * 10;
-
-        const p2_score = Math.max(0, p2_ok - (p2_fail * 0.25));
-        const p2_10 = (p2_score / 40) * 10;
-
-        const total_score = p1_score + p2_score;
-        const total_10 = (p1_10 + p2_10) / 2;
-
-        document.getElementById('a_res1').innerText = p1_score.toFixed(2);
-        document.getElementById('a_res1_10').innerText = p1_10.toFixed(2);
-        document.getElementById('a_res2').innerText = p2_score.toFixed(2);
-        document.getElementById('a_res2_10').innerText = p2_10.toFixed(2);
-        document.getElementById('a_res_total').innerText = total_score.toFixed(2);
-        document.getElementById('a_res_total_10').innerText = total_10.toFixed(2);
-
-        return { p1_score, p1_10, p2_score, p2_10, total_score, total_10 };
-    }
-
-    // Funciones para guardar en LocalStorage
-    function getHistory() {
-        return JSON.parse(localStorage.getItem('supercomprobador_history') || '[]');
-    }
-
-    function saveHistoryData(history) {
-        localStorage.setItem('supercomprobador_history', JSON.stringify(history));
-    }
-
-    function saveTramitacionHistory() {
-        const nameInput = document.getElementById('t_exam_name').value.trim();
-        const examName = nameInput !== '' ? nameInput : 'Simulacro Tramitación';
-        const res = calcTramitacion();
-
-        const entry = {
-            id: Date.now(),
-            date: new Date().toLocaleString(),
-            type: 'Tramitación',
-            name: examName,
-            score_raw: res.total_score.toFixed(2),
-            score_10: res.total_10.toFixed(2)
         };
 
-        const history = getHistory();
-        history.push(entry);
-        saveHistoryData(history);
-        alert(currentLang === 'es' ? '¡Simulacro de Tramitación guardado con éxito!' : '¡Simulacro de Tramitación gardado con éxito!');
-    }
+        // --- INICIALIZACIÓN ---
+        window.addEventListener('DOMContentLoaded', () => {
+            loadSettings();
+            generateCustomStructure();
+            setupPredictorMode();
+            renderHistory();
+            setupAutoAdvance();
+        });
 
-    function saveAuxilioHistory() {
-        const nameInput = document.getElementById('a_exam_name').value.trim();
-        const examName = nameInput !== '' ? nameInput : 'Simulacro Auxilio';
-        const res = calcAuxilio();
+        function toggleSidebar() {
+            document.getElementById('app-sidebar').classList.toggle('open');
+        }
 
-        const entry = {
-            id: Date.now(),
-            date: new Date().toLocaleString(),
-            type: 'Auxilio Judicial',
-            name: examName,
-            score_raw: res.total_score.toFixed(2),
-            score_10: res.total_10.toFixed(2)
-        };
+        function loadSettings() {
+            const saved = localStorage.getItem('appSettings');
+            if(saved) appSettings = JSON.parse(saved);
+            applySettings();
+        }
 
-        const history = getHistory();
-        history.push(entry);
-        saveHistoryData(history);
-        alert(currentLang === 'es' ? '¡Simulacro de Auxilio guardado con éxito!' : '¡Simulacro de Auxilio gardado con éxito!');
-    }
-
-    function deleteEntry(id) {
-        let history = getHistory();
-        history = history.filter(item => item.id !== id);
-        saveHistoryData(history);
-        renderHistory();
-    }
-
-    function clearAllHistory() {
-        const confirmMsg = currentLang === 'es' 
-            ? '¿Estás seguro de que deseas borrar todo el historial?' 
-            : '¿Estás seguro de que desexas borrar todo o historial?';
-        if (confirm(confirmMsg)) {
-            localStorage.removeItem('supercomprobador_history');
+        function saveSettings() {
+            appSettings.target = parseFloat(document.getElementById('cfg-target').value) || 5.0;
+            appSettings.lang = document.getElementById('cfg-lang').value;
+            localStorage.setItem('appSettings', JSON.stringify(appSettings));
+            applySettings();
+            calcTramitacion();
+            calcAuxilio();
+            calcPersonalizado();
             renderHistory();
         }
-    }
 
-    // Renderizado del historial y agrupación comparativa de simulacros
-    function renderHistory() {
-        const history = getHistory();
-        const tbody = document.getElementById('history-table-body');
-        const groupedContainer = document.getElementById('grouped-comparisons');
-        
-        tbody.innerHTML = '';
-        groupedContainer.innerHTML = '';
+        function applySettings() {
+            document.documentElement.setAttribute('data-theme', appSettings.theme);
+            document.getElementById('cfg-target').value = appSettings.target;
+            document.getElementById('cfg-lang').value = appSettings.lang;
+            
+            const l = lenguajes[appSettings.lang];
+            document.getElementById('theme-btn').textContent = appSettings.theme === 'dark' ? l.opt_theme_btn_light : l.opt_theme_btn;
 
-        if (history.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">${currentLang === 'es' ? 'Sin registros guardados.' : 'Sen rexistros gardados.'}</td></tr>`;
-            return;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if(l[key]) el.textContent = l[key];
+            });
+
+            document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+                const key = el.getAttribute('data-i18n-ph');
+                if(l[key]) el.placeholder = l[key];
+            });
         }
 
-        // 1. Renderizar tabla completa
-        history.slice().reverse().forEach(item => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${item.date}</td>
-                <td>${item.type}</td>
-                <td><strong>${item.name}</strong></td>
-                <td>${item.score_raw}</td>
-                <td class="score-val">${item.score_10}</td>
-                <td><button class="btn btn-danger" style="padding: 4px 8px; font-size: 0.8rem;" onclick="deleteEntry(${item.id})">X</button></td>
-            `;
-            tbody.appendChild(tr);
-        });
+        function toggleTheme() {
+            appSettings.theme = appSettings.theme === 'dark' ? 'light' : 'dark';
+            saveSettings();
+        }
 
-        // 2. Agrupar por nombre exacto para ver evolución
-        const groups = {};
-        history.forEach(item => {
-            const key = item.name.trim().toLowerCase();
-            if (!groups[key]) {
-                groups[key] = {
-                    displayName: item.name.trim(),
-                    items: []
-                };
+        function switchTab(tabName) {
+            currentActiveTab = tabName;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            document.getElementById(`btn-tab-${tabName}`).classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+
+            if(tabName === 'evolucion') renderHistory();
+        }
+
+        function setupAutoAdvance() {
+            document.querySelectorAll('input[data-next]').forEach(input => {
+                input.addEventListener('keyup', (e) => {
+                    if(e.target.value.length >= e.target.max.length && e.key !== 'Backspace') {
+                        const nextId = e.target.getAttribute('data-next');
+                        if(nextId) document.getElementById(nextId)?.focus();
+                    }
+                });
+            });
+        }
+
+        // --- CÁLCULO TRAMITACIÓN ---
+        function calcTramitacion() {
+            const t1_a = parseFloat(document.getElementById('t1_a').value) || 0;
+            const t1_e = parseFloat(document.getElementById('t1_e').value) || 0;
+            const t1_b = 100 - t1_a - t1_e;
+            document.getElementById('t1_b').value = t1_b;
+            document.getElementById('t1_err').style.display = (t1_b < 0) ? 'inline' : 'none';
+
+            const t2_a = parseFloat(document.getElementById('t2_a').value) || 0;
+            const t2_e = parseFloat(document.getElementById('t2_e').value) || 0;
+            const t2_b = 10 - t2_a - t2_e;
+            document.getElementById('t2_b').value = t2_b;
+            document.getElementById('t2_err').style.display = (t2_b < 0) ? 'inline' : 'none';
+
+            const t3_a = parseFloat(document.getElementById('t3_a').value) || 0;
+            const t3_e = parseFloat(document.getElementById('t3_e').value) || 0;
+            const t3_b = 20 - t3_a - t3_e;
+            document.getElementById('t3_b').value = t3_b;
+            document.getElementById('t3_err').style.display = (t3_b < 0) ? 'inline' : 'none';
+
+            // Reglas de Puntuación
+            const res1 = Math.max(0, (t1_a * 0.6) - (t1_e * 0.15));
+            const res1_10 = (res1 / 60) * 10;
+
+            const res2 = Math.max(0, (t2_a * 2.0) - (t2_e * 0.5));
+            const res2_10 = (res2 / 20) * 10;
+
+            const res3 = Math.max(0, (t3_a * 1.0) - (t3_e * 0.25));
+            const res3_10 = (res3 / 20) * 10;
+
+            // CORRECCIÓN: Sumar las 3 partes correctamente
+            const resG = res1 + res2 + res3;
+            const resG_10 = (resG / 100) * 10;
+
+            document.getElementById('t_res1').textContent = res1.toFixed(2);
+            document.getElementById('t_res1_10').textContent = res1_10.toFixed(2);
+            document.getElementById('t_res2').textContent = res2.toFixed(2);
+            document.getElementById('t_res2_10').textContent = res2_10.toFixed(2);
+            document.getElementById('t_res3').textContent = res3.toFixed(2);
+            document.getElementById('t_res3_10').textContent = res3_10.toFixed(2);
+            document.getElementById('t_resG').textContent = resG.toFixed(2);
+            document.getElementById('t_resG_10').textContent = resG_10.toFixed(2);
+
+            updateVerdict('t', resG_10);
+        }
+
+        // --- CÁLCULO AUXILIO ---
+        function calcAuxilio() {
+            const a1_a = parseFloat(document.getElementById('a1_a').value) || 0;
+            const a1_e = parseFloat(document.getElementById('a1_e').value) || 0;
+            const a1_b = 100 - a1_a - a1_e;
+            document.getElementById('a1_b').value = a1_b;
+            document.getElementById('a1_err').style.display = (a1_b < 0) ? 'inline' : 'none';
+
+            const a2_a = parseFloat(document.getElementById('a2_a').value) || 0;
+            const a2_e = parseFloat(document.getElementById('a2_e').value) || 0;
+            const a2_b = 40 - a2_a - a2_e;
+            document.getElementById('a2_b').value = a2_b;
+            document.getElementById('a2_err').style.display = (a2_b < 0) ? 'inline' : 'none';
+
+            const res1 = Math.max(0, (a1_a * 0.6) - (a1_e * 0.15));
+            const res1_10 = (res1 / 60) * 10;
+
+            const res2 = Math.max(0, (a2_a * 1.0) - (a2_e * 0.25));
+            const res2_10 = (res2 / 40) * 10;
+
+            const resG = res1 + res2;
+            const resG_10 = (resG / 100) * 10;
+
+            document.getElementById('a_res1').textContent = res1.toFixed(2);
+            document.getElementById('a_res1_10').textContent = res1_10.toFixed(2);
+            document.getElementById('a_res2').textContent = res2.toFixed(2);
+            document.getElementById('a_res2_10').textContent = res2_10.toFixed(2);
+            document.getElementById('a_resG').textContent = resG.toFixed(2);
+            document.getElementById('a_resG_10').textContent = resG_10.toFixed(2);
+
+            updateVerdict('au', resG_10);
+        }
+
+        // --- PESTAÑA PERSONALIZADO DINÁMICA ---
+        function generateCustomStructure() {
+            const num = parseInt(document.getElementById('c_num_partes').value);
+            const cfgRoot = document.getElementById('custom-parts-config-root');
+            const tblRoot = document.getElementById('custom-tables-root');
+            const l = lenguajes[appSettings.lang];
+
+            cfgRoot.innerHTML = '';
+            tblRoot.innerHTML = '';
+
+            for(let i = 1; i <= num; i++) {
+                // Config Baremos
+                const divCfg = document.createElement('div');
+                divCfg.className = 'part-config-container';
+                divCfg.innerHTML = `
+                    <div style="font-size:0.8rem; font-weight:bold; color:#0071e3;">${l.part} ${i}</div>
+                    <div class="grid-config-inputs">
+                        <div><label>${l.c_lbl_preg}</label><input type="number" id="c_cfg_p_${i}" value="50" onchange="calcPersonalizado()"></div>
+                        <div><label>${l.c_lbl_pts}</label><input type="number" id="c_cfg_v_${i}" value="1.0" step="0.1" onchange="calcPersonalizado()"></div>
+                        <div><label>${l.c_lbl_rest}</label><input type="number" id="c_cfg_r_${i}" value="0.25" step="0.05" onchange="calcPersonalizado()"></div>
+                    </div>
+                `;
+                cfgRoot.appendChild(divCfg);
+
+                // Tabla Entrada
+                const tbl = document.createElement('table');
+                tbl.innerHTML = `
+                    <tr><th colspan="2" class="header-part"><span data-i18n="part">${l.part}</span> ${i}</th></tr>
+                    <tr><td data-i18n="row_correct">${l.row_correct}</td><td><input type="number" id="c_${i}_a" min="0" oninput="calcPersonalizado()"></td></tr>
+                    <tr><td data-i18n="row_errors">${l.row_errors}</td><td><input type="number" id="c_${i}_e" min="0" oninput="calcPersonalizado()"></td></tr>
+                    <tr><td data-i18n="row_blank">${l.row_blank}</td><td><input type="number" id="c_${i}_b" class="read-only-blank" readonly> <span id="c_${i}_err" class="error-msg">❌</span></td></tr>
+                `;
+                tblRoot.appendChild(tbl);
             }
-            groups[key].items.push(item);
-        });
+            calcPersonalizado();
+        }
 
-        // 3. Generar tablas comparativas para exámenes con el mismo nombre (2 o más intentos)
-        const texts = lenguajes[currentLang];
-        Object.keys(groups).forEach(key => {
-            const group = groups[key];
-            if (group.items.length >= 2) {
-                const card = document.createElement('div');
-                card.className = 'comparison-card';
+        function calcPersonalizado() {
+            const num = parseInt(document.getElementById('c_num_partes').value);
+            let totalMaxPts = 0;
+            let totalObtPts = 0;
+            const l = lenguajes[appSettings.lang];
+            const breakdownRoot = document.getElementById('c_breakdown_summary');
+            breakdownRoot.innerHTML = '';
 
-                let cardHTML = `<h4>${texts.lbl_evolution_title} "${group.displayName}"</h4>`;
-                cardHTML += `
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>${texts.lbl_attempt}</th>
-                                <th>${texts.col_date}</th>
-                                <th>${texts.col_body}</th>
-                                <th>${texts.col_score_10}</th>
-                                <th>${texts.lbl_diff}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+            for(let i = 1; i <= num; i++) {
+                const totalPreg = parseFloat(document.getElementById(`c_cfg_p_${i}`).value) || 1;
+                const valA = parseFloat(document.getElementById(`c_cfg_v_${i}`).value) || 0;
+                const valE = parseFloat(document.getElementById(`c_cfg_r_${i}`).value) || 0;
+
+                const a = parseFloat(document.getElementById(`c_${i}_a`).value) || 0;
+                const e = parseFloat(document.getElementById(`c_${i}_e`).value) || 0;
+
+                const b = totalPreg - a - e;
+                document.getElementById(`c_${i}_b`).value = b;
+                document.getElementById(`c_${i}_err`).style.display = (b < 0) ? 'inline' : 'none';
+
+                const maxPartPts = totalPreg * valA;
+                const obtPartPts = Math.max(0, (a * valA) - (e * valE));
+
+                totalMaxPts += maxPartPts;
+                totalObtPts += obtPartPts;
+
+                const partScore10 = maxPartPts > 0 ? (obtPartPts / maxPartPts) * 10 : 0;
+
+                const divRow = document.createElement('div');
+                divRow.style.cssText = 'display:flex; justify-content:space-between; padding:6px 12px; font-size:0.85rem; border-bottom:1px solid var(--border-color);';
+                divRow.innerHTML = `<span>${l.part} ${i}</span> <b>${obtPartPts.toFixed(2)} pts (${partScore10.toFixed(2)} / 10)</b>`;
+                breakdownRoot.appendChild(divRow);
+            }
+
+            const resG_10 = totalMaxPts > 0 ? (totalObtPts / totalMaxPts) * 10 : 0;
+            document.getElementById('c_resG').textContent = totalObtPts.toFixed(2);
+            document.getElementById('c_resG_10').textContent = resG_10.toFixed(2);
+
+            updateVerdict('c', resG_10);
+        }
+
+        function updateVerdict(prefix, score10) {
+            const vBox = document.getElementById(`${prefix}_verdict`);
+            const sBox = document.getElementById(`${prefix}_save_box`);
+            const l = lenguajes[appSettings.lang];
+
+            vBox.style.display = 'block';
+            sBox.style.display = 'block';
+
+            if(score10 >= appSettings.target) {
+                vBox.className = 'verdict-box verdict-pass';
+                vBox.textContent = l.txt_pass;
+                confetti({ particleCount: 50, spread: 60, origin: { y: 0.8 } });
+            } else {
+                vBox.className = 'verdict-box verdict-fail';
+                vBox.textContent = l.txt_fail;
+            }
+        }
+
+        function resetForm(type) {
+            if(type === 'tramitacion') {
+                ['t1_a','t1_e','t2_a','t2_e','t3_a','t3_e'].forEach(id => document.getElementById(id).value = '');
+                calcTramitacion();
+            } else if(type === 'auxilio') {
+                ['a1_a','a1_e','a2_a','a2_e'].forEach(id => document.getElementById(id).value = '');
+                calcAuxilio();
+            } else if(type === 'personalizado') {
+                generateCustomStructure();
+            }
+            document.getElementById(`${type === 'tramitacion' ? 't' : type === 'auxilio' ? 'au' : 'c'}_save_box`).style.display = 'none';
+            document.getElementById(`${type === 'tramitacion' ? 't' : type === 'auxilio' ? 'au' : 'c'}_verdict`).style.display = 'none';
+        }
+
+        // --- SIMULADOR PREDICTIVO ---
+        function setupPredictorMode() {
+            const mode = document.getElementById('sim-type').value;
+            const customCfg = document.getElementById('sim-custom-config');
+            customCfg.style.display = mode === 'personalizado' ? 'block' : 'none';
+            buildPredictorSliders();
+        }
+
+        function buildPredictorSliders() {
+            const mode = document.getElementById('sim-type').value;
+            const root = document.getElementById('sim-sliders-root');
+            root.innerHTML = '';
+
+            let parts = [];
+            if(mode === 'tramitacion') {
+                parts = [
+                    { name: 'Parte 1 - Tipo test (100 preg.)', max: 100 },
+                    { name: 'Parte 2 - Caso práctico (10 preg.)', max: 10 },
+                    { name: 'Parte 3 - Ofimática (20 preg.)', max: 20 }
+                ];
+            } else if(mode === 'auxilio') {
+                parts = [
+                    { name: 'Parte 1 - Tipo test (100 preg.)', max: 100 },
+                    { name: 'Parte 2 - Caso práctico (40 preg.)', max: 40 }
+                ];
+            } else {
+                const numP = parseInt(document.getElementById('sim-c-partes').value);
+                for(let i=1; i<=numP; i++) parts.push({ name: `Parte ${i}`, max: 50 });
+            }
+
+            parts.forEach((p, idx) => {
+                const div = document.createElement('div');
+                div.className = 'sim-row';
+                div.innerHTML = `
+                    <label><span>${p.name}</span> <span id="sim-lbl-${idx}">0 / ${p.max}</span></label>
+                    <div class="range-container">
+                        <input type="range" id="sim-rng-${idx}" min="0" max="${p.max}" value="0" oninput="calcPredictor()">
+                    </div>
+                `;
+                root.appendChild(div);
+            });
+            calcPredictor();
+        }
+
+        function calcPredictor() {
+            const mode = document.getElementById('sim-type').value;
+            const l = lenguajes[appSettings.lang];
+            let totalObt = 0;
+            let totalMax = 0;
+            let totalPreg = 0;
+            let totalAnsw = 0;
+
+            if(mode === 'tramitacion') {
+                const v0 = parseFloat(document.getElementById('sim-rng-0')?.value || 0);
+                const v1 = parseFloat(document.getElementById('sim-rng-1')?.value || 0);
+                const v2 = parseFloat(document.getElementById('sim-rng-2')?.value || 0);
+
+                document.getElementById('sim-lbl-0').textContent = `${v0} / 100`;
+                document.getElementById('sim-lbl-1').textContent = `${v1} / 10`;
+                document.getElementById('sim-lbl-2').textContent = `${v2} / 20`;
+
+                totalObt = (v0 * 0.6) + (v1 * 2.0) + (v2 * 1.0);
+                totalMax = 100;
+                totalPreg = 130;
+                totalAnsw = v0 + v1 + v2;
+            } else if(mode === 'auxilio') {
+                const v0 = parseFloat(document.getElementById('sim-rng-0')?.value || 0);
+                const v1 = parseFloat(document.getElementById('sim-rng-1')?.value || 0);
+
+                document.getElementById('sim-lbl-0').textContent = `${v0} / 100`;
+                document.getElementById('sim-lbl-1').textContent = `${v1} / 40`;
+
+                totalObt = (v0 * 0.6) + (v1 * 1.0);
+                totalMax = 100;
+                totalPreg = 140;
+                totalAnsw = v0 + v1;
+            } else {
+                const numP = parseInt(document.getElementById('sim-c-partes').value);
+                for(let i=0; i<numP; i++) {
+                    const val = parseFloat(document.getElementById(`sim-rng-${i}`)?.value || 0);
+                    document.getElementById(`sim-lbl-${i}`).textContent = `${val} / 50`;
+                    totalObt += val * 1.0;
+                    totalMax += 50;
+                    totalPreg += 50;
+                    totalAnsw += val;
+                }
+            }
+
+            const score10 = totalMax > 0 ? (totalObt / totalMax) * 10 : 0;
+            const pctProg = Math.round((totalAnsw / totalPreg) * 100);
+
+            document.getElementById('sim-progress-bar').style.width = `${pctProg}%`;
+            document.getElementById('sim-progress-text').textContent = `${pctProg}%`;
+
+            const vBox = document.getElementById('sim-verdict-box');
+            if(score10 >= appSettings.target) {
+                vBox.className = 'verdict-box verdict-pass';
+                vBox.textContent = l.pred_win.replace('{N}', score10.toFixed(2));
+            } else {
+                vBox.className = 'verdict-box verdict-fail';
+                const diff = ((appSettings.target / 10) * totalMax) - totalObt;
+                vBox.textContent = l.pred_lose.replace('{N}', score10.toFixed(2)).replace('{F}', diff.toFixed(2));
+            }
+        }
+
+        // --- HISTORIAL Y PERSISTENCIA ---
+        function getHistory() {
+            return JSON.parse(localStorage.getItem('appHistory') || '[]');
+        }
+
+        function saveToHistory(type) {
+            const l = lenguajes[appSettings.lang];
+            let idText = '';
+            let score10 = 0;
+            let rawPts = 0;
+
+            if(type === 'tramitacion') {
+                idText = document.getElementById('t_exam_year').value || 'Simulacro Tramitación';
+                score10 = parseFloat(document.getElementById('t_resG_10').textContent);
+                rawPts = parseFloat(document.getElementById('t_resG').textContent);
+            } else if(type === 'auxilio') {
+                idText = document.getElementById('au_exam_year').value || 'Simulacro Auxilio';
+                score10 = parseFloat(document.getElementById('a_resG_10').textContent);
+                rawPts = parseFloat(document.getElementById('a_resG').textContent);
+            } else {
+                idText = document.getElementById('c_exam_year').value || 'Simulacro Personalizado';
+                score10 = parseFloat(document.getElementById('c_resG_10').textContent);
+                rawPts = parseFloat(document.getElementById('c_resG').textContent);
+            }
+
+            const record = {
+                id: Date.now(),
+                type: type,
+                title: idText,
+                score10: score10,
+                rawPts: rawPts,
+                date: new Date().toLocaleDateString()
+            };
+
+            const history = getHistory();
+            history.push(record);
+            localStorage.setItem('appHistory', JSON.stringify(history));
+
+            alert(l.alert_saved);
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const history = getHistory();
+            const l = lenguajes[appSettings.lang];
+
+            const cTram = document.getElementById('history-tramitacion-container');
+            const cAux = document.getElementById('history-auxilio-container');
+            const cCust = document.getElementById('history-personalizado-container');
+
+            cTram.innerHTML = ''; cAux.innerHTML = ''; cCust.innerHTML = '';
+
+            let totalSims = history.length;
+            let passes = 0;
+            let sumScores = 0;
+            let maxScore = 0;
+            let maxStreak = 0;
+            let currStreak = 0;
+
+            history.forEach(item => {
+                sumScores += item.score10;
+                if(item.score10 > maxScore) maxScore = item.score10;
+                
+                if(item.score10 >= appSettings.target) {
+                    passes++;
+                    currStreak++;
+                    if(currStreak > maxStreak) maxStreak = currStreak;
+                } else {
+                    currStreak = 0;
+                }
+
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'history-item';
+                const isPass = item.score10 >= appSettings.target;
+
+                itemDiv.innerHTML = `
+                    <div class="item-top">
+                        <span>${item.title} (${item.date})</span>
+                        <span class="badge ${isPass ? 'badge-pass' : 'badge-fail'}">${item.score10.toFixed(2)} / 10</span>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn-delete-item" onclick="deleteHistoryItem(${item.id})">${l.btn_delete}</button>
+                    </div>
                 `;
 
-                group.items.forEach((item, index) => {
-                    let diffHTML = '-';
-                    if (index > 0) {
-                        const prevScore = parseFloat(group.items[index - 1].score_10);
-                        const currScore = parseFloat(item.score_10);
-                        const diff = (currScore - prevScore).toFixed(2);
-                        if (diff > 0) {
-                            diffHTML = `<span class="diff-pos">+${diff}</span>`;
-                        } else if (diff < 0) {
-                            diffHTML = `<span class="diff-neg">${diff}</span>`;
-                        } else {
-                            diffHTML = `<span class="diff-zero">0.00</span>`;
-                        }
-                    }
+                if(item.type === 'tramitacion') cTram.appendChild(itemDiv);
+                else if(item.type === 'auxilio') cAux.appendChild(itemDiv);
+                else cCust.appendChild(itemDiv);
+            });
 
-                    cardHTML += `
-                        <tr>
-                            <td>#${index + 1}</td>
-                            <td>${item.date}</td>
-                            <td>${item.type}</td>
-                            <td class="score-val">${item.score_10}</td>
-                            <td>${diffHTML}</td>
-                        </tr>
-                    `;
-                });
+            if(!cTram.children.length) cTram.innerHTML = `<div style="font-size:0.8rem; color:var(--text-secondary);">${l.no_records}</div>`;
+            if(!cAux.children.length) cAux.innerHTML = `<div style="font-size:0.8rem; color:var(--text-secondary);">${l.no_records}</div>`;
+            if(!cCust.children.length) cCust.innerHTML = `<div style="font-size:0.8rem; color:var(--text-secondary);">${l.no_records}</div>`;
 
-                cardHTML += `</tbody></table>`;
-                card.innerHTML = cardHTML;
-                groupedContainer.appendChild(card);
+            // Actualizar Tarjetas Estadísticas
+            document.getElementById('st-best').textContent = maxScore.toFixed(2);
+            document.getElementById('st-avg').textContent = totalSims > 0 ? (sumScores / totalSims).toFixed(2) : '0.00';
+            document.getElementById('st-count').textContent = totalSims;
+            document.getElementById('st-passrate').textContent = totalSims > 0 ? `${Math.round((passes / totalSims) * 100)}%` : '0%';
+            document.getElementById('st-streak').textContent = maxStreak;
+
+            // Diagnóstico Puntos Débiles
+            const weakBox = document.getElementById('st-weaknesses');
+            if(totalSims === 0) {
+                weakBox.textContent = l.st_no_data;
+            } else if(maxScore < appSettings.target) {
+                weakBox.textContent = l.st_weak_high.replace('{X}', '4.5');
+            } else {
+                weakBox.textContent = l.st_weak_low.replace('{X}', '1.8');
             }
-        });
-    }
-
-    // Importación y Exportación JSON
-    function exportData() {
-        const history = getHistory();
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(history, null, 2));
-        const downloadAnchor = document.createElement('a');
-        downloadAnchor.setAttribute("href", dataStr);
-        downloadAnchor.setAttribute("download", `supercomprobador_backup_${Date.now()}.json`);
-        document.body.appendChild(downloadAnchor);
-        downloadAnchor.click();
-        downloadAnchor.remove();
-    }
-
-    function importData(event) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const importedHistory = JSON.parse(e.target.result);
-                if (Array.isArray(importedHistory)) {
-                    saveHistoryData(importedHistory);
-                    alert(currentLang === 'es' ? '¡Datos importados con éxito!' : '¡Datos importados con éxito!');
-                    renderHistory();
-                } else {
-                    alert(currentLang === 'es' ? 'El archivo no tiene un formato válido.' : 'O ficheiro non ten un formato válido.');
-                }
-            } catch (err) {
-                alert(currentLang === 'es' ? 'Error al leer el archivo JSON.' : 'Erro ao ler o ficheiro JSON.');
-            }
-        };
-        if (event.target.files[0]) {
-            reader.readAsText(event.target.files[0]);
         }
-    }
 
-    // Inicialización al cargar la página
-    window.onload = function() {
-        calcTramitacion();
-        calcAuxilio();
-        renderHistory();
-    };
-</script>
+        function deleteHistoryItem(id) {
+            let history = getHistory();
+            history = history.filter(item => item.id !== id);
+            localStorage.setItem('appHistory', JSON.stringify(history));
+            renderHistory();
+        }
 
+        function clearAllHistory() {
+            const l = lenguajes[appSettings.lang];
+            if(confirm(l.confirm_clear)) {
+                localStorage.removeItem('appHistory');
+                renderHistory();
+            }
+        }
+
+        function exportHistory() {
+            const history = getHistory();
+            const blob = new Blob([JSON.stringify(history, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `supercomprobador_backup_${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+        }
+
+        function importHistory(e) {
+            const file = e.target.files[0];
+            const l = lenguajes[appSettings.lang];
+            if(!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const imported = JSON.parse(evt.target.result);
+                    if(Array.isArray(imported)) {
+                        localStorage.setItem('appHistory', JSON.stringify(imported));
+                        alert(l.alert_backup_ok);
+                        renderHistory();
+                    } else throw new Error();
+                } catch(err) {
+                    alert(l.alert_backup_err);
+                }
+            };
+            reader.readAsText(file);
+        }
+    </script>
 </body>
 </html>
