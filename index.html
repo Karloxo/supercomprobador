@@ -502,7 +502,7 @@
     document.getElementById('t2_err').style.display = (a2 + e2 > 10) ? 'inline' : 'none';
     document.getElementById('t3_err').style.display = (a3 + e3 > 20) ? 'inline' : 'none';
 
-    // 4. Puntuación ponderada sobre 100 puntos (60% + 20% + 20%)
+    // 4. Puntuación ponderada sobre 100 puntos totales
     const p1 = Math.max(0, (a1 * 0.60) - (e1 * 0.15)); // Máx 60.00
     const p2 = Math.max(0, (a2 * 2.00) - (e2 * 0.50)); // Máx 20.00
     const p3 = Math.max(0, (a3 * 1.00) - (e3 * 0.25)); // Máx 20.00
@@ -515,7 +515,7 @@
     const p3_10 = (p3 / 20) * 10;
     const total_10 = (totalPuntos / 100) * 10;
 
-    // 6. Actualizar las celdas de la tabla
+    // 6. Actualizar las celdas del DOM
     document.getElementById('t_res1').textContent = p1.toFixed(2);
     document.getElementById('t_res2').textContent = p2.toFixed(2);
     document.getElementById('t_res3').textContent = p3.toFixed(2);
@@ -526,19 +526,38 @@
     document.getElementById('t_res3_10').textContent = p3_10.toFixed(2);
     document.getElementById('t_resG_10').textContent = total_10.toFixed(2);
 
-    // 7. Código de colores y veredicto
+    // 7. Código de colores (aplicado a TODAS las celdas)
     const target = (appSettings && appSettings.target) ? appSettings.target : 5.0;
     
     if (typeof applyScoreColor === 'function') {
+        // Colores para notas escaladas sobre 10
+        applyScoreColor('t_res1_10', p1_10, target);
+        applyScoreColor('t_res2_10', p2_10, target);
+        applyScoreColor('t_res3_10', p3_10, target);
         applyScoreColor('t_resG_10', total_10, target);
-        applyScoreColor('t_resG', totalPuntos, target * 10);
+
+        // Colores para puntos netos (corte proporcional al máximo de cada parte)
+        applyScoreColor('t_res1', p1, target * 6);       // p.ej. si target es 5/10, corte en 30/60
+        applyScoreColor('t_res2', p2, target * 2);       // p.ej. corte en 10/20
+        applyScoreColor('t_res3', p3, target * 2);       // p.ej. corte en 10/20
+        applyScoreColor('t_resG', totalPuntos, target * 10); // p.ej. corte en 50/100
     }
 
+    // 8. Veredicto: Requiere aprobar CADA PARTE individualmente
     const verdictBox = document.getElementById('t_verdict');
     if (verdictBox) {
-        if (a1 > 0 || a2 > 0 || a3 > 0 || e1 > 0 || e2 > 0 || e3 > 0) {
+        const hasData = (a1 > 0 || a2 > 0 || a3 > 0 || e1 > 0 || e2 > 0 || e3 > 0);
+        
+        if (hasData) {
             verdictBox.style.display = 'block';
-            if (total_10 >= target) {
+
+            // Comprobación condición de aprobado: cada parte individual debe superar la nota corte
+            const apruebaP1 = p1_10 >= target;
+            const apruebaP2 = p2_10 >= target;
+            const apruebaP3 = p3_10 >= target;
+            const apruebaGlobal = total_10 >= target;
+
+            if (apruebaP1 && apruebaP2 && apruebaP3 && apruebaGlobal) {
                 verdictBox.className = 'verdict-box verdict-pass';
                 verdictBox.textContent = (lenguajes[appSettings.lang] && lenguajes[appSettings.lang].txt_pass) || '🎉 APROBADO';
                 if (typeof triggerConfetti === 'function') triggerConfetti();
@@ -549,6 +568,8 @@
         } else {
             verdictBox.style.display = 'none';
         }
+    }
+}
     }
 }
 
