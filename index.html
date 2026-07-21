@@ -212,19 +212,19 @@
     <div id="tab-tramitacion" class="tab-content active">
         <table>
             <tr><th colspan="2" class="header-part"><span data-i18n="part">Parte</span> 1 (100 preg.)</th></tr>
-            <tr><td data-i18n="row_correct">Acertos</td><td><input type="number" id="t1_a" min="0" max="100" oninput="calcTramitacion()" data-next="t1_e"></td></tr>
-            <tr><td data-i18n="row_errors">Erros</td><td><input type="number" id="t1_e" min="0" max="100" oninput="calcTramitacion()" data-next="t2_a"></td></tr>
+            <tr><td data-i18n="row_correct">Acertos</td><td><input type="number" id="t1_a" min="0" max="100" oninput="calcTramitacion()"></td></tr>
+            <tr><td data-i18n="row_errors">Erros</td><td><input type="number" id="t1_e" min="0" max="100" oninput="calcTramitacion()"></td></tr>
             <tr><td data-i18n="row_blank">En branco</td><td><input type="number" id="t1_b" class="read-only-blank" readonly value="100"> <span id="t1_err" class="error-msg">❌ &gt; 100</span></td></tr>
         </table>
         <table>
             <tr><th colspan="2" class="header-part"><span data-i18n="part">Parte</span> 2 (10 preg.)</th></tr>
-            <tr><td data-i18n="row_correct">Acertos</td><td><input type="number" id="t2_a" min="0" max="10" oninput="calcTramitacion()" data-next="t2_e"></td></tr>
-            <tr><td data-i18n="row_errors">Erros</td><td><input type="number" id="t2_e" min="0" max="10" oninput="calcTramitacion()" data-next="t3_a"></td></tr>
+            <tr><td data-i18n="row_correct">Acertos</td><td><input type="number" id="t2_a" min="0" max="10" oninput="calcTramitacion()"></td></tr>
+            <tr><td data-i18n="row_errors">Erros</td><td><input type="number" id="t2_e" min="0" max="10" oninput="calcTramitacion()"></td></tr>
             <tr><td data-i18n="row_blank">En branco</td><td><input type="number" id="t2_b" class="read-only-blank" readonly value="10"> <span id="t2_err" class="error-msg">❌ &gt; 10</span></td></tr>
         </table>
         <table>
             <tr><th colspan="2" class="header-part"><span data-i18n="part">Parte</span> 3 (20 preg.)</th></tr>
-            <tr><td data-i18n="row_correct">Acertos</td><td><input type="number" id="t3_a" min="0" max="20" oninput="calcTramitacion()" data-next="t3_e"></td></tr>
+            <tr><td data-i18n="row_correct">Acertos</td><td><input type="number" id="t3_a" min="0" max="20" oninput="calcTramitacion()"></td></tr>
             <tr><td data-i18n="row_errors">Erros</td><td><input type="number" id="t3_e" min="0" max="20" oninput="calcTramitacion()"></td></tr>
             <tr><td data-i18n="row_blank">En branco</td><td><input type="number" id="t3_b" class="read-only-blank" readonly value="20"> <span id="t3_err" class="error-msg">❌ &gt; 20</span></td></tr>
         </table>
@@ -236,8 +236,10 @@
             <tr class="total-row"><td data-i18n="total_exam">Total del examen</td><td id="t_resG" class="score-val">0.00</td><td id="t_resG_10" class="score-val">0.00</td></tr>
         </table>
         <div id="t_verdict" class="verdict-box"></div>
-        <div id="t_save_box" class="save-container" style="display:none;">
-            <input type="text" id="t_exam_year" data-i18n-ph="ph_id_sim">
+        
+        <!-- Guardar Simulación (Siempre Visible) -->
+        <div id="t_save_box" class="save-container">
+            <input type="text" id="t_exam_year" placeholder="Identificador (Ej: Simulacro 1 2026)..." data-i18n-ph="ph_id_sim">
             <button class="btn-action btn-blue" style="margin-top:10px;" onclick="saveToHistory('tramitacion')" data-i18n="btn_save_sim">📥 Guardar Simulación</button>
         </div>
         <button class="btn-action btn-reset" onclick="resetForm('tramitacion')" data-i18n="btn_reset">Reiniciar Campos</button>
@@ -247,13 +249,13 @@
     <div id="tab-auxilio" class="tab-content">
         <table>
             <tr><th colspan="2" class="header-part"><span data-i18n="part">Parte</span> 1 (100 preg.)</th></tr>
-            <tr><td data-i18n="row_correct">Acertos</td><td><input type="number" id="a1_a" min="0" max="100" oninput="calcAuxilio()" data-next="a1_e"></td></tr>
-            <tr><td data-i18n="row_errors">Erros</td><td><input type="number" id="a1_e" min="0" max="100" oninput="calcAuxilio()" data-next="a2_a"></td></tr>
+            <tr><td data-i18n="row_correct">Acertos</td><td><input type="number" id="a1_a" min="0" max="100" oninput="calcAuxilio()"></td></tr>
+            <tr><td data-i18n="row_errors">Erros</td><td><input type="number" id="a1_e" min="0" max="100" oninput="calcAuxilio()"></td></tr>
             <tr><td data-i18n="row_blank">En branco</td><td><input type="number" id="a1_b" class="read-only-blank" readonly value="100"> <span id="a1_err" class="error-msg">❌ &gt; 100</span></td></tr>
         </table>
         <table>
             <tr><th colspan="2" class="header-part"><span data-i18n="part">Parte</span> 2 (40 preg.)</th></tr>
-            <tr><td data-i18n="row_correct">Acertos</td><td><input type="number" id="a2_a" min="0" max="40" oninput="calcAuxilio()" data-next="a2_e"></td></tr>
+            <tr><td data-i18n="row_correct">Acertos</td><td><input type="number" id="a2_a" min="0" max="40" oninput="calcAuxilio()"></td></tr>
             <tr><td data-i18n="row_errors">Erros</td><td><input type="number" id="a2_e" min="0" max="40" oninput="calcAuxilio()"></td></tr>
             <tr><td data-i18n="row_blank">En branco</td><td><input type="number" id="a2_b" class="read-only-blank" readonly value="40"> <span id="a2_err" class="error-msg">❌ &gt; 40</span></td></tr>
         </table>
@@ -263,19 +265,16 @@
                 <th class="scale-header" data-i18n="th_pts">Puntos</th>
                 <th class="scale-header">Sobre 10</th>
             </tr>
-            <!-- PARTE 1 -->
             <tr>
                 <td>Parte 1</td>
                 <td id="a_res1" class="score-val">0.00</td>
                 <td id="a_res1_10" class="score-val">0.00</td>
             </tr>
-            <!-- PARTE 2 -->
             <tr>
                 <td>Parte 2</td>
                 <td id="a_res2" class="score-val">0.00</td>
                 <td id="a_res2_10" class="score-val">0.00</td>
             </tr>
-            <!-- TOTAL GLOBAL -->
             <tr class="total-row">
                 <td data-i18n="total_exam">Total del examen</td>
                 <td id="a_resG" class="score-val">0.00</td>
@@ -283,8 +282,10 @@
             </tr>
         </table>
         <div id="au_verdict" class="verdict-box"></div>
-        <div id="au_save_box" class="save-container" style="display:none;">
-            <input type="text" id="au_exam_year" data-i18n-ph="ph_id">
+        
+        <!-- Guardar Simulación (Siempre Visible) -->
+        <div id="au_save_box" class="save-container">
+            <input type="text" id="au_exam_year" placeholder="Identificador..." data-i18n-ph="ph_id">
             <button class="btn-action btn-blue" style="margin-top:10px;" onclick="saveToHistory('auxilio')" data-i18n="btn_save_sim">📥 Guardar Simulación</button>
         </div>
         <button class="btn-action btn-reset" onclick="resetForm('auxilio')" data-i18n="btn_reset">Reiniciar Campos</button>
@@ -295,10 +296,10 @@
         <div class="custom-config-box">
             <label for="c_num_partes" data-i18n="cust_num_parts">Número de Partes (Máx. 10):</label>
             <select id="c_num_partes" onchange="generateCustomStructure()">
-                <option value="1">1 </option><option value="2">2 </option><option value="3">3 </option>
-                <option value="4">4 </option><option value="5">5 </option><option value="6">6 </option>
-                <option value="7">7 </option><option value="8">8 </option><option value="9">9 </option>
-                <option value="10">10 </option>
+                <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+                <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+                <option value="10">10</option>
             </select>
             <div id="custom-parts-config-root" style="margin-top:10px;"></div>
         </div>
@@ -306,17 +307,18 @@
         <table class="results-table">
             <tr><th data-i18n="cust_summary">RESUMEN</th><th class="scale-header" data-i18n="th_pts">Puntos</th><th class="scale-header">s/ 10</th></tr>
             <tr class="total-row"><td data-i18n="total_exam">Total del examen</td><td id="c_resG" class="score-val">0.00</td><td id="c_resG_10" class="score-val">0.00</td></tr>
-            <div id="c_breakdown_summary"></div>
         </table>
         <div id="c_verdict" class="verdict-box"></div>
-        <div id="c_save_box" class="save-container" style="display:none;">
-            <input type="text" id="c_exam_year" data-i18n-ph="ph_id">
+        
+        <!-- Guardar Simulación (Siempre Visible) -->
+        <div id="c_save_box" class="save-container">
+            <input type="text" id="c_exam_year" placeholder="Identificador..." data-i18n-ph="ph_id">
             <button class="btn-action btn-blue" style="margin-top:10px;" onclick="saveToHistory('personalizado')" data-i18n="btn_save_sim">📥 Guardar Simulación</button>
         </div>
         <button class="btn-action btn-reset" onclick="resetForm('personalizado')" data-i18n="btn_reset">Reiniciar Campos</button>
     </div>
 
-<!-- ================= PESTAÑA 4: SIMULADOR PREDICTIVO ================= -->
+    <!-- ================= PESTAÑA 4: SIMULADOR PREDICTIVO ================= -->
     <div id="tab-predictor" class="tab-content">
         <div class="custom-config-box">
             <h3 style="margin:0 0 10px 0; color:#0071e3;" data-i18n="pred_title">Estrategia de Aprobado</h3>
@@ -324,16 +326,7 @@
             <select id="sim-type" onchange="setupPredictorMode()">
                 <option value="tramitacion">Tramitación Procesal</option>
                 <option value="auxilio">Auxilio Judicial</option>
-                <option value="personalizado">Examen Personalizado</option>
             </select>
-            
-            <div id="sim-custom-config" style="display:none; margin-top:10px; border-top:1px dashed var(--border-color); padding-top:10px;">
-                <label data-i18n="pred_cust_label">Partes del Examen Personalizado:</label>
-                <select id="sim-c-partes" onchange="buildPredictorSliders()">
-                    <option value="1">1</option><option value="2">2</option><option value="3">3</option>
-                </select>
-                <div id="sim-c-baremos" style="margin-top:10px;"></div>
-            </div>
         </div>
 
         <div class="dashboard-card">
@@ -373,14 +366,13 @@
         <div class="history-section-title" style="font-size:0.9rem; color:var(--text-secondary);" data-i18n="hist_cust">Personalizados</div>
         <div id="history-personalizado-container"></div>
         
-        <!-- Botón Borrar Historial (Modificado a Minúsculas) -->
         <button class="btn-action btn-reset" style="margin-top:20px;" onclick="clearAllHistory()" data-i18n="btn_clear_hist">🗑️ Borrar todo el historial</button>
     </div>
 
     <script>
         let currentActiveTab = 'tramitacion';
-        let activeCharts = {}; 
         let appSettings = { theme: 'light', target: 5.0, lang: 'es' };
+        let appHistory = [];
 
         // --- DICCIONARIO BILINGÜE COMPLETO ---
         const lenguajes = {
@@ -391,20 +383,14 @@
                 part: "Parte", row_correct: "Acertos", row_errors: "Errores", row_blank: "En blanco",
                 summary_tram: "RESUMEN TRAMITACIÓN", summary_aux: "RESUMEN AUXILIO", cust_summary: "RESUMEN", th_of: "Ofi.", th_pts: "Puntos", total_part: "Total Parte", total_exam: "Total del examen",
                 ph_id_sim: "Identificador (Ej: Simulacro 1 2026)...", ph_id: "Identificador...", btn_save_sim: "📥 Guardar Simulación", btn_reset: "Reiniciar Campos",
-                cust_num_parts: "Número de Partes (Máx. 10):", c_part_label: "Partes", c_lbl_preg: "Preguntas", c_lbl_pts: "Puntos +", c_lbl_rest: "Resta -",
-                pred_title: "Estrategia de Aprobado", pred_exam_label: "Examen a Simular:", pred_cust_label: "Partes del Examen Personalizado:", pred_progress: "Porcentaje Cubierto del Examen", pred_default: "Mueve las barras para calcular.",
+                cust_num_parts: "Número de Partes (Máx. 10):",
+                pred_title: "Estrategia de Aprobado", pred_exam_label: "Examen a Simular:", pred_progress: "Porcentaje Cubierto del Examen", pred_default: "Mueve las barras para calcular.",
                 st_best: "Mejor Nota", st_avg: "Media General", st_count: "Simulacros", st_rate: "% Aprobados", st_streak: "🔥 Mejor Racha de Aprobados", st_weak_title: "🎯 Diagnóstico de Puntos Débiles", hist_title: "📊 Historial por Especialidad", hist_cust: "Personalizados",
                 txt_pass: "🎉 APROBADO", txt_fail: "❌ SUSPENSO", no_records: "Sin registros.",
-                alert_saved: "¡Examen guardado!", alert_backup_ok: "¡Historial restaurado con éxito!", alert_backup_err: "El formato del archivo no es válido o hubo un error.",
-                st_no_data: "Aún no hay suficientes datos registrados para analizar tus puntos débiles. ¡Sigue realizando simulacros!",
-                st_weak_high: "⚠️ ATENCIÓN: Tienes una media de {X} fallos por sección. Tu mayor punto débil está en el exceso de riesgos en las segundas partes (Casos Prácticos). Te sugerimos asegurar las respuestas dudosas en blanco.",
-                st_weak_low: "✅ ¡Buen control general! Tu media de fallos es baja ({X} por sección). Tu punto de mejora actual es aumentar la velocidad para reducir las preguntas que dejas en blanco.",
-                pred_win: "🎉 CON ESTA COMBINACIÓN APROBARÍAS (Nota: {N} / 10)",
-                pred_lose: "❌ SUSPENSO (Nota: {N} / 10). Te faltan {F} puntos oficiales para el corte.",
-                pred_prog_txt: "{P}% del examen completado",
+                alert_saved: "¡Examen guardado con éxito!", alert_backup_ok: "¡Historial restaurado!", alert_backup_err: "Formato de archivo no válido.",
+                st_no_data: "Aún no hay suficientes datos para analizar tus puntos débiles. ¡Realiza más simulacros!",
                 btn_clear_hist: "🗑️ Borrar todo el historial",
-                confirm_clear: "¿Estás completamente seguro de que deseas eliminar TODO el historial de simulacros? Esta acción no se puede deshacer.",
-                btn_edit: "Editar", btn_delete: "Eliminar", btn_save_edit: "Guardar", btn_cancel: "Cancelar"
+                confirm_clear: "¿Estás seguro de que deseas eliminar TODO el historial de simulacros?"
             },
             gl: {
                 app_title: "O SUPERCOMPROBADOR DE NOTAS",
@@ -413,111 +399,26 @@
                 part: "Parte", row_correct: "Acertos", row_errors: "Erros", row_blank: "En branco",
                 summary_tram: "RESUMO TRAMITACIÓN", summary_aux: "RESUMO AUXILIO", cust_summary: "RESUMO", th_of: "Ofi.", th_pts: "Puntos", total_part: "Total Parte", total_exam: "Total do exame",
                 ph_id_sim: "Identificador (Ex: Simulacro 1 2026)...", ph_id: "Identificador...", btn_save_sim: "📥 Gardar Simulación", btn_reset: "Reiniciar Campos",
-                cust_num_parts: "Número de Partes (Máx. 10):", c_part_label: "Partes", c_lbl_preg: "Preguntas", c_lbl_pts: "Puntos +", c_lbl_rest: "Resta -",
-                pred_title: "Estratexia de Aprobado", pred_exam_label: "Exame a Simular:", pred_cust_label: "Partes del Examen Personalizado:", pred_progress: "Porcentaxe Cuberto do Exame", pred_default: "Move as barras para calcular.",
+                cust_num_parts: "Número de Partes (Máx. 10):",
+                pred_title: "Estratexia de Aprobado", pred_exam_label: "Exame a Simular:", pred_progress: "Porcentaxe Cuberta do Exame", pred_default: "Move as barras para calcular.",
                 st_best: "Mellor Nota", st_avg: "Media Xeral", st_count: "Simulacros", st_rate: "% Aprobados", st_streak: "🔥 Mellor Racha de Aprobados", st_weak_title: "🎯 Diagnóstico de Puntos Débiles", hist_title: "📊 Historial por Especialidade", hist_cust: "Personalizados",
                 txt_pass: "🎉 APROBADO", txt_fail: "❌ SUSPENSO", no_records: "Sen rexistros.",
-                alert_saved: "¡Exame gardado!", alert_backup_ok: "¡Historial restaurado con éxito!", alert_backup_err: "O formato do arquivo non é válido o houbo un erro.",
-                st_no_data: "Aínda non hai suficientes datos rexistrados para analizar os teus puntos débiles. ¡Sigue realizando simulacros!",
-                st_weak_high: "⚠️ ATENCIÓN: Tes unha media de {X} erros por sección. O teu maior punto débil está no exceso de riscos nas segundas partes (Casos Prácticos). Suxerímosche asegurar as respostas dubidosas en branco.",
-                st_weak_low: "✅ ¡Buen control xeral! A túa media de erros é baixa ({X} por sección). O teu punto de mellora actual é aumentar la velocidade para reducir as preguntas que deixas en branco.",
-                pred_win: "🎉 CON ESTA COMBINACIÓN APROBARÍAS (Nota: {N} / 10)",
-                pred_lose: "❌ SUSPENSO (Nota: {N} / 10). Fáltanche {F} puntos oficiais para o corte.",
-                pred_prog_txt: "{P}% do exame completado",
+                alert_saved: "¡Exame gardado con éxito!", alert_backup_ok: "¡Historial restaurado!", alert_backup_err: "Formato de arquivo non válido.",
+                st_no_data: "Aínda non hai abondo datos para analizar os teus puntos débiles. ¡Sigue facendo simulacros!",
                 btn_clear_hist: "🗑️ Borrar todo o historial",
-                confirm_clear: "¿Estás completamente seguro de que desexas eliminar TODO o historial de simulacros? Esta acción non se puede deshacer.",
-                btn_edit: "Editar", btn_delete: "Eliminar", btn_save_edit: "Gardar", btn_cancel: "Cancelar"
+                confirm_clear: "¿Estás seguro de que desexas eliminar TODO o historial de simulacros?"
             }
         };
 
-        function aplicarIdioma() {
-            let lang = appSettings.lang;
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                let clave = el.getAttribute('data-i18n');
-                if (lenguajes[lang] && lenguajes[lang][clave]) {
-                    el.innerText = lenguajes[lang][clave];
-                }
-            });
-            document.querySelectorAll('[data-i18n-ph]').forEach(el => {
-                let clave = el.getAttribute('data-i18n-ph');
-                if (lenguajes[lang] && lenguajes[lang][clave]) {
-                    el.placeholder = lenguajes[lang][clave];
-                }
-            });
-
-            let themeBtn = document.getElementById('theme-btn');
-            if(themeBtn) {
-                themeBtn.innerText = appSettings.theme === 'dark' ? lenguajes[lang].opt_theme_btn_light : lenguajes[lang].opt_theme_btn;
-            }
-            
-            if(currentActiveTab === 'predictor') runPrediction();
-            if(currentActiveTab === 'evolucion') renderHistory();
-        }
-
-        // --- INICIALIZACIÓN Y AJUSTES ---
-        window.addEventListener('load', () => {
+        window.onload = function() {
             loadSettings();
+            loadHistory();
             generateCustomStructure();
             setupPredictorMode();
-            setupEnterNavigation();
-        });
+            calcTramitacion();
+            calcAuxilio();
+        };
 
-        function toggleSidebar() { document.getElementById('app-sidebar').classList.toggle('open'); }
-        
-        function loadSettings() {
-            let saved = localStorage.getItem('app_comprobador_settings');
-            if (saved) {
-                appSettings = JSON.parse(saved);
-                document.getElementById('cfg-target').value = appSettings.target || 5.0;
-                document.getElementById('cfg-lang').value = appSettings.lang || 'es';
-            }
-            document.documentElement.setAttribute('data-theme', appSettings.theme);
-            aplicarIdioma();
-        }
-
-        function saveSettings() {
-            appSettings.target = parseFloat(document.getElementById('cfg-target').value) || 5.0;
-            appSettings.lang = document.getElementById('cfg-lang').value;
-            localStorage.setItem('app_comprobador_settings', JSON.stringify(appSettings));
-            aplicarIdioma();
-        }
-
-        function toggleTheme() {
-            appSettings.theme = appSettings.theme === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', appSettings.theme);
-            localStorage.setItem('app_comprobador_settings', JSON.stringify(appSettings));
-            aplicarIdioma();
-        }
-
-        // --- NAVEGACIÓN CON ENTER ENTRE CAMPOS ---
-        function setupEnterNavigation() {
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    let target = e.target;
-                    if (target && target.tagName === 'INPUT' && target.type === 'number') {
-                        e.preventDefault();
-                        let nextId = target.getAttribute('data-next');
-                        if (nextId) {
-                            let nextInput = document.getElementById(nextId);
-                            if (nextInput) {
-                                nextInput.focus();
-                                nextInput.select();
-                            }
-                        } else {
-                            // Búsqueda automática basada en orden de inputs numéricos si no hay data-next explícito
-                            let inputs = Array.from(document.querySelectorAll('.tab-content.active input[type="number"]'));
-                            let idx = inputs.indexOf(target);
-                            if (idx !== -1 && idx + 1 < inputs.length) {
-                                inputs[idx + 1].focus();
-                                inputs[idx + 1].select();
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // --- NAVEGACIÓN DE PESTAÑAS ---
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -526,786 +427,411 @@
             document.getElementById('btn-tab-' + tabId).classList.add('active');
             currentActiveTab = tabId;
 
-            if (tabId === 'evolucion') {
-                renderHistory();
-            } else if (tabId === 'predictor') {
-                runPrediction();
-            }
+            if(tabId === 'evolucion') renderHistory();
         }
-// --- FUNCIÓN AUXILIAR DE COLORES (ASIGNACIÓN VERDE / ROJO) ---
-function applyScoreColor(element, score, minPass = 5.0) {
-    if (!element) return;
-    element.classList.remove('score-pass', 'score-fail');
-    if (score === null || score === undefined || isNaN(score)) return;
-    if (score >= minPass) {
-        element.classList.add('score-pass');
-    } else {
-        element.classList.add('score-fail');
-    }
-}
-// --- LÓGICA DE CÁLCULO TRAMITACIÓN ---
-function calcTramitacion() {
-    let target = appSettings ? appSettings.target : 5.0;
 
-    let v1a = document.getElementById('t1_a').value;
-    let v1e = document.getElementById('t1_e').value;
-    let v2a = document.getElementById('t2_a').value;
-    let v2e = document.getElementById('t2_e').value;
-    let v3a = document.getElementById('t3_a').value;
-    let v3e = document.getElementById('t3_e').value;
+        function toggleSidebar() {
+            document.getElementById('app-sidebar').classList.toggle('open');
+        }
 
-    // Si todos los campos están vacíos (al abrir o al reiniciar)
-    if (v1a === '' && v1e === '' && v2a === '' && v2e === '' && v3a === '' && v3e === '') {
-        document.getElementById('t1_b').value = 100;
-        document.getElementById('t2_b').value = 10;
-        document.getElementById('t3_b').value = 20;
-        ['t_res1', 't_res1_10', 't_res2', 't_res2_10', 't_res3', 't_res3_10', 't_resG', 't_resG_10'].forEach(id => {
-            document.getElementById(id).innerText = '0.00';
-            applyScoreColor(document.getElementById(id), null);
-        });
-        document.getElementById('t_verdict').style.display = 'none';
-        document.getElementById('t_save_box').style.display = 'none';
-        return;
-    }
+        function toggleTheme() {
+            appSettings.theme = appSettings.theme === 'light' ? 'dark' : 'light';
+            saveSettings();
+        }
 
-    // Parte 1 (100 preg - Máx: 60 pts - Corte: 30 pts)
-    let a1 = parseInt(v1a) || 0;
-    let e1 = parseInt(v1e) || 0;
-    let invalid1 = (a1 + e1 > 100);
-    let res1 = 0, res1_10 = 0;
+        function saveSettings() {
+            appSettings.target = parseFloat(document.getElementById('cfg-target').value) || 5.0;
+            appSettings.lang = document.getElementById('cfg-lang').value;
+            localStorage.setItem('supercomprobador_settings', JSON.stringify(appSettings));
+            applySettings();
+        }
 
-    if (invalid1) {
-        document.getElementById('t1_err').style.display = 'inline';
-        document.getElementById('t1_b').value = '-';
-        document.getElementById('t_res1').innerText = '-';
-        document.getElementById('t_res1_10').innerText = '-';
-        applyScoreColor(document.getElementById('t_res1_10'), null);
-    } else {
-        document.getElementById('t1_err').style.display = 'none';
-        let b1 = Math.max(0, 100 - (a1 + e1));
-        document.getElementById('t1_b').value = b1;
-        res1 = Math.max(0, (a1 * 0.6) - (e1 * 0.15));
-        res1_10 = (res1 / 60) * 10;
-        document.getElementById('t_res1').innerText = res1.toFixed(2);
-        document.getElementById('t_res1_10').innerText = res1_10.toFixed(2);
-        applyScoreColor(document.getElementById('t_res1_10'), res1_10, 5.0);
-    }
+        function loadSettings() {
+            const saved = localStorage.getItem('supercomprobador_settings');
+            if(saved) appSettings = JSON.parse(saved);
+            applySettings();
+        }
 
-    // Parte 2 (10 preg - Máx: 20 pts - Corte: 10 pts)
-    let a2 = parseInt(v2a) || 0;
-    let e2 = parseInt(v2e) || 0;
-    let invalid2 = (a2 + e2 > 10);
-    let res2 = 0, res2_10 = 0;
+        function applySettings() {
+            document.documentElement.setAttribute('data-theme', appSettings.theme);
+            document.getElementById('cfg-target').value = appSettings.target;
+            document.getElementById('cfg-lang').value = appSettings.lang;
+            
+            const themeBtn = document.getElementById('theme-btn');
+            const dic = lenguajes[appSettings.lang] || lenguajes.es;
+            themeBtn.innerText = appSettings.theme === 'dark' ? dic.opt_theme_btn_light || "Modo Claro" : dic.opt_theme_btn;
 
-    if (invalid2) {
-        document.getElementById('t2_err').style.display = 'inline';
-        document.getElementById('t2_b').value = '-';
-        document.getElementById('t_res2').innerText = '-';
-        document.getElementById('t_res2_10').innerText = '-';
-        applyScoreColor(document.getElementById('t_res2_10'), null);
-    } else {
-        document.getElementById('t2_err').style.display = 'none';
-        let b2 = Math.max(0, 10 - (a2 + e2));
-        document.getElementById('t2_b').value = b2;
-        res2 = Math.max(0, (a2 * 2.0) - (e2 * 0.5));
-        res2_10 = (res2 / 20) * 10;
-        document.getElementById('t_res2').innerText = res2.toFixed(2);
-        document.getElementById('t_res2_10').innerText = res2_10.toFixed(2);
-        applyScoreColor(document.getElementById('t_res2_10'), res2_10, 5.0);
-    }
+            applyLanguage();
+            calcTramitacion();
+            calcAuxilio();
+            calcCustom();
+        }
 
-    // Parte 3 (20 preg - Máx: 20 pts - Corte: 10 pts)
-    let a3 = parseInt(v3a) || 0;
-    let e3 = parseInt(v3e) || 0;
-    let invalid3 = (a3 + e3 > 20);
-    let res3 = 0, res3_10 = 0;
+        function applyLanguage() {
+            const lang = appSettings.lang || 'es';
+            const dic = lenguajes[lang];
 
-    if (invalid3) {
-        document.getElementById('t3_err').style.display = 'inline';
-        document.getElementById('t3_b').value = '-';
-        document.getElementById('t_res3').innerText = '-';
-        document.getElementById('t_res3_10').innerText = '-';
-        applyScoreColor(document.getElementById('t_res3_10'), null);
-    } else {
-        document.getElementById('t3_err').style.display = 'none';
-        let b3 = Math.max(0, 20 - (a3 + e3));
-        document.getElementById('t3_b').value = b3;
-        res3 = Math.max(0, (a3 * 1.0) - (e3 * 0.25));
-        res3_10 = (res3 / 20) * 10;
-        document.getElementById('t_res3').innerText = res3.toFixed(2);
-        document.getElementById('t_res3_10').innerText = res3_10.toFixed(2);
-        applyScoreColor(document.getElementById('t_res3_10'), res3_10, 5.0);
-    }
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if(dic[key]) el.innerText = dic[key];
+            });
 
-    // Total del examen (Máx: 100 pts oficiales)
-    if (invalid1 || invalid2 || invalid3) {
-        document.getElementById('t_resG').innerText = '-';
-        document.getElementById('t_resG_10').innerText = '-';
-        applyScoreColor(document.getElementById('t_resG_10'), null);
-        document.getElementById('t_verdict').style.display = 'none';
-        document.getElementById('t_save_box').style.display = 'none';
-    } else {
-        let totalOfi = res1 + res2 + res3;
-        let total10 = (totalOfi / 100) * 10;
-        document.getElementById('t_resG').innerText = totalOfi.toFixed(2);
-        document.getElementById('t_resG_10').innerText = total10.toFixed(2);
+            document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+                const key = el.getAttribute('data-i18n-ph');
+                if(dic[key]) el.placeholder = dic[key];
+            });
+        }
 
-        // Requisito indispensable: tener al menos la mitad en cada una de las 3 partes
-        let passedAllParts = (res1 >= 30) && (res2 >= 10) && (res3 >= 10);
+        // --- CÁLCULOS TRAMITACIÓN ---
+        function calcTramitacion() {
+            let a1 = parseFloat(document.getElementById('t1_a').value) || 0;
+            let e1 = parseFloat(document.getElementById('t1_e').value) || 0;
+            let b1 = 100 - (a1 + e1);
+            document.getElementById('t1_b').value = b1;
+            document.getElementById('t1_err').style.display = b1 < 0 ? 'inline' : 'none';
 
-        applyScoreColor(document.getElementById('t_resG_10'), passedAllParts ? total10 : 0, target);
-        mostrarVeredictoTramitacion(total10, passedAllParts);
-    }
-}
+            let a2 = parseFloat(document.getElementById('t2_a').value) || 0;
+            let e2 = parseFloat(document.getElementById('t2_e').value) || 0;
+            let b2 = 10 - (a2 + e2);
+            document.getElementById('t2_b').value = b2;
+            document.getElementById('t2_err').style.display = b2 < 0 ? 'inline' : 'none';
 
-// --- LÓGICA DE CÁLCULO AUXILIO JUDICIAL (BLINDADA) ---
+            let a3 = parseFloat(document.getElementById('t3_a').value) || 0;
+            let e3 = parseFloat(document.getElementById('t3_e').value) || 0;
+            let b3 = 20 - (a3 + e3);
+            document.getElementById('t3_b').value = b3;
+            document.getElementById('t3_err').style.display = b3 < 0 ? 'inline' : 'none';
+
+            let p1 = Math.max(0, a1 - (e1 * 0.33));
+            let p2 = Math.max(0, a2 - (e2 * 0.33));
+            let p3 = Math.max(0, a3 - (e3 * 0.33));
+
+            let p1_10 = (p1 / 100) * 10;
+            let p2_10 = (p2 / 10) * 10;
+            let p3_10 = (p3 / 20) * 10;
+            let total_10 = ((p1 + p2 + p3) / 130) * 10;
+
+            document.getElementById('t_res1').innerText = p1.toFixed(2);
+            document.getElementById('t_res1_10').innerText = p1_10.toFixed(2);
+            document.getElementById('t_res2').innerText = p2.toFixed(2);
+            document.getElementById('t_res2_10').innerText = p2_10.toFixed(2);
+            document.getElementById('t_res3').innerText = p3.toFixed(2);
+            document.getElementById('t_res3_10').innerText = p3_10.toFixed(2);
+
+            document.getElementById('t_resG').innerText = (p1 + p2 + p3).toFixed(2);
+            document.getElementById('t_resG_10').innerText = total_10.toFixed(2);
+
+            showVerdict('t_verdict', total_10);
+        }
+
+        // --- CÁLCULOS AUXILIO ---
         function calcAuxilio() {
-            let target = appSettings ? appSettings.target : 5.0;
+            let a1 = parseFloat(document.getElementById('a1_a').value) || 0;
+            let e1 = parseFloat(document.getElementById('a1_e').value) || 0;
+            let b1 = 100 - (a1 + e1);
+            document.getElementById('a1_b').value = b1;
+            document.getElementById('a1_err').style.display = b1 < 0 ? 'inline' : 'none';
 
-            // --- PARTE 1 (100 preg - Máx: 60 pts - Corte: 30 pts) ---
-            let a1Input = document.getElementById('a1_a');
-            let e1Input = document.getElementById('a1_e');
-            let a1 = a1Input ? (parseInt(a1Input.value) || 0) : 0;
-            let e1 = e1Input ? (parseInt(e1Input.value) || 0) : 0;
+            let a2 = parseFloat(document.getElementById('a2_a').value) || 0;
+            let e2 = parseFloat(document.getElementById('a2_e').value) || 0;
+            let b2 = 40 - (a2 + e2);
+            document.getElementById('a2_b').value = b2;
+            document.getElementById('a2_err').style.display = b2 < 0 ? 'inline' : 'none';
 
-            let invalid1 = (a1 + e1 > 100);
-            let res1 = 0, res1_10 = 0;
+            let p1 = Math.max(0, a1 - (e1 * 0.33));
+            let p2 = Math.max(0, a2 - (e2 * 0.33));
 
-            let err1 = document.getElementById('a1_err');
-            let b1Elem = document.getElementById('a1_b');
-            let r1Elem = document.getElementById('a_res1');
-            let r1_10Elem = document.getElementById('a_res1_10');
+            let p1_10 = (p1 / 100) * 10;
+            let p2_10 = (p2 / 40) * 10;
+            let total_10 = ((p1 + p2) / 140) * 10;
 
-            if (invalid1) {
-                if (err1) err1.style.display = 'inline';
-                if (b1Elem) b1Elem.value = '-';
-                if (r1Elem) r1Elem.innerText = '-';
-                if (r1_10Elem) r1_10Elem.innerText = '-';
-                applyScoreColor(r1_10Elem, null);
-            } else {
-                if (err1) err1.style.display = 'none';
-                let b1 = Math.max(0, 100 - (a1 + e1));
-                if (b1Elem) b1Elem.value = b1;
-                res1 = Math.max(0, (a1 * 0.6) - (e1 * 0.15));
-                res1_10 = (res1 / 60) * 10;
-                if (r1Elem) r1Elem.innerText = res1.toFixed(2);
-                if (r1_10Elem) r1_10Elem.innerText = res1_10.toFixed(2);
-                applyScoreColor(r1_10Elem, res1_10, 5.0);
-            }
+            document.getElementById('a_res1').innerText = p1.toFixed(2);
+            document.getElementById('a_res1_10').innerText = p1_10.toFixed(2);
+            document.getElementById('a_res2').innerText = p2.toFixed(2);
+            document.getElementById('a_res2_10').innerText = p2_10.toFixed(2);
 
-            // --- PARTE 2 (40 preg - Máx: 40 pts - Corte: 20 pts) ---
-            let a2Input = document.getElementById('a2_a');
-            let e2Input = document.getElementById('a2_e');
-            let a2 = a2Input ? (parseInt(a2Input.value) || 0) : 0;
-            let e2 = e2Input ? (parseInt(e2Input.value) || 0) : 0;
+            document.getElementById('a_resG').innerText = (p1 + p2).toFixed(2);
+            document.getElementById('a_resG_10').innerText = total_10.toFixed(2);
 
-            let invalid2 = (a2 + e2 > 40);
-            let res2 = 0, res2_10 = 0;
-
-            let err2 = document.getElementById('a2_err');
-            let b2Elem = document.getElementById('a2_b');
-            let r2Elem = document.getElementById('a_res2');
-            let r2_10Elem = document.getElementById('a_res2_10');
-
-            if (invalid2) {
-                if (err2) err2.style.display = 'inline';
-                if (b2Elem) b2Elem.value = '-';
-                if (r2Elem) r2Elem.innerText = '-';
-                if (r2_10Elem) r2_10Elem.innerText = '-';
-                applyScoreColor(r2_10Elem, null);
-            } else {
-                if (err2) err2.style.display = 'none';
-                let b2 = Math.max(0, 40 - (a2 + e2));
-                if (b2Elem) b2Elem.value = b2;
-                res2 = Math.max(0, (a2 * 1.0) - (e2 * 0.25));
-                res2_10 = (res2 / 40) * 10;
-                if (r2Elem) r2Elem.innerText = res2.toFixed(2);
-                if (r2_10Elem) r2_10Elem.innerText = res2_10.toFixed(2);
-                applyScoreColor(r2_10Elem, res2_10, 5.0);
-            }
-
-            // --- TOTAL DEL EXAMEN ---
-            let rgElem = document.getElementById('a_resG');
-            let rg10Elem = document.getElementById('a_resG_10');
-            let verdictBox = document.getElementById('a_verdict');
-            let saveBox = document.getElementById('a_save_box');
-
-            if (invalid1 || invalid2) {
-                if (rgElem) rgElem.innerText = '-';
-                if (rg10Elem) rg10Elem.innerText = '-';
-                applyScoreColor(rg10Elem, null);
-                if (verdictBox) verdictBox.style.display = 'none';
-                if (saveBox) saveBox.style.display = 'none';
-            } else {
-                let totalOfi = res1 + res2;
-                let total10 = (totalOfi / 100) * 10;
-                if (rgElem) rgElem.innerText = totalOfi.toFixed(2);
-                if (rg10Elem) rg10Elem.innerText = total10.toFixed(2);
-
-                // Requisito indispensable: aprovar ambas partes de forma independiente
-                let passedAllParts = (res1 >= 30) && (res2 >= 20);
-
-                applyScoreColor(rg10Elem, passedAllParts ? total10 : 0, target);
-                mostrarVeredictoAuxilio(total10, passedAllParts);
-            }
+            showVerdict('au_verdict', total_10);
         }
 
-// --- LÓGICA DE LA PESTAÑA PERSONALIZADO ---
+        // --- PESTAÑA PERSONALIZADO ---
         function generateCustomStructure() {
-            const numPartes = parseInt(document.getElementById('c_num_partes').value) || 1;
-            const configRoot = document.getElementById('custom-parts-config-root');
-            const lang = appSettings.lang || 'es';
-            const dict = lenguajes[lang] || lenguajes.es;
+            let n = parseInt(document.getElementById('c_num_partes').value) || 1;
+            let cfgRoot = document.getElementById('custom-parts-config-root');
+            let tblRoot = document.getElementById('custom-tables-root');
+            cfgRoot.innerHTML = '';
+            tblRoot.innerHTML = '';
 
-            if (!configRoot) return;
-
-            let configHTML = '';
-            for (let i = 1; i <= numPartes; i++) {
-                configHTML += `
-                <div class="part-config-container">
-                    <strong>${dict.part || 'Parte'} ${i}</strong>
-                    <div class="grid-config-inputs">
-                        <div>
-                            <label>${dict.c_lbl_preg || 'Preguntas'}</label>
-                            <input type="number" id="c_cfg_q_${i}" value="100" min="1" oninput="generateCustomTables(); calcPersonalizado();">
+            for(let i = 1; i <= n; i++) {
+                cfgRoot.innerHTML += `
+                    <div class="part-config-container">
+                        <strong>Parte ${i}</strong>
+                        <div class="grid-config-inputs">
+                            <div><label>Preguntas</label><input type="number" id="c_cfg_q_${i}" value="10" onchange="generateCustomStructure()"></div>
+                            <div><label>Puntos +</label><input type="number" id="c_cfg_p_${i}" value="1" step="0.1" onchange="generateCustomStructure()"></div>
+                            <div><label>Resta -</label><input type="number" id="c_cfg_r_${i}" value="0.33" step="0.01" onchange="generateCustomStructure()"></div>
                         </div>
-                        <div>
-                            <label>${dict.c_lbl_pts || 'Puntos +'}</label>
-                            <input type="number" id="c_cfg_p_${i}" value="1" step="0.01" min="0" oninput="calcPersonalizado();">
-                        </div>
-                        <div>
-                            <label>${dict.c_lbl_rest || 'Resta -'}</label>
-                            <input type="number" id="c_cfg_r_${i}" value="0.33" step="0.01" min="0" oninput="calcPersonalizado();">
-                        </div>
-                    </div>
-                </div>`;
-            }
-            configRoot.innerHTML = configHTML;
-
-            generateCustomTables();
-        }
-
-        function generateCustomTables() {
-            const numPartes = parseInt(document.getElementById('c_num_partes').value) || 1;
-            const tablesRoot = document.getElementById('custom-tables-root');
-            const breakdownContainer = document.getElementById('c_breakdown_summary');
-            const lang = appSettings.lang || 'es';
-            const dict = lenguajes[lang] || lenguajes.es;
-
-            if (!tablesRoot) return;
-
-            let tablesHTML = '';
-            let breakdownHTML = '';
-
-            for (let i = 1; i <= numPartes; i++) {
-                const totalPreg = parseInt(document.getElementById(`c_cfg_q_${i}`)?.value) || 100;
-
-                tablesHTML += `
-                <table>
-                    <tr><th colspan="2" class="header-part">${dict.part || 'Parte'} ${i} (${totalPreg} preg.)</th></tr>
-                    <tr>
-                        <td>${dict.row_correct || 'Acertos'}</td>
-                        <td><input type="number" id="c_a_${i}" min="0" max="${totalPreg}" oninput="calcPersonalizado()"></td>
-                    </tr>
-                    <tr>
-                        <td>${dict.row_errors || 'Errores'}</td>
-                        <td><input type="number" id="c_e_${i}" min="0" max="${totalPreg}" oninput="calcPersonalizado()"></td>
-                    </tr>
-                    <tr>
-                        <td>${dict.row_blank || 'En blanco'}</td>
-                        <td>
-                            <input type="number" id="c_b_${i}" class="read-only-blank" readonly value="${totalPreg}">
-                            <span id="c_err_${i}" class="error-msg">❌ &gt; ${totalPreg}</span>
-                        </td>
-                    </tr>
-                </table>`;
-
-                breakdownHTML += `
-                <tr>
-                    <td>${dict.total_part || 'Total Parte'} ${i}</td>
-                    <td id="c_res_${i}" class="score-val">0.00</td>
-                    <td id="c_res_${i}_10" class="score-val">0.00</td>
-                </tr>`;
-            }
-
-            tablesRoot.innerHTML = tablesHTML;
-
-            if (breakdownContainer) {
-                breakdownContainer.innerHTML = `
-                <table class="results-table" style="margin-top:10px;">
-                    <tr><th>${dict.cust_summary || 'RESUMEN'}</th><th class="scale-header">${dict.th_pts || 'Puntos'}</th><th class="scale-header">Sobre 10</th></tr>
-                    ${breakdownHTML}
-                </table>`;
-            }
-
-            calcPersonalizado();
-        }
-
-        function calcPersonalizado() {
-            const numPartes = parseInt(document.getElementById('c_num_partes').value) || 1;
-            let totalPuntos = 0;
-            let totalMaxPuntos = 0;
-
-            for (let i = 1; i <= numPartes; i++) {
-                const totalQ = parseFloat(document.getElementById(`c_cfg_q_${i}`)?.value) || 0;
-                const ptsPos = parseFloat(document.getElementById(`c_cfg_p_${i}`)?.value) || 0;
-                const ptsNeg = parseFloat(document.getElementById(`c_cfg_r_${i}`)?.value) || 0;
-
-                const aEl = document.getElementById(`c_a_${i}`);
-                const eEl = document.getElementById(`c_e_${i}`);
-                const bEl = document.getElementById(`c_b_${i}`);
-                const errEl = document.getElementById(`c_err_${i}`);
-
-                const a = parseFloat(aEl?.value) || 0;
-                const e = parseFloat(eEl?.value) || 0;
-
-                const contestadas = a + e;
-                const blanco = totalQ - contestadas;
-
-                if (bEl) bEl.value = Math.max(0, blanco);
-
-                if (errEl) {
-                    errEl.style.display = contestadas > totalQ ? 'inline' : 'none';
-                }
-
-                const scorePart = Math.max(0, (a * ptsPos) - (e * ptsNeg));
-                const maxPart = totalQ * ptsPos;
-
-                totalPuntos += scorePart;
-                totalMaxPuntos += maxPart;
-
-                const resEl = document.getElementById(`c_res_${i}`);
-                const res10El = document.getElementById(`c_res_${i}_10`);
-
-                if (resEl) resEl.innerText = scorePart.toFixed(2);
-                if (res10El) res10El.innerText = maxPart > 0 ? ((scorePart / maxPart) * 10).toFixed(2) : "0.00";
-            }
-
-            const resG = document.getElementById('c_resG');
-            const resG10 = document.getElementById('c_resG_10');
-
-            if (resG) resG.innerText = totalPuntos.toFixed(2);
-            if (resG10) resG10.innerText = totalMaxPuntos > 0 ? ((totalPuntos / totalMaxPuntos) * 10).toFixed(2) : "0.00";
-        }
-
-        // --- VEREDICTOS Y GUARDADO ---
-        function mostrarVeredicto(prefix, nota10) {
-            let box = document.getElementById(prefix + '_verdict');
-            let saveBox = document.getElementById(prefix + '_save_box');
-            let target = appSettings.target;
-            let lang = appSettings.lang;
-
-            box.style.display = 'block';
-            saveBox.style.display = 'block';
-
-            if (nota10 >= target) {
-                box.className = 'verdict-box verdict-pass';
-                box.innerHTML = lenguajes[lang].txt_pass + ` (${nota10.toFixed(2)} / 10)`;
-            } else {
-                box.className = 'verdict-box verdict-fail';
-                box.innerHTML = lenguajes[lang].txt_fail + ` (${nota10.toFixed(2)} / 10)`;
-            }
-        }
-
-        function resetForm(tipo) {
-    if (tipo === 'tramitacion') {
-        ['t1_a', 't1_e', 't2_a', 't2_e', 't3_a', 't3_e', 't_exam_year'].forEach(id => {
-            let el = document.getElementById(id);
-            if (el) el.value = '';
-        });
-        calcTramitacion();
-            } else if (tipo === 'auxilio') {
-                let n = parseInt(document.getElementById('c_num_partes').value) || 1;
-                for (let i = 1; i <= n; i++) {
-                    if(document.getElementById(`c${i}_a`)) document.getElementById(`c${i}_a`).value = '';
-                    if(document.getElementById(`c${i}_e`)) document.getElementById(`c${i}_e`).value = '';
-                }
-                calcCustom();
-            }
-        }
-
-        function saveToHistory(tipo) {
-            let inputId = tipo === 'tramitacion' ? 't_exam_year' : (tipo === 'auxilio' ? 'au_exam_year' : 'c_exam_year');
-            let identifier = document.getElementById(inputId).value.trim();
-            if (!identifier) identifier = "Simulacro " + new Date().toLocaleDateString();
-
-            let score10 = parseFloat(document.getElementById(tipo === 'tramitacion' ? 't_resG_10' : (tipo === 'auxilio' ? 'au_resG_10' : 'c_resG_10')).innerText) || 0;
-            let passed = score10 >= appSettings.target;
-
-            let history = JSON.parse(localStorage.getItem('app_comprobador_history') || '{"tramitacion":[], "auxilio":[], "personalizado":[]}');
-            
-            history[tipo].push({
-                id: Date.now().toString(),
-                name: identifier,
-                score: score10,
-                passed: passed,
-                date: new Date().toLocaleDateString()
-            });
-
-            localStorage.setItem('app_comprobador_history', JSON.stringify(history));
-            alert(lenguajes[appSettings.lang].alert_saved);
-            document.getElementById(inputId).value = '';
-            switchTab('evolucion');
-        }
-
-        // --- GESTIÓN DE HISTORIAL Y EVOLUCIÓN ---
-        function renderHistory() {
-            let history = JSON.parse(localStorage.getItem('app_comprobador_history') || '{"tramitacion":[], "auxilio":[], "personalizado":[]}');
-            let lang = appSettings.lang;
-
-            let allExams = [...history.tramitacion, ...history.auxilio, ...history.personalizado];
-            let count = allExams.length;
-            
-            let best = 0, sum = 0, passedCount = 0;
-            if (count > 0) {
-                allExams.forEach(ex => {
-                    if (ex.score > best) best = ex.score;
-                    sum += ex.score;
-                    if (ex.passed) passedCount++;
-                });
-            }
-
-            document.getElementById('st-best').innerText = best.toFixed(2);
-            document.getElementById('st-avg').innerText = count > 0 ? (sum / count).toFixed(2) : "0.00";
-            document.getElementById('st-count').innerText = count;
-            document.getElementById('st-passrate').innerText = count > 0 ? Math.round((passedCount / count) * 100) + '%' : "0%";
-
-            let streak = 0, maxStreak = 0;
-            allExams.forEach(ex => {
-                if (ex.passed) { streak++; if (streak > maxStreak) maxStreak = streak; } else { streak = 0; }
-            });
-            document.getElementById('st-streak').innerText = maxStreak;
-
-            let weakBox = document.getElementById('st-weaknesses');
-            if (count < 3) {
-                weakBox.innerHTML = lenguajes[lang].st_no_data;
-            } else {
-                let avgScore = sum / count;
-                if (avgScore < 6) {
-                    weakBox.innerHTML = lenguajes[lang].st_weak_high.replace('{X}', '3-4');
-                } else {
-                    weakBox.innerHTML = lenguajes[lang].st_weak_low.replace('{X}', '1-2');
-                }
-            }
-
-            renderContainer('tramitacion', history.tramitacion);
-            renderContainer('auxilio', history.auxilio);
-            renderContainer('personalizado', history.personalizado);
-        }
-
-        function renderContainer(tipo, items) {
-            let container = document.getElementById(`history-${tipo}-container`);
-            let lang = appSettings.lang;
-            if (!items || items.length === 0) {
-                container.innerHTML = `<div class="history-item" style="color:var(--text-secondary); text-align:center;">${lenguajes[lang].no_records}</div>`;
-                return;
-            }
-
-            container.innerHTML = '';
-            items.forEach(item => {
-                let badgeClass = item.passed ? 'badge-pass' : 'badge-fail';
-                let badgeText = item.passed ? (lenguajes[lang].txt_pass.split(' ')[1] || 'APROBADO') : (lenguajes[lang].txt_fail.split(' ')[1] || 'SUSPENSO');
-                
-                let div = document.createElement('div');
-                div.className = 'history-item';
-                div.id = `item-card-${item.id}`;
-                div.innerHTML = `
-                    <div class="item-top">
-                        <span class="item-title-text" id="title-text-${item.id}">${escapeHtml(item.name)}</span>
-                        <div>
-                            <span class="badge ${badgeClass}">${badgeText}</span>
-                            <span style="margin-left:8px; font-weight:bold;">${item.score.toFixed(2)} / 10</span>
-                        </div>
-                    </div>
-                    <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">${item.date}</div>
-                    <div class="item-actions">
-                        <button onclick="enableEditItem('${tipo}', '${item.id}')">${lenguajes[lang].btn_edit}</button>
-                        <button class="btn-delete-item" onclick="deleteHistoryItem('${tipo}', '${item.id}')">${lenguajes[lang].btn_delete}</button>
                     </div>
                 `;
-                container.appendChild(div);
-            });
-        }
 
-        function enableEditItem(tipo, id) {
-            let history = JSON.parse(localStorage.getItem('app_comprobador_history') || '{"tramitacion":[], "auxilio":[], "personalizado":[]}');
-            let item = history[tipo].find(x => x.id === id);
-            if (!item) return;
-
-            let card = document.getElementById(`item-card-${id}`);
-            let lang = appSettings.lang;
-
-            card.innerHTML = `
-                <div style="display:flex; flex-direction:column; gap:6px;">
-                    <input type="text" id="edit-input-${id}" value="${escapeHtml(item.name)}" style="padding:4px; font-size:0.85rem;">
-                    <div style="display:flex; gap:6px; justify-content:flex-end;">
-                        <button onclick="saveEditItem('${tipo}', '${id}')" style="background:#0071e3; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">${lenguajes[lang].btn_save_edit}</button>
-                        <button onclick="renderHistory()" style="background:var(--tab-bg); border:1px solid var(--border-color); padding:4px 8px; border-radius:4px; cursor:pointer;">${lenguajes[lang].btn_cancel}</button>
-                    </div>
-                </div>
-            `;
-        }
-
-        function saveEditItem(tipo, id) {
-            let newName = document.getElementById(`edit-input-${id}`).value.trim();
-            if (!newName) return;
-
-            let history = JSON.parse(localStorage.getItem('app_comprobador_history') || '{"tramitacion":[], "auxilio":[], "personalizado":[]}');
-            let item = history[tipo].find(x => x.id === id);
-            if (item) {
-                item.name = newName;
-                localStorage.setItem('app_comprobador_history', JSON.stringify(history));
+                let q = parseInt(document.getElementById(`c_cfg_q_${i}`)?.value) || 10;
+                tblRoot.innerHTML += `
+                    <table>
+                        <tr><th colspan="2" class="header-part">Parte ${i} (${q} preg.)</th></tr>
+                        <tr><td>Acertos</td><td><input type="number" id="c_${i}_a" min="0" max="${q}" oninput="calcCustom()"></td></tr>
+                        <tr><td>Erros</td><td><input type="number" id="c_${i}_e" min="0" max="${q}" oninput="calcCustom()"></td></tr>
+                        <tr><td>En branco</td><td><input type="number" id="c_${i}_b" class="read-only-blank" readonly value="${q}"></td></tr>
+                    </table>
+                `;
             }
+            calcCustom();
+        }
+
+        function calcCustom() {
+            let n = parseInt(document.getElementById('c_num_partes').value) || 1;
+            let totalObtenido = 0;
+            let totalMaximo = 0;
+
+            for(let i = 1; i <= n; i++) {
+                let q = parseFloat(document.getElementById(`c_cfg_q_${i}`)?.value) || 10;
+                let pts = parseFloat(document.getElementById(`c_cfg_p_${i}`)?.value) || 1;
+                let rst = parseFloat(document.getElementById(`c_cfg_r_${i}`)?.value) || 0.33;
+
+                let a = parseFloat(document.getElementById(`c_${i}_a`)?.value) || 0;
+                let e = parseFloat(document.getElementById(`c_${i}_e`)?.value) || 0;
+                let b = q - (a + e);
+
+                let bInput = document.getElementById(`c_${i}_b`);
+                if(bInput) bInput.value = b;
+
+                let scorePart = Math.max(0, (a * pts) - (e * rst));
+                totalObtenido += scorePart;
+                totalMaximo += (q * pts);
+            }
+
+            let score10 = totalMaximo > 0 ? (totalObtenido / totalMaximo) * 10 : 0;
+            document.getElementById('c_resG').innerText = totalObtenido.toFixed(2);
+            document.getElementById('c_resG_10').innerText = score10.toFixed(2);
+
+            showVerdict('c_verdict', score10);
+        }
+
+        function showVerdict(elementId, score10) {
+            let el = document.getElementById(elementId);
+            let target = appSettings.target || 5.0;
+            let dic = lenguajes[appSettings.lang || 'es'];
+
+            el.style.display = 'block';
+            if(score10 >= target) {
+                el.className = 'verdict-box verdict-pass';
+                el.innerText = `${dic.txt_pass} (${score10.toFixed(2)} / 10)`;
+            } else {
+                el.className = 'verdict-box verdict-fail';
+                el.innerText = `${dic.txt_fail} (${score10.toFixed(2)} / 10)`;
+            }
+        }
+
+        // --- HISTORIAL ---
+        function saveToHistory(type) {
+            let dic = lenguajes[appSettings.lang || 'es'];
+            let titleId = type === 'tramitacion' ? 't_exam_year' : type === 'auxilio' ? 'au_exam_year' : 'c_exam_year';
+            let title = document.getElementById(titleId).value.trim() || `Simulacro ${new Date().toLocaleDateString()}`;
+
+            let score10 = 0;
+            if(type === 'tramitacion') score10 = parseFloat(document.getElementById('t_resG_10').innerText) || 0;
+            if(type === 'auxilio') score10 = parseFloat(document.getElementById('a_resG_10').innerText) || 0;
+            if(type === 'personalizado') score10 = parseFloat(document.getElementById('c_resG_10').innerText) || 0;
+
+            let entry = {
+                id: Date.now(),
+                type: type,
+                title: title,
+                score: score10,
+                date: new Date().toLocaleDateString()
+            };
+
+            appHistory.push(entry);
+            localStorage.setItem('supercomprobador_history', JSON.stringify(appHistory));
+            document.getElementById(titleId).value = '';
+            alert(dic.alert_saved);
             renderHistory();
         }
 
-        function deleteHistoryItem(tipo, id) {
-            let history = JSON.parse(localStorage.getItem('app_comprobador_history') || '{"tramitacion":[], "auxilio":[], "personalizado":[]}');
-            history[tipo] = history[tipo].filter(x => x.id !== id);
-            localStorage.setItem('app_comprobador_history', JSON.stringify(history));
+        function loadHistory() {
+            const saved = localStorage.getItem('supercomprobador_history');
+            if(saved) appHistory = JSON.parse(saved);
+        }
+
+        function renderHistory() {
+            let tramContainer = document.getElementById('history-tramitacion-container');
+            let auxContainer = document.getElementById('history-auxilio-container');
+            let custContainer = document.getElementById('history-personalizado-container');
+
+            tramContainer.innerHTML = ''; auxContainer.innerHTML = ''; custContainer.innerHTML = '';
+
+            let dic = lenguajes[appSettings.lang || 'es'];
+            let target = appSettings.target || 5.0;
+
+            let totalSims = appHistory.length;
+            let bestScore = 0;
+            let sumScores = 0;
+            let passes = 0;
+
+            appHistory.forEach(item => {
+                let isPass = item.score >= target;
+                if(item.score > bestScore) bestScore = item.score;
+                sumScores += item.score;
+                if(isPass) passes++;
+
+                let html = `
+                    <div class="history-item">
+                        <div class="item-top">
+                            <span>${item.title} (${item.date})</span>
+                            <span class="badge ${isPass ? 'badge-pass' : 'badge-fail'}">${item.score.toFixed(2)} / 10</span>
+                        </div>
+                        <div class="item-actions">
+                            <button class="btn-delete-item" onclick="deleteHistoryItem(${item.id})">Eliminar</button>
+                        </div>
+                    </div>
+                `;
+
+                if(item.type === 'tramitacion') tramContainer.innerHTML += html;
+                else if(item.type === 'auxilio') auxContainer.innerHTML += html;
+                else custContainer.innerHTML += html;
+            });
+
+            if(!tramContainer.innerHTML) tramContainer.innerHTML = `<p style="font-size:0.8rem; color:var(--text-secondary);">${dic.no_records}</p>`;
+            if(!auxContainer.innerHTML) auxContainer.innerHTML = `<p style="font-size:0.8rem; color:var(--text-secondary);">${dic.no_records}</p>`;
+            if(!custContainer.innerHTML) custContainer.innerHTML = `<p style="font-size:0.8rem; color:var(--text-secondary);">${dic.no_records}</p>`;
+
+            // Actualizar Estadísticas
+            document.getElementById('st-best').innerText = bestScore.toFixed(2);
+            document.getElementById('st-avg').innerText = totalSims > 0 ? (sumScores / totalSims).toFixed(2) : '0.00';
+            document.getElementById('st-count').innerText = totalSims;
+            document.getElementById('st-passrate').innerText = totalSims > 0 ? `${Math.round((passes / totalSims) * 100)}%` : '0%';
+            
+            document.getElementById('st-weaknesses').innerText = totalSims < 2 ? dic.st_no_data : dic.st_no_data;
+        }
+
+        function deleteHistoryItem(id) {
+            appHistory = appHistory.filter(x => x.id !== id);
+            localStorage.setItem('supercomprobador_history', JSON.stringify(appHistory));
             renderHistory();
         }
 
         function clearAllHistory() {
-            let lang = appSettings.lang;
-            if (confirm(lenguajes[lang].confirm_clear)) {
-                localStorage.removeItem('app_comprobador_history');
+            let dic = lenguajes[appSettings.lang || 'es'];
+            if(confirm(dic.confirm_clear)) {
+                appHistory = [];
+                localStorage.removeItem('supercomprobador_history');
                 renderHistory();
             }
         }
 
-        function escapeHtml(text) {
-            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        function resetForm(type) {
+            if(type === 'tramitacion') {
+                ['t1_a','t1_e','t2_a','t2_e','t3_a','t3_e'].forEach(id => document.getElementById(id).value = '');
+                calcTramitacion();
+            } else if(type === 'auxilio') {
+                ['a1_a','a1_e','a2_a','a2_e'].forEach(id => document.getElementById(id).value = '');
+                calcAuxilio();
+            } else {
+                generateCustomStructure();
+            }
+        }
+
+        // --- SIMULADOR PREDICTIVO ---
+        function setupPredictorMode() {
+            let root = document.getElementById('sim-sliders-root');
+            let type = document.getElementById('sim-type').value;
+            root.innerHTML = '';
+
+            if(type === 'tramitacion') {
+                root.innerHTML = `
+                    <div class="sim-row"><label>Parte 1 (100 preg): <span id="val_s1">50</span></label><div class="range-container"><input type="range" id="s1" min="0" max="100" value="50" oninput="calcPredictor()"></div></div>
+                    <div class="sim-row"><label>Parte 2 (10 preg): <span id="val_s2">5</span></label><div class="range-container"><input type="range" id="s2" min="0" max="10" value="5" oninput="calcPredictor()"></div></div>
+                    <div class="sim-row"><label>Parte 3 (20 preg): <span id="val_s3">10</span></label><div class="range-container"><input type="range" id="s3" min="0" max="20" value="10" oninput="calcPredictor()"></div></div>
+                `;
+            } else {
+                root.innerHTML = `
+                    <div class="sim-row"><label>Parte 1 (100 preg): <span id="val_s1">50</span></label><div class="range-container"><input type="range" id="s1" min="0" max="100" value="50" oninput="calcPredictor()"></div></div>
+                    <div class="sim-row"><label>Parte 2 (40 preg): <span id="val_s2">20</span></label><div class="range-container"><input type="range" id="s2" min="0" max="40" value="20" oninput="calcPredictor()"></div></div>
+                `;
+            }
+            calcPredictor();
+        }
+
+        function calcPredictor() {
+            let type = document.getElementById('sim-type').value;
+            let s1 = parseFloat(document.getElementById('s1')?.value) || 0;
+            let s2 = parseFloat(document.getElementById('s2')?.value) || 0;
+            
+            document.getElementById('val_s1').innerText = s1;
+            document.getElementById('val_s2').innerText = s2;
+
+            let score10 = 0;
+            let covered = 0;
+
+            if(type === 'tramitacion') {
+                let s3 = parseFloat(document.getElementById('s3')?.value) || 0;
+                document.getElementById('val_s3').innerText = s3;
+                score10 = ((s1 + s2 + s3) / 130) * 10;
+                covered = Math.round(((s1 + s2 + s3) / 130) * 100);
+            } else {
+                score10 = ((s1 + s2) / 140) * 10;
+                covered = Math.round(((s1 + s2) / 140) * 100);
+            }
+
+            document.getElementById('sim-progress-bar').style.width = `${covered}%`;
+            document.getElementById('sim-progress-text').innerText = `${covered}%`;
+
+            let box = document.getElementById('sim-verdict-box');
+            let target = appSettings.target || 5.0;
+            let dic = lenguajes[appSettings.lang || 'es'];
+
+            if(score10 >= target) {
+                box.className = 'verdict-box verdict-pass';
+                box.innerText = `${dic.txt_pass} (${score10.toFixed(2)} / 10)`;
+            } else {
+                box.className = 'verdict-box verdict-fail';
+                box.innerText = `${dic.txt_fail} (${score10.toFixed(2)} / 10)`;
+            }
         }
 
         function exportHistory() {
-            let data = localStorage.getItem('app_comprobador_history') || '{}';
-            let blob = new Blob([data], {type: "application/json"});
-            let url = URL.createObjectURL(blob);
-            let a = document.createElement('a');
-            a.href = url;
-            a.download = "historial_supercomprobador.json";
-            a.click();
+            let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appHistory));
+            let downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `supercomprobador_backup_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
         }
 
         function importHistory(event) {
+            let dic = lenguajes[appSettings.lang || 'es'];
             let file = event.target.files[0];
-            if (!file) return;
+            if(!file) return;
+
             let reader = new FileReader();
-            let lang = appSettings.lang;
             reader.onload = function(e) {
                 try {
-                    let parsed = JSON.parse(e.target.result);
-                    if (parsed.tramitacion || parsed.auxilio || parsed.personalizado) {
-                        localStorage.setItem('app_comprobador_history', JSON.stringify(parsed));
-                        alert(lenguajes[lang].alert_backup_ok);
+                    let importedData = JSON.parse(e.target.result);
+                    if(Array.isArray(importedData)) {
+                        appHistory = importedData;
+                        localStorage.setItem('supercomprobador_history', JSON.stringify(appHistory));
                         renderHistory();
+                        alert(dic.alert_backup_ok);
                     } else {
-                        alert(lenguajes[lang].alert_backup_err);
+                        alert(dic.alert_backup_err);
                     }
                 } catch(err) {
-                    alert(lenguajes[lang].alert_backup_err);
+                    alert(dic.alert_backup_err);
                 }
             };
             reader.readAsText(file);
-        }
-
-// --- SIMULADOR PREDICTIVO ---
-        function setupPredictorMode() {
-            let type = document.getElementById('sim-type').value;
-            let customConfig = document.getElementById('sim-custom-config');
-            if (type === 'personalizado') {
-                customConfig.style.display = 'block';
-                buildPredictorCustomBaremos();
-            } else {
-                customConfig.style.display = 'none';
-                buildPredictorSliders();
-            }
-        }
-
-        function buildPredictorCustomBaremos() {
-            let n = parseInt(document.getElementById('sim-c-partes').value) || 1;
-            let root = document.getElementById('sim-c-baremos');
-            root.innerHTML = '';
-            for (let i = 1; i <= n; i++) {
-                root.innerHTML += `
-                    <div style="font-size:0.8rem; margin-top:5px; font-weight:bold;">Parte ${i}</div>
-                    <div class="grid-config-inputs">
-                        <div><label>Preguntas</label><input type="number" id="sim_cp_${i}_preg" value="20" min="1" oninput="buildPredictorSliders()"></div>
-                        <div><label>Puntos +</label><input type="number" id="sim_cp_${i}_pts" value="1" step="0.1" oninput="buildPredictorSliders()"></div>
-                        <div><label>Resta -</label><input type="number" id="sim_cp_${i}_res" value="0.25" step="0.05" oninput="buildPredictorSliders()"></div>
-                    </div>`;
-            }
-            buildPredictorSliders();
-        }
-
-        function buildPredictorSliders() {
-            let type = document.getElementById('sim-type').value;
-            let root = document.getElementById('sim-sliders-root');
-            root.innerHTML = '';
-            let sections = [];
-            let lang = appSettings.lang || 'es';
-
-            if (type === 'tramitacion') {
-                sections = [
-                    {id: 't1', name: 'Parte 1', max: 100, ptsHit: 1, ptsErr: 0.25},
-                    {id: 't2', name: 'Parte 2', max: 10, ptsHit: 1, ptsErr: 0.25},
-                    {id: 't3', name: 'Parte 3', max: 20, ptsHit: 1, ptsErr: 0.25}
-                ];
-            } else if (type === 'auxilio') {
-                sections = [
-                    {id: 'a1', name: 'Parte 1', max: 100, ptsHit: 1, ptsErr: 0.25},
-                    {id: 'a2', name: 'Parte 2', max: 40, ptsHit: 1, ptsErr: 0.25}
-                ];
-            } else {
-                let n = parseInt(document.getElementById('sim-c-partes').value) || 1;
-                for (let i = 1; i <= n; i++) {
-                    let m = parseInt(document.getElementById(`sim_cp_${i}_preg`) ? document.getElementById(`sim_cp_${i}_preg`).value : 20) || 20;
-                    let pHit = parseFloat(document.getElementById(`sim_cp_${i}_pts`) ? document.getElementById(`sim_cp_${i}_pts`).value : 1) || 1;
-                    let pErr = parseFloat(document.getElementById(`sim_cp_${i}_res`) ? document.getElementById(`sim_cp_${i}_res`).value : 0.25) || 0.25;
-                    sections.push({id: `c${i}`, name: `Parte ${i}`, max: m, ptsHit: pHit, ptsErr: pErr});
-                }
-            }
-
-            let txtAcertos = lenguajes[lang].row_correct;
-            let txtErros = lenguajes[lang].row_errors;
-            let txtBranco = lenguajes[lang].row_blank;
-
-            sections.forEach(sec => {
-                root.innerHTML += `
-                    <div class="dashboard-card">
-                        <h4 style="margin:0 0 10px 0; color:#0071e3;">${sec.name} (${sec.max} preg.)</h4>
-                        
-                        <div class="sim-row">
-                            <label>${txtAcertos}: <span id="val-a-${sec.id}">0</span></label>
-                            <div class="range-container">
-                                <input type="range" id="slider-a-${sec.id}" min="0" max="${sec.max}" value="0" oninput="updateSimSliders('${sec.id}', 'a', ${sec.max})">
-                            </div>
-                        </div>
-
-                        <div class="sim-row">
-                            <label>${txtErros}: <span id="val-e-${sec.id}">0</span></label>
-                            <div class="range-container">
-                                <input type="range" id="slider-e-${sec.id}" min="0" max="${sec.max}" value="0" oninput="updateSimSliders('${sec.id}', 'e', ${sec.max})">
-                            </div>
-                        </div>
-
-                        <div style="font-size:0.85rem; color:var(--text-secondary); display:flex; justify-content:space-between; margin-top:8px; border-top:1px dashed var(--border-color); padding-top:8px;">
-                            <span>${txtBranco}: <strong id="val-b-${sec.id}">${sec.max}</strong></span>
-                            <span>Puntos: <strong id="val-pts-${sec.id}" style="color:var(--text-main);">0.00</strong></span>
-                        </div>
-                    </div>`;
-            });
-            runPrediction();
-        }
-
-        function updateSimSliders(secId, changedType, maxPreg) {
-            let sliderA = document.getElementById(`slider-a-${secId}`);
-            let sliderE = document.getElementById(`slider-e-${secId}`);
-            if (!sliderA || !sliderE) return;
-
-            let valA = parseInt(sliderA.value) || 0;
-            let valE = parseInt(sliderE.value) || 0;
-
-            if (valA + valE > maxPreg) {
-                if (changedType === 'a') {
-                    valE = maxPreg - valA;
-                    sliderE.value = valE;
-                } else {
-                    valA = maxPreg - valE;
-                    sliderA.value = valA;
-                }
-            }
-
-            let valB = maxPreg - (valA + valE);
-            document.getElementById(`val-a-${secId}`).innerText = valA;
-            document.getElementById(`val-e-${secId}`).innerText = valE;
-            document.getElementById(`val-b-${secId}`).innerText = valB;
-
-            runPrediction();
-        }
-
-        function runPrediction() {
-            let type = document.getElementById('sim-type').value;
-            let sections = [];
-            let totalPreguntasExamen = 0;
-            let preguntasRespondidas = 0;
-            let puntuacionTotal = 0;
-            let maxPuntuacionPosible = 0;
-            let lang = appSettings.lang || 'es';
-
-            if (type === 'tramitacion') {
-                sections = [
-                    {id: 't1', max: 100, ptsHit: 1, ptsErr: 0.25},
-                    {id: 't2', max: 10, ptsHit: 1, ptsErr: 0.25},
-                    {id: 't3', max: 20, ptsHit: 1, ptsErr: 0.25}
-                ];
-                maxPuntuacionPosible = 130;
-            } else if (type === 'auxilio') {
-                sections = [
-                    {id: 'a1', max: 100, ptsHit: 1, ptsErr: 0.25},
-                    {id: 'a2', max: 40, ptsHit: 1, ptsErr: 0.25}
-                ];
-                maxPuntuacionPosible = 140;
-            } else {
-                let n = parseInt(document.getElementById('sim-c-partes').value) || 1;
-                for (let i = 1; i <= n; i++) {
-                    let m = parseInt(document.getElementById(`sim_cp_${i}_preg`) ? document.getElementById(`sim_cp_${i}_preg`).value : 20) || 20;
-                    let pHit = parseFloat(document.getElementById(`sim_cp_${i}_pts`) ? document.getElementById(`sim_cp_${i}_pts`).value : 1) || 1;
-                    let pErr = parseFloat(document.getElementById(`sim_cp_${i}_res`) ? document.getElementById(`sim_cp_${i}_res`).value : 0.25) || 0.25;
-                    sections.push({id: `c${i}`, max: m, ptsHit: pHit, ptsErr: pErr});
-                    maxPuntuacionPosible += (m * pHit);
-                }
-            }
-
-            sections.forEach(sec => {
-                totalPreguntasExamen += sec.max;
-                let sliderA = document.getElementById(`slider-a-${sec.id}`);
-                let sliderE = document.getElementById(`slider-e-${sec.id}`);
-                if (sliderA && sliderE) {
-                    let valA = parseInt(sliderA.value) || 0;
-                    let valE = parseInt(sliderE.value) || 0;
-                    let valB = sec.max - (valA + valE);
-
-                    preguntasRespondidas += (valA + valE);
-
-                    let secPts = Math.max(0, (valA * sec.ptsHit) - (valE * sec.ptsErr));
-                    puntuacionTotal += secPts;
-
-                    let ptsElem = document.getElementById(`val-pts-${sec.id}`);
-                    if (ptsElem) ptsElem.innerText = secPts.toFixed(2);
-                    
-                    document.getElementById(`val-a-${sec.id}`).innerText = valA;
-                    document.getElementById(`val-e-${sec.id}`).innerText = valE;
-                    document.getElementById(`val-b-${sec.id}`).innerText = valB;
-                }
-            });
-
-            let percent = totalPreguntasExamen > 0 ? Math.round((preguntasRespondidas / totalPreguntasExamen) * 100) : 0;
-            document.getElementById('sim-progress-bar').style.width = percent + '%';
-            document.getElementById('sim-progress-text').innerText = (lenguajes[lang].pred_prog_txt || "{P}%").replace('{P}', percent);
-
-            let nota10 = maxPuntuacionPosible > 0 ? (puntuacionTotal / maxPuntuacionPosible) * 10 : 0;
-            let verdictBox = document.getElementById('sim-verdict-box');
-            let target = appSettings.target;
-
-            if (preguntasRespondidas === 0) {
-                verdictBox.className = 'verdict-box';
-                verdictBox.style.display = 'block';
-                verdictBox.innerText = lenguajes[lang].pred_default;
-                return;
-            }
-
-            if (nota10 >= target) {
-                verdictBox.className = 'verdict-box verdict-pass';
-                verdictBox.style.display = 'block';
-                verdictBox.innerHTML = (lenguajes[lang].pred_win || "").replace('{N}', nota10.toFixed(2));
-            } else {
-                verdictBox.className = 'verdict-box verdict-fail';
-                verdictBox.style.display = 'block';
-                let faltan = (target - nota10).toFixed(2);
-                verdictBox.innerHTML = (lenguajes[lang].pred_lose || "").replace('{N}', nota10.toFixed(2)).replace('{F}', faltan);
-            }
         }
     </script>
 </body>
