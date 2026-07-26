@@ -153,6 +153,66 @@
         .grid-config-inputs label { font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 2px; }
         .grid-config-inputs input { text-align: center; padding: 4px; font-size: 0.9rem; width: 100%; box-sizing: border-box; }
         .part-config-container { margin-bottom: 10px; border-bottom: 1px dashed var(--border-color); padding-bottom: 10px; }
+        /* --- ESTILOS EXCLUSIVOS PESTAÑA SIMULADOR --- */
+.sim-part-box { 
+    background-color: var(--bg-card); 
+    border-radius: 12px; 
+    padding: 14px; 
+    margin-bottom: 15px; 
+    border: 1px solid var(--border-color); 
+}
+.sim-row { 
+    display: flex; 
+    flex-direction: column; 
+    margin-bottom: 10px; 
+}
+.sim-row label { 
+    font-weight: 600; 
+    margin-bottom: 4px; 
+    font-size: 0.85rem; 
+    display: flex; 
+    justify-content: space-between; 
+}
+.range-container { 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+}
+.range-container input[type="range"] { 
+    flex: 1; 
+    height: 6px; 
+    border-radius: 3px; 
+    background: var(--tab-bg); 
+    outline: none; 
+}
+.sim-row-a label { color: #34c759; }
+.sim-row-e label { color: var(--fail-text); }
+
+.progress-bar-container { 
+    background-color: var(--tab-bg); 
+    border-radius: 8px; 
+    height: 16px; 
+    width: 100%; 
+    overflow: hidden; 
+    margin: 10px 0; 
+    position: relative; 
+}
+.progress-bar-fill { 
+    background: linear-gradient(90deg, #34c759, #0071e3); 
+    height: 100%; 
+    width: 0%; 
+    transition: width 0.2s ease; 
+}
+.progress-text { 
+    position: absolute; 
+    width: 100%; 
+    text-align: center; 
+    font-size: 0.75rem; 
+    font-weight: bold; 
+    color: var(--text-main); 
+    line-height: 16px; 
+    top: 0; 
+}
     </style>
 </head>
 <body>
@@ -328,29 +388,31 @@
         <button class="btn-action btn-reset" onclick="resetForm('personalizado')" data-i18n="btn_reset">Reiniciar Campos</button>
     </div>
 
-    <!-- ================= PESTAÑA 4: SIMULADOR PREDICTIVO ================= -->
-    <div id="tab-predictor" class="tab-content">
-        <div class="custom-config-box">
-            <h3 style="margin:0 0 10px 0; color:#0071e3;" data-i18n="pred_title">Estrategia de Aprobado</h3>
-            <label data-i18n="pred_exam_label">Examen a Simular:</label>
-            <select id="sim-type" onchange="setupPredictorMode()">
-                <option value="tramitacion">Tramitación Procesal</option>
-                <option value="auxilio">Auxilio Judicial</option>
-            </select>
-        </div>
-
-        <div class="dashboard-card">
-            <h4 style="margin:0 0 5px 0; font-size:0.85rem; color:var(--text-secondary); text-transform:uppercase;" data-i18n="pred_progress">Porcentaje Cubierto del Examen</h4>
-            <div class="progress-bar-container">
-                <div id="sim-progress-bar" class="progress-bar-fill"></div>
-                <div id="sim-progress-text" class="progress-text">0%</div>
-            </div>
-        </div>
-
-        <div id="sim-sliders-root"></div>
-
-        <div id="sim-verdict-box" class="verdict-box" style="display:block; font-size:1.05rem;" data-i18n="pred_default">Mueve las barras para calcular.</div>
+<!-- ================= PESTAÑA 4: SIMULADOR PREDICTIVO ================= -->
+<div id="tab-predictor" class="tab-content">
+    <div class="custom-config-box">
+        <h3 style="margin:0 0 10px 0; color:#0071e3;" data-i18n="pred_title">Estrategia de Aprobado</h3>
+        <label data-i18n="pred_exam_label">Examen a Simular:</label>
+        <select id="sim-type" onchange="setupPredictorMode()">
+            <option value="tramitacion">Tramitación Procesal</option>
+            <option value="auxilio">Auxilio Judicial</option>
+        </select>
     </div>
+
+    <div class="dashboard-card">
+        <h4 style="margin:0 0 5px 0; font-size:0.85rem; color:var(--text-secondary); text-transform:uppercase;" data-i18n="pred_progress">Porcentaje Respondido del Examen</h4>
+        <div class="progress-bar-container">
+            <div id="sim-progress-bar" class="progress-bar-fill"></div>
+            <div id="sim-progress-text" class="progress-text">0%</div>
+        </div>
+    </div>
+
+    <!-- Raíz donde se crean dinámicamente los controles por parte -->
+    <div id="sim-sliders-root"></div>
+
+    <!-- Caja de resultado/veredicto final del simulador -->
+    <div id="sim-verdict-box" class="verdict-box" style="display:block; font-size:1.05rem;" data-i18n="pred_default">Mueve las barras para calcular.</div>
+</div>
 
     <!-- ================= PESTAÑA 5: EVOLUCIÓN ================= -->
     <div id="tab-evolucion" class="tab-content">
@@ -965,72 +1027,122 @@
             }
         }
 
-        // --- SIMULADOR PREDICTIVO ---
-        function setupPredictorMode() {
-            let root = document.getElementById('sim-sliders-root');
-            let type = document.getElementById('sim-type')?.value || 'tramitacion';
-            if(!root) return;
+       // --- FUNCIONES EXCLUSIVAS DEL SIMULADOR MULTI-BARRA ---
 
-            root.innerHTML = '';
+function setupPredictorMode() {
+    let root = document.getElementById('sim-sliders-root');
+    let type = document.getElementById('sim-type')?.value || 'tramitacion';
+    if (!root) return;
 
-            if(type === 'tramitacion') {
-                root.innerHTML = `
-                    <div class="sim-row"><label>Parte 1 (100 preg): <span id="val_s1">50</span></label><div class="range-container"><input type="range" id="s1" min="0" max="100" value="50" oninput="calcPredictor()"></div></div>
-                    <div class="sim-row"><label>Parte 2 (10 preg): <span id="val_s2">5</span></label><div class="range-container"><input type="range" id="s2" min="0" max="10" value="5" oninput="calcPredictor()"></div></div>
-                    <div class="sim-row"><label>Parte 3 (20 preg): <span id="val_s3">10</span></label><div class="range-container"><input type="range" id="s3" min="0" max="20" value="10" oninput="calcPredictor()"></div></div>
-                `;
-            } else {
-                root.innerHTML = `
-                    <div class="sim-row"><label>Parte 1 (100 preg): <span id="val_s1">50</span></label><div class="range-container"><input type="range" id="s1" min="0" max="100" value="50" oninput="calcPredictor()"></div></div>
-                    <div class="sim-row"><label>Parte 2 (40 preg): <span id="val_s2">20</span></label><div class="range-container"><input type="range" id="s2" min="0" max="40" value="20" oninput="calcPredictor()"></div></div>
-                `;
-            }
-            calcPredictor();
-        }
+    root.innerHTML = '';
 
-        function calcPredictor() {
-            let type = document.getElementById('sim-type')?.value || 'tramitacion';
-            let s1 = parseFloat(document.getElementById('s1')?.value) || 0;
-            let s2 = parseFloat(document.getElementById('s2')?.value) || 0;
+    if (type === 'tramitacion') {
+        root.innerHTML = 
+            createPartSimHTML(1, 'Parte 1 (100 preg. | Acierto: +0.60, Error: -0.15)', 100) +
+            createPartSimHTML(2, 'Parte 2 (10 preg. | Acierto: +2.00, Error: -0.50)', 10) +
+            createPartSimHTML(3, 'Parte 3 (20 preg. | Acierto: +1.00, Error: -0.25)', 20);
+    } else {
+        root.innerHTML = 
+            createPartSimHTML(1, 'Parte 1 (100 preg. | Acierto: +0.60, Error: -0.15)', 100) +
+            createPartSimHTML(2, 'Parte 2 (40 preg. | Acierto: +1.00, Error: -0.25)', 40);
+    }
+    calcPredictor();
+}
+
+function createPartSimHTML(partNum, title, maxQ) {
+    let defaultA = Math.round(maxQ * 0.6); // Valor inicial por defecto al 60%
+    return `
+        <div class="sim-part-box">
+            <h4 style="margin:0 0 10px 0; color:#0071e3; font-size:0.95rem;">${title}</h4>
             
-            const v1 = document.getElementById('val_s1');
-            const v2 = document.getElementById('val_s2');
-            if(v1) v1.innerText = s1;
-            if(v2) v2.innerText = s2;
+            <div class="sim-row sim-row-a">
+                <label>Aciertos: <span id="sim_p${partNum}_a_val">${defaultA}</span></label>
+                <div class="range-container">
+                    <input type="range" id="sim_p${partNum}_a" min="0" max="${maxQ}" value="${defaultA}" oninput="calcPredictor()">
+                </div>
+            </div>
+            
+            <div class="sim-row sim-row-e">
+                <label>Errores: <span id="sim_p${partNum}_e_val">0</span></label>
+                <div class="range-container">
+                    <input type="range" id="sim_p${partNum}_e" min="0" max="${maxQ}" value="0" oninput="calcPredictor()">
+                </div>
+            </div>
 
-            let score10 = 0;
-            let covered = 0;
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.85rem; padding-top:6px; border-top:1px dashed var(--border-color); margin-top:8px;">
+                <span>En blanco: <strong id="sim_p${partNum}_b_val">${maxQ - defaultA}</strong></span>
+                <span>Puntos: <strong id="sim_p${partNum}_pts" style="color:#0071e3;">0.00</strong></span>
+            </div>
+        </div>
+    `;
+}
 
-            if(type === 'tramitacion') {
-                let s3 = parseFloat(document.getElementById('s3')?.value) || 0;
-                const v3 = document.getElementById('val_s3');
-                if(v3) v3.innerText = s3;
-                score10 = ((s1 + s2 + s3) / 130) * 10;
-                covered = Math.round(((s1 + s2 + s3) / 130) * 100);
-            } else {
-                score10 = ((s1 + s2) / 140) * 10;
-                covered = Math.round(((s1 + s2) / 140) * 100);
-            }
+function calcPredictor() {
+    let type = document.getElementById('sim-type')?.value || 'tramitacion';
+    let target = appSettings?.target || 5.0;
+    let dic = (typeof lenguajes !== 'undefined' && lenguajes[appSettings?.lang]) ? lenguajes[appSettings.lang] : { txt_pass: '🎉 APROBADO', txt_fail: '❌ SUSPENSO' };
 
-            const pBar = document.getElementById('sim-progress-bar');
-            const pTxt = document.getElementById('sim-progress-text');
-            if(pBar) pBar.style.width = `${covered}%`;
-            if(pTxt) pTxt.innerText = `${covered}%`;
+    let parts = type === 'tramitacion' ? 
+        [{n:1, maxQ:100, valA:0.60, valE:0.15}, {n:2, maxQ:10, valA:2.00, valE:0.50}, {n:3, maxQ:20, valA:1.00, valE:0.25}] :
+        [{n:1, maxQ:100, valA:0.60, valE:0.15}, {n:2, maxQ:40, valA:1.00, valE:0.25}];
 
-            let box = document.getElementById('sim-verdict-box');
-            let target = appSettings.target || 5.0;
-            let dic = lenguajes[appSettings.lang || 'es'] || lenguajes.es;
+    let totalPoints = 0;
+    let totalMaxPoints = 0;
+    let totalQuestions = 0;
+    let totalAnswered = 0;
 
-            if(box) {
-                if(score10 >= target) {
-                    box.className = 'verdict-box verdict-pass';
-                    box.innerText = `${dic.txt_pass} (${score10.toFixed(2)} / 10)`;
-                } else {
-                    box.className = 'verdict-box verdict-fail';
-                    box.innerText = `${dic.txt_fail} (${score10.toFixed(2)} / 10)`;
-                }
-            }
+    parts.forEach(p => {
+        let aEl = document.getElementById(`sim_p${p.n}_a`);
+        let eEl = document.getElementById(`sim_p${p.n}_e`);
+        if (!aEl || !eEl) return;
+
+        let a = parseInt(aEl.value) || 0;
+        let e = parseInt(eEl.value) || 0;
+
+        // Control de toples: evita automáticamente que Aciertos + Errores excedan las preguntas totales
+        if (a + e > p.maxQ) {
+            e = p.maxQ - a;
+            eEl.value = e;
         }
+
+        let b = p.maxQ - (a + e);
+        let pts = Math.max(0, (a * p.valA) - (e * p.valE));
+
+        const valAEl = document.getElementById(`sim_p${p.n}_a_val`);
+        const valEEl = document.getElementById(`sim_p${p.n}_e_val`);
+        const valBEl = document.getElementById(`sim_p${p.n}_b_val`);
+        const valPtsEl = document.getElementById(`sim_p${p.n}_pts`);
+
+        if (valAEl) valAEl.innerText = a;
+        if (valEEl) valEEl.innerText = e;
+        if (valBEl) valBEl.innerText = b;
+        if (valPtsEl) valPtsEl.innerText = pts.toFixed(2);
+
+        totalPoints += pts;
+        totalMaxPoints += (p.maxQ * p.valA);
+        totalQuestions += p.maxQ;
+        totalAnswered += (a + e);
+    });
+
+    let totalScore10 = totalMaxPoints > 0 ? (totalPoints / totalMaxPoints) * 10 : 0;
+    let answeredPercent = totalQuestions > 0 ? Math.round((totalAnswered / totalQuestions) * 100) : 0;
+
+    const pBar = document.getElementById('sim-progress-bar');
+    const pTxt = document.getElementById('sim-progress-text');
+    if (pBar) pBar.style.width = `${answeredPercent}%`;
+    if (pTxt) pTxt.innerText = `${answeredPercent}% respondido`;
+
+    let box = document.getElementById('sim-verdict-box');
+    if (box) {
+        if (totalScore10 >= target) {
+            box.className = 'verdict-box verdict-pass';
+            box.innerText = `${dic.txt_pass} (${totalScore10.toFixed(2)} / 10 — ${totalPoints.toFixed(2)} pts)`;
+        } else {
+            box.className = 'verdict-box verdict-fail';
+            box.innerText = `${dic.txt_fail} (${totalScore10.toFixed(2)} / 10 — ${totalPoints.toFixed(2)} pts)`;
+        }
+    }
+}
 
         function exportHistory() {
             let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appHistory));
