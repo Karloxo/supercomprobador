@@ -305,9 +305,23 @@
         </div>
         <div id="custom-tables-root"></div>
         <table class="results-table">
-            <tr><th data-i18n="cust_summary">RESUMEN</th><th class="scale-header" data-i18n="th_pts">Puntos</th><th class="scale-header">s/ 10</th></tr>
-            <tr class="total-row"><td data-i18n="total_exam">Total del examen</td><td id="c_resG" class="score-val">0.00</td><td id="c_resG_10" class="score-val">0.00</td></tr>
-        </table>
+    <thead>
+        <tr>
+            <th data-i18n="cust_summary">RESUMEN</th>
+            <th class="scale-header" data-i18n="th_pts">Puntos</th>
+            <th class="scale-header">s/ 10</th>
+        </tr>
+    </thead>
+    <!-- Cuerpo donde se insertarán automáticamente las filas de cada Parte -->
+    <tbody id="custom-summary-body"></tbody>
+    <tfoot>
+        <tr class="total-row">
+            <td data-i18n="total_exam">Total del examen</td>
+            <td id="c_resG" class="score-val">0.00</td>
+            <td id="c_resG_10" class="score-val">0.00</td>
+        </tr>
+    </tfoot>
+</table>
         <div id="c_verdict" class="verdict-box"></div>
         
         <!-- Guardar Simulación (Siempre Visible) -->
